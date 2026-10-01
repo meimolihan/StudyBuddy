@@ -6,23 +6,36 @@ StudyBuddy 在启动时自动扫描 `content/` 目录树生成课程导航。
 ## 一、标准结构
 
 ```
-content/<stage>/<publisher>/grade<N>/volume<N>/<subject>/<NN-单元名>/<NN-课名>.html
+content/<stage>/<publisher>/<题型>/grade<N>/volume<N>/<subject>/<NN-单元名>/<NN-课名>.html
 
-content/primary/pep/grade4/volume1/chinese/01-自然之美/01-观潮.html
-                                                    02-走月亮.html
-                                            02-提问/05-一个豆荚里的五粒豆.html
-                                    math/01-大数的认识/01-亿以内数的认识.html
+content/primary/pep/choose/grade4/volume1/chinese/01-自然之美/01-观潮.html
+content/primary/pep/judge /grade4/volume1/chinese/01-自然之美/01-观潮.html
 ```
 
 | 层级 | 取值 | 说明 |
 |------|------|------|
-| `<stage>` | `primary` / `middle` / `high` | 学段：小学 / 初中 / 高中 |
+| `<stage>` | `primary` / `junior` / `senior` | 学段：小学 / 初中 / 高中（`middle` / `high` 为旧名，仍兼容） |
 | `<publisher>` | `pep` 等 | 出版社（人教社 = pep） |
-| `grade<N>` | `grade1` ~ `grade12` | 年级 |
-| `volume<N>` | `volume1` / `volume2` | 册别：上册 / 下册 |
-| `<subject>` | `chinese` / `math` / `english` / `morallaw` / `science` | 科目 |
+| `<题型>` | `choose` / `judge` | 选择题库 / 判断题库，**两套目录互为镜像、文件名完全一致** |
+| `grade<N>` | 小学 `grade1`~`grade6`；初中 `grade7`~`grade9`；高中 `grade1`~`grade3` | 年级（初中用绝对年级号） |
+| `volume<N>` | `volume1` / `volume2`，或 `review` | 册别：上册 / 下册；高考复习专题用 `review` 顶替 |
+| `<subject>` | `chinese` / `math` / `english` / `morallaw` / `science` / `physics` / `chemistry` / `biology` / `history` / `geography` / `politics` | 科目 |
 | `<NN-单元名>` | 如 `01-自然之美` | 单元目录，**两位序号**保证排序；可省略 |
 | `<NN-课名>.html` | 如 `01-观潮.html` | 课程文件，**两位序号**保证排序 |
+
+### 题型镜像（choose / judge）
+
+- `choose` 与 `judge` 内部目录树**完全一致**，同课的 HTML 文件名也完全一致，只靠上层目录区分题型；
+  例：`…/choose/grade1/volume1/chinese/01-识字（一）/01-天地人.html`
+  与 `…/judge/grade1/volume1/chinese/01-识字（一）/01-天地人.html` 是同一课的两种题型。
+- 前端顶部有【选择题】【判断题】选项卡（`?qt=choose|judge`），切换后目录、当前进度、自测、
+  下一课推进都只在该题型内进行；课程页有「切换到判断题 / 选择题」互跳链接。
+- **禁止交叉覆盖**：生成脚本只允许写自己那一侧（choose 写 choose、judge 写 judge）。
+- 判断题题库格式：`t:"j"`，选项固定 `["正确","错误"]`，答案 `A`=正确 / `B`=错误，
+  并用 `e:"…"` 带解析（结果页与离线页面提交后展示）。
+
+迁移脚本：`scripts/migrate_choose.py`（建 choose 层 + 学段改名）、`scripts/migrate_stage.py`（middle→junior、high→senior）。
+镜像生成：`scripts/build_judge_mirror.py`（由 choose 派生 judge，每课 20~40 题，全部带解析）。
 
 要点：
 
