@@ -317,6 +317,274 @@
 {{/* 悬浮操作球：左下 = 明暗模式一键切换，右下 = 一键返回顶部。
      两者同处 .fab-dock 一行容器，永远保持同一水平线，固定不随滚动消失。
      图标用线性 SVG，浅色显示月亮（点了进深色）、深色显示太阳（点了回浅色）。 */}}
+{{/* 学习主页开屏动画：每次渲染（刷新/进入）由服务端随机抽一句《唐诗三百首》
+     诗句（末句句末标点已在服务端去除）。上下句错位展示，诗句与作者署名整体
+     平稳停留 1.5s 后一并以固定 888 颗星光粒子（canvas）全屏消散；雾幕遮罩
+     与粒子同步由中心向四周弥散褪去（双层软边椭圆遮罩、JS 逐帧驱动半径），
+     完全显露首页后派发 sb-splash-done 事件；欢迎弹窗监听该事件再弹出。
+     例外：切换题型（选择题↔判断题，qt 参数变化）时不播开屏，同步移除
+     开屏元素直接进首页，改为底部 Toast 提示「已切换到 xx 题」。
+     内置 CSS 兜底（9s 自动隐没）与 JS 兜底（failsafe/减弱动效），任何异常
+     都不会卡住进入首页。 */}}
+{{define "splash"}}
+<div class="splash" id="splash" aria-hidden="true">
+  <div class="splash-fog"></div>
+  <div class="splash-wrap">
+    <p class="splash-verse"><span class="splash-line">{{$v := splashVerse}}{{$v.L1}}</span><span class="splash-line">{{$v.L2}}</span></p>
+    <p class="splash-author">—— {{$v.Author}}</p>
+  </div>
+  <canvas class="splash-canvas"></canvas>
+</div>
+<script>
+(function () {
+  var splash = document.getElementById('splash');
+  if (!splash) { return; }
+
+  /* —— 题型切换检测：qt 变化（选择题↔判断题互切）不播开屏，改 Toast 提示 ——
+     sessionStorage 记录上次 qt；同步移除开屏元素（欢迎弹窗脚本随后解析时
+     看不到 #splash，自然走「无开屏 550ms 直弹」路径，无需事件衔接）。 */
+  var QT_NAMES = { choose: '选择题', judge: '判断题' };
+  function normQt() {
+    var m = /[?&]qt=(choose|judge)(?:&|$)/.exec(location.search);
+    return m ? m[1] : 'choose';
+  }
+  function showQtToast(name) {
+    var t = document.createElement('div');
+    t.className = 'qt-toast';
+    t.setAttribute('role', 'status');
+    t.innerHTML = '<span class="qt-check">✓</span>已切换到' + name;
+    document.body.appendChild(t);
+    void t.offsetWidth; /* 强制 reflow，保证入场过渡生效 */
+    t.classList.add('is-in');
+    setTimeout(function () {
+      t.classList.remove('is-in');
+      setTimeout(function () { if (t.parentNode) { t.parentNode.removeChild(t); } }, 350);
+    }, 2200);
+  }
+  var curQt = normQt();
+  var prevQt = null;
+  try {
+    prevQt = sessionStorage.getItem('sb-last-qt');
+    sessionStorage.setItem('sb-last-qt', curQt);
+  } catch (e) {}
+  if (prevQt && prevQt !== curQt) {
+    if (splash.parentNode) { splash.parentNode.removeChild(splash); }
+    setTimeout(function () { showQtToast(QT_NAMES[curQt]); }, 250);
+    return;
+  }
+
+  var verse = splash.querySelector('.splash-verse');
+  var author = splash.querySelector('.splash-author');
+  var fog = splash.querySelector('.splash-fog');
+  var canvas = splash.querySelector('.splash-canvas');
+  var done = false;
+  function notify() {
+    try { document.dispatchEvent(new CustomEvent('sb-splash-done')); } catch (e) {}
+  }
+  function finish() {
+    if (done) { return; }
+    done = true;
+    splash.classList.add('is-leaving'); /* 雾幕已褪尽，快速清场 */
+    setTimeout(function () {
+      if (splash.parentNode) { splash.parentNode.removeChild(splash); }
+      notify();
+    }, 350);
+  }
+  /* 兜底：异常时不阻塞进入首页 */
+  var failsafe = setTimeout(finish, 9200);
+
+  var reduce = false;
+  try { reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+  if (reduce || !canvas.getContext || !window.requestAnimationFrame) {
+    clearTimeout(failsafe);
+    setTimeout(finish, 1400);
+    return;
+  }
+
+  var HOLD = 1500;      /* 诗句与作者署名整体平稳停留 */
+  var SCATTER = 2100;   /* 星光粒子消散时长 */
+  var FOGDUR = 2400;    /* 雾幕由中心向四周褪去时长（与粒子同步启动） */
+  var TOTAL = 888;      /* 星光粒子总数（固定 888 颗） */
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  var parts = [], startT = 0, lastT = 0;
+  var fogDone = !fog;
+  var ctx = canvas.getContext('2d');
+
+  function sizeCanvas() {
+    canvas.width = Math.round(innerWidth * dpr);
+    canvas.height = Math.round(innerHeight * dpr);
+  }
+  sizeCanvas();
+
+  /* 把元素文字拆成逐字 span（诗句两行与作者署名都参与星光拆解） */
+  function splitChars(el) {
+    if (!el) { return; }
+    var groups = el.querySelectorAll('.splash-line');
+    var targets = groups.length ? groups : [el];
+    for (var i = 0; i < targets.length; i++) {
+      var t = targets[i].textContent;
+      targets[i].textContent = '';
+      for (var j = 0; j < t.length; j++) {
+        var s = document.createElement('span');
+        s.className = 'splash-ch';
+        s.textContent = t.charAt(j);
+        targets[i].appendChild(s);
+      }
+    }
+  }
+
+  function pickColor(ink, brand) {
+    var r = Math.random();
+    if (r < 0.55) { return ink; }
+    if (r < 0.8) { return brand; }
+    return '#f0c75e'; /* 星光金 */
+  }
+
+  function scatter() {
+    splitChars(verse);
+    splitChars(author);
+    verse.classList.add('is-hidden');
+    if (author) { author.classList.add('is-hidden'); }
+    var cs = getComputedStyle(verse);
+    var ink = cs.color;
+    var brand = getComputedStyle(document.documentElement).getPropertyValue('--brand') || ink;
+    /* 收集全部文字矩形（诗句 + 署名），按面积加权分配固定 888 颗粒子 */
+    var all = splash.querySelectorAll('.splash-ch');
+    var rects = [], totW = 0;
+    for (var i = 0; i < all.length; i++) {
+      var r = all[i].getBoundingClientRect();
+      if (r.width > 1 && r.height > 1) { rects.push(r); totW += r.width * r.height; }
+    }
+    if (!totW) { return; }
+    for (var k = 0; k < TOTAL; k++) {
+      var pick = Math.random() * totW, acc = 0, rect = rects[0];
+      for (var j = 0; j < rects.length; j++) {
+        acc += rects[j].width * rects[j].height;
+        if (pick <= acc) { rect = rects[j]; break; }
+      }
+      var px = rect.left + Math.random() * rect.width;
+      var py = rect.top + Math.random() * rect.height;
+      /* 目标点均匀撒满视口（可越界 10%）：星光铺满整屏后渐隐。
+         视口尺寸必须用 innerWidth/innerHeight——documentElement 的 rect
+         在内容不足一屏时高度≈0、长页面时又大于视口 */
+      var tx = (Math.random() * 1.2 - 0.1) * innerWidth;
+      var ty = (Math.random() * 1.2 - 0.1) * innerHeight;
+      var ddx = tx - px, ddy = ty - py;
+      var dist = Math.hypot(ddx, ddy);
+      if (dist < 60) { dist = 60 + Math.random() * 120; }
+      parts.push({
+        ox: px * dpr, oy: py * dpr,
+        dx: ddx / dist, dy: ddy / dist, D: dist * dpr,
+        life: 0, ttl: SCATTER * (0.55 + Math.random() * 0.45),
+        sz: (0.8 + Math.random() * 1.8) * dpr,
+        c: pickColor(ink, brand),
+        tw: Math.random() * Math.PI * 2
+      });
+    }
+    splash.setAttribute('data-count', String(parts.length));
+  }
+
+  /* 雾幕由中心向四周弥散褪去：两层软边椭圆遮罩（多层 mask 默认相加），
+     半径由 JS 逐帧驱动、第二层错峰偏移，柔和且不规则，接近薄雾自然消散 */
+  function fogUpdate(fp) {
+    if (!fog) { fogDone = true; return; }
+    if (fp >= 1) { fogDone = true; fp = 1; }
+    var e = fp <= 0 ? 0 : fp * fp * (3 - 2 * fp); /* smoothstep 缓入缓出 */
+    fog.style.setProperty('--r1', (e * 125).toFixed(2) + '%');
+    fog.style.setProperty('--r2', (Math.min(1, e * 1.15) * 150).toFixed(2) + '%');
+  }
+
+  function frame(now) {
+    if (done) { return; }
+    if (!startT) { startT = now; lastT = now; }
+    var t = now - startT;
+    var dt = Math.min(64, now - lastT) / 1000;
+    lastT = now;
+    if (t < HOLD) {
+      requestAnimationFrame(frame);
+      return;
+    }
+    if (!parts.length) { scatter(); }
+    fogUpdate((t - HOLD) / FOGDUR);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (var i = 0; i < parts.length; i++) {
+      var p = parts[i];
+      p.life += dt * 1000;
+      if (p.life >= p.ttl) { continue; }
+      var pr = p.life / p.ttl;
+      var e = 1 - Math.pow(1 - pr, 3); /* easeOutCubic：先快后缓，边缘处仍可见 */
+      p.x = p.ox + p.dx * p.D * e;
+      p.y = p.oy + p.dy * p.D * e;
+      var a = Math.pow(1 - pr, 0.7); /* 渐隐放缓，飞行途中保持亮度 */
+      a *= 0.72 + 0.28 * Math.sin(p.tw + t / 130); /* 点点星光闪烁 */
+      if (a <= 0.01) { continue; }
+      ctx.globalAlpha = Math.min(1, a);
+      ctx.fillStyle = p.c;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.sz, 0, 6.2832);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    if (fogDone && t > HOLD + SCATTER + 200) {
+      clearTimeout(failsafe);
+      finish();
+      return;
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+{{end}}
+
+{{/* 学习主页欢迎弹窗：每个浏览器会话（标签页生命周期）首次进入 /study 弹出；
+     会话内刷新不重复弹（sessionStorage 记录），关闭标签页后重新打开会再次弹出。
+     若页面带开屏动画，则等开屏结束（sb-splash-done 事件）后再弹，超时 9s 兜底。 */}}
+{{define "welcome_modal"}}
+<div class="sb-modal-mask" id="wl-mask" hidden>
+  <div class="sb-modal welcome-modal" role="dialog" aria-modal="true" aria-labelledby="wl-title">
+    <h3 id="wl-title">新的学习开始啦 ✨</h3>
+    <span class="avatar wl-avatar">{{initial .Session.Name}}<img class="avatar-pic" src="/avatar/me" alt="" onerror="this.remove()"></span>
+    <p class="wl-hello">哈喽，<b>{{.Session.Name}}</b> 同学！</p>
+    <p class="wl-line">点滴积累，不负时光</p>
+    <p class="wl-line">每份坚持，终有收获</p>
+    <div class="sb-modal-actions">
+      <button type="button" class="btn primary" id="wl-close">开始学习</button>
+    </div>
+  </div>
+</div>
+<script>
+(function () {
+  var mask = document.getElementById('wl-mask');
+  if (!mask) { return; }
+  var shown = false;
+  try { shown = sessionStorage.getItem('sb-welcome-shown') === '1'; } catch (e) {}
+  if (shown) { mask.parentNode.removeChild(mask); return; } /* 本会话已弹过：整块移除，刷新不弹 */
+  try { sessionStorage.setItem('sb-welcome-shown', '1'); } catch (e) {}
+  function close() { mask.hidden = true; }
+  document.getElementById('wl-close').addEventListener('click', close);
+  mask.addEventListener('click', function (e) { if (e.target === mask) { close(); } });
+  document.addEventListener('keydown', function (e) {
+    if ((e.key === 'Escape' || e.keyCode === 27) && !mask.hidden) { close(); }
+  });
+  /* 开屏星光动画优先：监听 sb-splash-done 后再弹；无开屏 550ms 直弹，
+     有开屏则 9s 超时兜底，动画异常也不会吞掉弹窗 */
+  function openWl() {
+    setTimeout(function () { mask.hidden = false; }, 150);
+  }
+  var splash = document.getElementById('splash');
+  if (splash) {
+    var opened = false;
+    var openOnce = function () { if (opened) { return; } opened = true; openWl(); };
+    document.addEventListener('sb-splash-done', openOnce, { once: true });
+    setTimeout(openOnce, 9000);
+  } else {
+    setTimeout(openWl, 550);
+  }
+})();
+</script>
+{{end}}
+
 {{define "fab_dock"}}
 <div class="fab-dock">
   <button type="button" class="fab" id="sb-fab-theme" aria-label="切换深色模式" title="切换深色 / 浅色模式">
@@ -381,9 +649,17 @@
   if (btn) {
     btn.addEventListener('click', function () {
       var p = pref();
-      apply(p === 'auto'
+      var next = p === 'auto'
         ? (effective() === 'dark' ? 'light' : 'dark')
-        : (p === 'dark' ? 'light' : 'auto'));
+        : (p === 'dark' ? 'light' : 'auto');
+      /* 明暗切换带「由屏幕中心向四周辐射」的波纹动画：
+         View Transitions API 捕捉新旧快照，新主题以中心为圆心
+         径向渐变遮罩扩张铺满全屏，前沿带 24% 羽化过渡带柔和弥散
+         （CSS 见 ::view-transition 规则）；不支持该 API 或系统开启
+         减弱动效时回退为即时切换。 */
+      var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (!document.startViewTransition || reduce) { apply(next); return; }
+      document.startViewTransition(function () { apply(next); });
     });
   }
 

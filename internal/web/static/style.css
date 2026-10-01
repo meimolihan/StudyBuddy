@@ -1885,3 +1885,125 @@ html[data-theme="dark"] .card.nav-card > details > summary:hover{background:var(
 html:not([data-theme="light"]) .card.nav-card > details > summary{background:var(--card)}
 html:not([data-theme="light"]) .card.nav-card > details > summary:hover{background:var(--brand-soft)}
 @media (max-width:640px){.nav-card > details{margin-bottom:8px}}
+
+/* =========================================================
+   学习主页 · 欢迎弹窗（每个浏览器会话首次进入弹出，刷新不弹）
+   复用 .sb-modal-mask/.sb-modal 弹窗体系；头像复用 .avatar（放大版），
+   onerror 自动回退首字徽标，与顶栏/个人信息弹窗行为一致。
+   ========================================================= */
+.welcome-modal{max-width:340px; text-align:center; padding-top:28px}
+.welcome-modal h3{font-size:19px; margin:0 0 16px}
+.wl-avatar{
+  display:flex; width:84px; height:84px; font-size:28px;
+  margin:0 auto 14px;
+}
+.wl-hello{font-size:17px; margin:0 0 8px}
+.wl-line{color:var(--muted); font-size:14px; line-height:1.8; margin:0}
+.welcome-modal .sb-modal-actions{margin-top:20px; justify-content:center}
+
+/* =========================================================
+   学习主页 · 开屏星光动画（每次渲染随机一句《唐诗三百首》）
+   诗句楷体居中、上下句错位排版、末句不带符号（服务端已去除句末标点）；
+   文字与署名停留 1.5s 后一并以 888 颗星光粒子全屏消散。
+   雾幕 = .splash-fog 实底层，双重软边椭圆 mask 由中心向四周弥散褪去
+   （--r1/--r2 由 JS 逐帧驱动，多层 mask 默认相加 → 不规则柔和雾散边缘，
+   非生硬径向渐变）；粒子画布在雾幕之上独立绘制，不受遮罩影响。
+   雾幕褪尽后 .is-leaving 快速清场并派发 sb-splash-done（欢迎弹窗监听后弹出）。
+   CSS 兜底：动画 9s 自动隐没（JS 异常时不永久遮挡页面）。
+   ========================================================= */
+.splash{
+  position:fixed; inset:0; z-index:2000;
+  display:flex; align-items:center; justify-content:center;
+  transition:opacity .4s ease; will-change:opacity;
+  animation:splash-failsafe 9s linear both;
+}
+.splash.is-leaving{animation:none; opacity:0; pointer-events:none}
+@keyframes splash-failsafe{0%,86%{opacity:1}100%{opacity:0; visibility:hidden}}
+/* 雾幕层：实底 + 双层软边椭圆遮罩，半径 JS 驱动（0% = 全遮，≥125%/150% = 全露），
+   宽阔的渐变过渡带（58%→100%）形成弥散雾感边缘，两层错峰更自然 */
+.splash-fog{
+  position:absolute; inset:0; z-index:0; background:var(--bg);
+  -webkit-mask-image:
+    radial-gradient(ellipse var(--r1,0%) var(--r1,0%) at 50% 50%,
+      transparent 0, transparent 58%, rgba(0,0,0,.55) 78%,
+      rgba(0,0,0,.92) 90%, #000 100%),
+    radial-gradient(ellipse var(--r2,0%) var(--r2,0%) at 64% 38%,
+      transparent 0, transparent 58%, rgba(0,0,0,.5) 78%, #000 100%);
+  mask-image:
+    radial-gradient(ellipse var(--r1,0%) var(--r1,0%) at 50% 50%,
+      transparent 0, transparent 58%, rgba(0,0,0,.55) 78%,
+      rgba(0,0,0,.92) 90%, #000 100%),
+    radial-gradient(ellipse var(--r2,0%) var(--r2,0%) at 64% 38%,
+      transparent 0, transparent 58%, rgba(0,0,0,.5) 78%, #000 100%);
+}
+.splash-wrap{text-align:center; padding:0 24px; position:relative; z-index:1}
+.splash-verse{
+  margin:0; font-family:"KaiTi","STKaiti","Kaiti SC","楷体","Noto Serif SC",serif;
+  font-size:clamp(24px, 5vw, 42px); line-height:1.9; letter-spacing:.14em;
+  color:var(--ink); text-shadow:0 2px 18px rgba(120,140,180,.16);
+  animation:splash-in .9s ease both;
+}
+.splash-line{display:block}
+/* 上下句错位排版：上句略左、下句略右，错落有致 */
+.splash-line:first-child{transform:translateX(-1em)}
+.splash-line:last-child{transform:translateX(1em)}
+.splash-ch{display:inline-block}
+.splash .is-hidden .splash-ch{visibility:hidden}
+.splash-author{
+  margin:20px 0 0; font-size:14px; letter-spacing:.24em; color:var(--muted);
+  font-family:"KaiTi","STKaiti","Kaiti SC","楷体","Noto Serif SC",serif;
+  animation:splash-in .9s .25s ease both;
+}
+.splash-canvas{position:absolute; inset:0; width:100%; height:100%;
+  pointer-events:none; z-index:2}
+@keyframes splash-in{from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:none}}
+@media (max-width:640px){
+  .splash-verse{letter-spacing:.1em; line-height:1.8}
+  .splash-author{letter-spacing:.16em}
+}
+
+/* =========================================================
+   明暗模式切换 · 中心辐射羽化动画（View Transitions API）
+   点击左下角明暗按钮时，新旧页面各截一张快照：旧快照静止垫底，
+   新主题快照以屏幕中心为圆心向外扩张揭示。边缘不做锐利圆形硬边，
+   而用径向渐变遮罩留出 24% 宽的羽化过渡带——波纹前沿柔和弥散，
+   与开屏雾霾褪去动画风格统一（半径经 @property 注册，支持逐帧插值）。
+   末端 170% + 24% 羽化带确保覆盖最远角落。关闭默认交叉淡化；
+   不支持该 API 的浏览器由 JS 侧回退为即时切换，无副作用。
+   ========================================================= */
+@property --theme-r{
+  syntax:'<percentage>'; inherits:false; initial-value:0%;
+}
+::view-transition-old(root),
+::view-transition-new(root){ animation:none; mix-blend-mode:normal }
+::view-transition-old(root){ z-index:1 }
+::view-transition-new(root){
+  z-index:2; animation:theme-reveal 1.5s ease-out both;
+  mask-image:radial-gradient(circle at 50% 50%,
+    #000 var(--theme-r), transparent calc(var(--theme-r) + 24%));
+  -webkit-mask-image:radial-gradient(circle at 50% 50%,
+    #000 var(--theme-r), transparent calc(var(--theme-r) + 24%));
+}
+@keyframes theme-reveal{
+  from{ --theme-r:0% }
+  to{ --theme-r:170% }
+}
+
+/* =========================================================
+   题型切换成功提示（Toast）：选择题↔判断题互切时不播开屏动画，
+   改为页面顶部（固定顶栏下方）弹出轻提示；胶囊卡复用卡片阴影体系，
+   明暗主题自动跟随。
+   ========================================================= */
+.qt-toast{
+  position:fixed; left:50%; top:76px; z-index:1900;
+  transform:translateX(-50%) translateY(-10px);
+  display:flex; align-items:center; gap:8px;
+  background:var(--card); color:var(--ink);
+  box-shadow:var(--shadow-lg); border-radius:999px;
+  padding:10px 22px; font-size:14px; letter-spacing:.02em;
+  opacity:0; pointer-events:none;
+  transition:opacity .3s ease, transform .3s ease;
+}
+.qt-toast.is-in{opacity:1; transform:translateX(-50%) translateY(0)}
+.qt-toast .qt-check{color:var(--brand); font-weight:700; font-size:15px}
+@media (max-width:640px){.qt-toast{top:84px; padding:9px 18px}}

@@ -80,6 +80,8 @@ func New(cfg *config.Config, g *db.Global, tree *textbook.Tree) (*App, error) {
 			}
 			return out
 		},
+		// splashVerse 每次渲染随机抽一句《唐诗三百首》诗句，用于学习主页开屏动画。
+		"splashVerse": func() SplashVerse { return RandomSplashVerse() },
 	}
 	tmpl, err := template.New("").Funcs(funcMap).ParseFS(assetsFS, "templates/*.html")
 	if err != nil {
