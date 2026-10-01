@@ -271,6 +271,19 @@ func main() {
 	check(w.Code == 200 && strings.Contains(body, ".sb-modal-mask[hidden]{display:none}"),
 		"弹窗遮罩 hidden 态显式 display:none（防 display:flex 顶掉 hidden 常驻盖页）")
 
+	// 4.4 排版优化（桌面左栏工作台 + 移动端单栏聚焦流，纯 CSS 追加段）
+	check(strings.Contains(body, "main:has(.unitname)") &&
+		strings.Contains(body, "grid-template-columns:300px minmax(0,1fr)"),
+		"学习主页桌面双栏栅格（左轨教材导航 + 右侧工作区）")
+	check(strings.Contains(body, "@media (max-width:1023px)") &&
+		strings.Contains(body, "main > .card:first-of-type{margin-bottom:12px}"),
+		"≤1023px 退回单栏聚焦流（Hero 与数据条成组）")
+	check(strings.Contains(body, "@media (pointer:coarse)") && strings.Contains(body, "min-height:44px"),
+		"触屏热区 ≥44px")
+	check(strings.Contains(body, "@media (hover:hover)") &&
+		strings.Contains(body, "transition:box-shadow .24s ease, transform .24s ease"),
+		"hover 动效 0.24s ease 且仅在精确指针设备生效")
+
 	w, body = do("GET", "/archive/view?id=1", nil, ck)
 	check(w.Code == 200 && !strings.Contains(body, "模板渲染失败"), "归档详情页渲染正常")
 

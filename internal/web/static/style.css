@@ -1250,3 +1250,103 @@ html.sb-anim [data-sal].sal-animate{
 @media (prefers-reduced-motion: reduce){
   html.sb-anim [data-sal]{opacity:1 !important; transform:none !important; transition:none !important}
 }
+
+/* =========================================================
+   排版优化专项（纯追加段：只调整布局 / 间距 / 滚动区域 / 响应式）
+   —— 桌面 ≥1024px：左栏工作台（教材导航常驻左轨，右侧为工作区）
+   —— ≤1023px  ：单栏聚焦流（Hero 与数据条成组，目录内部滚动，手机自然流）
+   约束：不改 DOM、不改业务逻辑、不改配色；颜色一律沿用既有变量；
+        无新增边框装饰线，仅用留白 + 柔和阴影分层；hover 0.2~0.3s ease 且
+        只在 hover:hover 生效；触屏热区 ≥44px。
+   ========================================================= */
+
+/* ---- 1) 单栏聚焦流（≤1023px）：统一垂直节奏，Hero 与数据条成组 ---- */
+@media (max-width:1023px){
+  main > .card{margin-bottom:24px}
+  main > .card:first-of-type{margin-bottom:12px} /* 当前进度 + 数据条 视为一组 */
+}
+
+/* ---- 2) 桌面：左栏工作台 ----
+   仅作用于「学习主页」：用 .unitname（教材导航独有节点）唯一定位，
+   其余页面（lesson / quiz / result / archive / admin）结构不变。 */
+@supports selector(:has(*)){
+@media (min-width:1024px){
+  main:has(.unitname){
+    max-width:1240px;
+    display:grid;
+    grid-template-columns:300px minmax(0,1fr);
+    column-gap:24px; row-gap:20px;
+    align-items:start;
+  }
+  main:has(.unitname) > h1{grid-column:1 / -1}
+  main:has(.unitname) > .card:first-of-type,
+  main:has(.unitname) > .grid,
+  main:has(.unitname) > .card:nth-last-of-type(2):not(.grid){grid-column:2}
+  main:has(.unitname) > .card{margin-bottom:0}
+  main:has(.unitname) > .grid{margin-bottom:0 !important} /* 抵消模板内联 style */
+  /* 左轨：教材导航常驻 + 内部独立滚动（页面本身尽量不双滚动条） */
+  main:has(.unitname) > .card:last-of-type{
+    grid-column:1; grid-row:2 / span 3;
+    position:sticky; top:18px;
+    max-height:calc(100vh - 40px);
+    overflow:auto; overscroll-behavior:contain;
+    padding:16px 18px;
+  }
+}
+}
+
+/* ---- 3) 单元标题吸顶（目录滚动时不丢上下文） ---- */
+.unitname{position:sticky; top:0; z-index:1; background:var(--card); padding:4px 0}
+
+/* ---- 4) 平板 641~1023px：目录卡片内部滚动，避免长目录把页面拉太长 ---- */
+@media (min-width:641px) and (max-width:1023px){
+  main:has(.unitname) > .card:last-of-type{
+    max-height:60vh; overflow:auto; overscroll-behavior:contain;
+  }
+}
+
+/* ---- 5) 表格窄屏横向滚动（不新增滚动容器节点，用 :has 直接作用在卡片上） ---- */
+@supports selector(:has(*)){
+  .card:has(> table){overflow-x:auto}
+}
+
+/* ---- 6) 移动端：卡片收紧、数据条降列、操作按钮铺满 ---- */
+@media (max-width:640px){
+  .card{padding:16px}
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px}
+  .stat{padding:12px 14px}
+  .row{flex-direction:column; align-items:stretch}
+  .row > .btn,.row > .inline,.row > form{width:100%}
+  .row form .btn{width:100%}
+  table{font-size:13px}
+  th,td{padding:8px 9px}
+}
+@media (max-width:420px){
+  .grid{grid-template-columns:1fr}
+}
+
+/* ---- 7) hover 交互：0.2~0.3s ease，仅指针精确设备 ---- */
+@media (hover:hover){
+  .card{transition:box-shadow .24s ease, transform .24s ease}
+  .card:hover{box-shadow:0 6px 20px rgba(31,41,55,.10); transform:translateY(-1px)}
+  .stat{transition:box-shadow .24s ease, transform .24s ease}
+  .stat:hover{box-shadow:0 4px 14px rgba(31,41,55,.09); transform:translateY(-1px)}
+  ul.lessons li{transition:background-color .2s ease, border-radius .2s ease}
+  ul.lessons li:hover{background:var(--brand-soft); border-radius:8px}
+  tbody tr{transition:background-color .2s ease}
+  tbody tr:hover{background:var(--bg)}
+}
+
+/* ---- 8) 触屏热区 ≥44px（移动端不触发任何 hover） ---- */
+@media (pointer:coarse){
+  .btn{min-height:44px; display:inline-flex; align-items:center; justify-content:center}
+  .linkbtn{min-height:44px; display:inline-flex; align-items:center; padding:0 6px}
+  ul.lessons li{min-height:44px}
+  summary{min-height:44px}
+  .tnav{min-height:44px}
+}
+
+/* ---- 9) 低性能 / 减弱动态：降级关闭过渡 ---- */
+@media (prefers-reduced-motion:reduce){
+  .card,.stat,ul.lessons li,tbody tr{transition:none !important}
+}
