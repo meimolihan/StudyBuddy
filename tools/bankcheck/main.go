@@ -124,7 +124,18 @@ func main() {
 			if seen[q.Stem] == 2 {
 				dup++
 			}
-			if len(q.Options) != 4 {
+			if q.Type == "j" {
+				// 判断题：固定「正确 / 错误」两个选项，答案 1 个，且必须带解析
+				if len(q.Options) != 2 {
+					hints = append(hints, fmt.Sprintf("判断题选项不是 2 个（%d 个）—— %s：%s", len(q.Options), k, clip(q.Stem)))
+				}
+				if len(q.Answers) != 1 {
+					hints = append(hints, fmt.Sprintf("判断题答案不是 1 个 —— %s：%s", k, clip(q.Stem)))
+				}
+				if q.Explain == "" {
+					hints = append(hints, fmt.Sprintf("判断题缺少解析 —— %s：%s", k, clip(q.Stem)))
+				}
+			} else if len(q.Options) != 4 {
 				hints = append(hints, fmt.Sprintf("选项不是 4 个（%d 个）—— %s：%s", len(q.Options), k, clip(q.Stem)))
 			}
 			if q.Type == "s" && len(q.Answers) != 1 {

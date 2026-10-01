@@ -1,6 +1,18 @@
 {{template "header" .}}
 <h1>学习主页</h1>
 
+{{/* 题型切换：选择题 ↔ 判断题。两套题库目录互为镜像，切换后目录、当前进度、
+     自测与归档都只在该题型内进行；参数 qt=choose|judge，默认选择题。 */}}
+<div class="qtype-tabs" role="tablist" aria-label="题型切换">
+  <a class="qtab{{if eq .QT "choose"}} is-on{{end}}" role="tab"
+     aria-selected="{{if eq .QT "choose"}}true{{else}}false{{end}}"
+     href="/study?qt=choose" title="浏览选择题库（choose 目录）">选择题</a>
+  <a class="qtab{{if eq .QT "judge"}} is-on{{end}}" role="tab"
+     aria-selected="{{if eq .QT "judge"}}true{{else}}false{{end}}"
+     href="/study?qt=judge" title="浏览判断题库（judge 目录）">判断题</a>
+  <span class="qtype-hint muted">{{.QTCN}}题库</span>
+</div>
+
 {{if .Current}}
 <div class="card">
   <h2>当前进度</h2>
@@ -16,6 +28,11 @@
       <button class="btn sec" type="submit">导出 Word 试卷</button>
     </form>
     <a class="btn ghost" href="/lesson?key={{urlquery .Current.Key}}">课程详情</a>
+    {{if $.CurTwin}}
+    <a class="btn ghost" href="/lesson?key={{urlquery $.CurTwin.Key}}"
+       title="切换到同一课的{{if eq $.QT "choose"}}判断题{{else}}选择题{{end}}">
+      {{if eq $.QT "choose"}}判断题版{{else}}选择题版{{end}}</a>
+    {{end}}
   </div>
   <p class="muted" style="margin-top:10px">达标线 {{$.Pass}} 分：未达标会继续针对本课出题，达标后自动推进到下一课。</p>
 </div>
@@ -51,7 +68,7 @@
 
 <div class="card">
   <h2>教材导航</h2>
-  <p class="muted">按 学段 → 出版社 → 年级 → 册别 → 科目 → 单元 → 课 展开。点击课程即可切换并开始自测。</p>
+  <p class="muted">按 学段 → 出版社 → 题型 → 年级 → 册别 → 科目 → 单元 → 课 展开。当前展示：<b>{{.QTCN}}</b>，切换顶部选项卡可换到{{if eq .QT "choose"}}判断题{{else}}选择题{{end}}镜像题库。</p>
   {{range $g := .Tree.Grades}}
   {{$curGrade := and (eq $g.No $.Session.Grade) (or (not $.Session.Stage) (eq $g.Stage $.Session.Stage))}}
   <details {{if $curGrade}}open{{end}}>
@@ -62,10 +79,12 @@
         <summary>{{$v.Name}}</summary>
         <div class="tree-body">
         {{range $s := $v.Subjects}}
+          {{$cnt := $s.CountOf $.QT}}
+          {{if $cnt}}
           <details>
-            <summary>{{$s.Name}} · {{len $s.Lessons}} 课</summary>
+            <summary>{{$s.Name}} · {{$cnt}} 课</summary>
             <div class="tree-body">
-              {{range $s.Units}}
+              {{range $s.UnitsOf $.QT}}
               <div class="unitname">{{.Name}}</div>
               <ul class="lessons">
                 {{range .Lessons}}
@@ -86,6 +105,7 @@
               {{end}}
             </div>
           </details>
+          {{end}}
         {{end}}
         </div>
       </details>

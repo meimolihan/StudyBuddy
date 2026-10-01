@@ -228,6 +228,42 @@ func main() {
 	check(w.Code == 200 && !strings.Contains(body, "模板渲染失败"), "课程页渲染正常")
 	check(strings.Contains(body, "开始在线自测"), "课程页有开始自测入口")
 
+	// 2.1 题型切换：choose（选择题）↔ judge（判断题）镜像题库
+	var judgeKey, chooseKey string
+	for k, l := range tree.Lessons {
+		if l.QType == "judge" && judgeKey == "" {
+			judgeKey = k
+			if tw, ok := tree.Lessons[l.TwinKey()]; ok {
+				chooseKey = tw.Key
+			}
+			break
+		}
+	}
+	check(judgeKey != "" && strings.Contains(judgeKey, "/judge/"),
+		"扫描到判断题镜像题库（judge 目录）")
+	check(chooseKey != "" && strings.Contains(chooseKey, "/choose/"),
+		"判断题课能取到同课的选择题镜像（choose 目录）")
+
+	w, body = do("GET", "/study?qt=judge", nil, ck)
+	check(w.Code == 200 && !strings.Contains(body, "模板渲染失败"), "学习主页（判断题）渲染正常")
+	check(strings.Contains(body, `href="/study?qt=choose"`) && strings.Contains(body, `href="/study?qt=judge"`),
+		"学习主页含选择题 / 判断题切换入口")
+	check(strings.Contains(body, `qtab is-on" role="tab"`), "当前题型选项卡高亮")
+	// 注：目录名可能含空格，html/template 的 urlquery 会把空格转成 %20（而非 +），
+	// 所以这里用原始 key 匹配（课程链接与「设为当前」表单里都有）。
+	check(strings.Contains(body, judgeKey), "判断题模式下目录只列 judge 课程")
+	check(strings.Count(body, "/judge/") > 1000, "判断题目录渲染出成规模题库")
+
+	w, body = do("GET", "/study?qt=choose", nil, ck)
+	check(w.Code == 200 && strings.Contains(body, chooseKey),
+		"选择题模式下目录只列 choose 课程")
+
+	w, body = do("GET", "/lesson?key="+url.QueryEscape(judgeKey), nil, ck)
+	check(w.Code == 200 && !strings.Contains(body, "模板渲染失败"), "判断题课程页渲染正常")
+	check(strings.Contains(body, "切换到选择题"), "判断题课程页有切换到选择题的互跳入口")
+	w, body = do("GET", "/lesson?key="+url.QueryEscape(chooseKey), nil, ck)
+	check(strings.Contains(body, "切换到判断题"), "选择题课程页有切换到判断题的互跳入口")
+
 	fmt.Println("\n[3] 刷题与判分")
 	w, body = do("GET", "/quiz?key="+url.QueryEscape(sampleKey), nil, ck)
 	check(w.Code == 200 && !strings.Contains(body, "模板渲染失败"), "刷题页渲染正常")
@@ -271,7 +307,21 @@ func main() {
 	check(w.Code == 200 && strings.Contains(body, ".sb-modal-mask[hidden]{display:none}"),
 		"弹窗遮罩 hidden 态显式 display:none（防 display:flex 顶掉 hidden 常驻盖页）")
 
+	// 4.2 归档页题型分类：选择题 / 判断题筛选（qt=choose|judge，默认选择题）
+	w, body = do("GET", "/archive", nil, ck)
+	check(w.Code == 200 && strings.Contains(body, "qtype-tabs") &&
+		strings.Contains(body, "/archive?qt=choose") && strings.Contains(body, "/archive?qt=judge"),
+		"归档页含选择题/判断题切换选项卡")
+	check(strings.Contains(body, "选择题 1") && strings.Contains(body, "判断题 0"),
+		"归档页题型计数正确（本次自测为选择题）")
+	w, body = do("GET", "/archive?qt=judge", nil, ck)
+	check(w.Code == 200 && !strings.Contains(body, "模板渲染失败"), "判断题归档视图渲染正常")
+	w, body = do("GET", "/archive/view?id=1", nil, ck)
+	check(w.Code == 200 && strings.Contains(body, "badge") && strings.Contains(body, "/archive?qt="),
+		"归档详情页带题型徽标并按题型返回列表")
+
 	// 4.4 排版优化：方案 1「单栏聚焦流」（纯 CSS 追加段，全尺寸单列）
+	w, body = do("GET", "/static/style.css", nil, ck) // 上面题型用例改写了 body，这里重新取 CSS
 	check(strings.Contains(body, "main:has(.unitname){max-width:960px}"),
 		"学习主页单栏聚焦流（960px 居中，不切双栏）")
 	check(strings.Contains(body, "main > .card:first-of-type{margin-bottom:12px}") &&
@@ -284,8 +334,28 @@ func main() {
 	check(strings.Contains(body, "@media (pointer:coarse)") && strings.Contains(body, "min-height:44px"),
 		"触屏热区 ≥44px")
 	check(strings.Contains(body, "@media (hover:hover)") &&
-		strings.Contains(body, "transition:box-shadow .24s ease, transform .24s ease"),
-		"hover 动效 0.24s ease 且仅在精确指针设备生效")
+		strings.Contains(body, "transition:box-shadow .25s ease, transform .25s ease"),
+		"hover 动效 0.25s ease 且仅在精确指针设备生效")
+
+	// 4.5 视觉升级：悬浮球（左下明暗切换 / 右下返回顶部）、线性 SVG 图标、双主题令牌
+	check(strings.Contains(body, ".fab-dock{") && strings.Contains(body, ".fab[hidden]{display:none"),
+		"悬浮球容器与 hidden 兜底规则（防作者 display 顶掉 hidden）")
+	check(strings.Contains(body, "--bg:#151a21") && strings.Contains(body, "html[data-theme=\"dark\"]"),
+		"深色令牌为深灰基底且支持手动 data-theme")
+	w, body = do("GET", "/study", nil, ck)
+	check(strings.Contains(body, "fab-dock") && strings.Contains(body, "sb-fab-theme") &&
+		strings.Contains(body, "sb-fab-top"), "页面含左下明暗切换与右下返回顶部悬浮球")
+	check(strings.Contains(body, `<svg class="ico"`) && strings.Contains(body, "ico-when-dark"),
+		"顶栏/悬浮球使用线性 SVG 图标并随主题切换图标")
+
+	// 4.6 明暗模式一键切换：cookie 持久化 + 模板带出 data-theme（无闪烁）
+	w, _ = do("GET", "/theme/mode?mode=dark&back=/study", nil, ck)
+	check(w.Code == 303 && strings.Contains(w.Header().Get("Set-Cookie"), "sb_theme=dark"),
+		"切换深色写入 sb_theme cookie 并回跳")
+	w, body = do("GET", "/study", nil, ck+"; sb_theme=dark")
+	check(strings.Contains(body, `data-theme="dark"`), "带深色 cookie 时页面渲染 data-theme=dark")
+	w, _ = do("GET", "/theme/mode?mode=auto&back=/study", nil, ck)
+	check(w.Code == 303, "切回跟随系统（auto）正常回跳")
 
 	w, body = do("GET", "/archive/view?id=1", nil, ck)
 	check(w.Code == 200 && !strings.Contains(body, "模板渲染失败"), "归档详情页渲染正常")

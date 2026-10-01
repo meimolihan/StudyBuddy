@@ -66,7 +66,8 @@ func main() {
 						continue
 					}
 					grand += len(qs)
-					if sample == nil {
+					// sample 优先取选择题课（判断题只有 2 个选项，会干扰「4 选项」断言）
+					if sample == nil || (sample.IsJudge() && !l.IsJudge()) {
 						sample = l
 					}
 					if rich == nil {
@@ -94,7 +95,9 @@ func main() {
 		fmt.Printf("      样例题: [%s] %s\n", qs[0].Type, qs[0].Stem)
 		fmt.Println("      选项  :", strings.Join(qs[0].Options, " | "))
 		fmt.Println("      答案  :", qs[0].Answers, "→ 下标", qs[0].AnswerIdx())
-		check(len(qs[0].Options) == 4, "样例题为 4 个选项")
+		// 选择题 4 个选项；判断题只有「正确 / 错误」2 个，同样合法
+		check(len(qs[0].Options) == 4 || (sample.IsJudge() && len(qs[0].Options) == 2),
+			fmt.Sprintf("样例题选项数合法（%d 个）", len(qs[0].Options)))
 		check(len(qs[0].AnswerIdx()) >= 1, "样例题可解析出答案下标")
 		ok := true
 		for _, x := range qs[0].AnswerIdx() {

@@ -26,11 +26,12 @@ import (
 	"sync"
 )
 
-// Question 一道选择题。
+// Question 一道题。
 type Question struct {
-	Type    string   // "s" 单选 / "m" 多选
+	Type    string   // "s" 单选 / "m" 多选 / "j" 判断题（选项为 正确 / 错误）
 	Stem    string   // 题干
-	Options []string // 四个选项文本（A/B/C/D 顺序）
+	Explain string   // 解析（判断题必带，选择题可缺省）
+	Options []string // 选项文本（A/B/C/D 顺序；判断题为 正确 / 错误）
 	Answers []string // 正确答案字母，如 ["A"] 或 ["A","B"]
 	Key     string   // 去重键（取题干）
 }
@@ -60,6 +61,7 @@ type Lesson struct {
 	Volume    int    // 1；高考复习专题为 VolReview
 	Subject   string // chinese
 	SubjectCN string // 语文
+	QType     string // choose 选择题 / judge 判断题
 	Review    bool   // 是否高考复习专题（grade<N>/review/ 目录下）
 	Unit      string // 第一单元 自然之美
 	UnitNo    int
@@ -131,10 +133,29 @@ var stageCN = map[string]string{
 	"primary": "小学",
 	"middle":  "初中",
 	"high":    "高中",
+	"junior":  "初中", // 新命名：初中（目录年级用 7~9）
+	"senior":  "高中", // 新命名：高中
 	// 旧命名兼容
 	"primary-school": "小学",
 	"middle-school":  "初中",
 	"high-school":    "高中",
+}
+
+// QType 题型目录：choose = 选择题库，judge = 判断题库（两者互为镜像，目录树完全一致）。
+const (
+	QTypeChoose = "choose"
+	QTypeJudge  = "judge"
+)
+
+// QTypeCN 题型展示名。
+func QTypeCN(q string) string {
+	switch strings.ToLower(strings.TrimSpace(q)) {
+	case QTypeJudge:
+		return "判断题"
+	case QTypeChoose:
+		return "选择题"
+	}
+	return "选择题"
 }
 
 var publisherCN = map[string]string{
@@ -297,12 +318,23 @@ func Scan(root string) (*Tree, error) {
 
 // parseLesson 按标准层级解析相对路径：
 //
-//	<stage>/<publisher>/grade<N>/volume<N>/<subject>/[<NN-单元名>/]<NN-课名>.html
-//	<stage>/<publisher>/grade<N>/review/<subject>/[<NN-专题组>/]<NN-专题名>.html   （高考复习，review 顶替 volume 层）
+//	<stage>/<publisher>/<题型>/grade<N>/volume<N>/<subject>/[<NN-单元名>/]<NN-课名>.html
+//	<stage>/<publisher>/<题型>/grade<N>/review/<subject>/[<NN-专题组>/]<NN-专题名>.html
 //
+// 其中 <题型> 为 choose（选择题）或 judge（判断题），两套目录互为镜像、文件名一致；
+// 高考复习专题用 review 段顶替 volume<N>。层级为：
+// 学段 → 出版社 → 题型 → 年级 → 册别 → 科目 → 单元 → 课。
 // 不符合规范返回 nil（交由上层忽略或走兼容解析）。
 func parseLesson(parts []string) *Lesson {
-	if len(parts) < 6 || len(parts) > 7 {
+	// 题型层（choose / judge）：新结构必带，旧结构没有则按选择题处理。
+	qtype, off := QTypeChoose, 0
+	if len(parts) >= 3 {
+		switch q := strings.ToLower(parts[2]); q {
+		case QTypeChoose, QTypeJudge:
+			qtype, off = q, 1
+		}
+	}
+	if len(parts) < 6+off || len(parts) > 7+off {
 		return nil
 	}
 	stage := strings.ToLower(parts[0])
@@ -310,12 +342,16 @@ func parseLesson(parts []string) *Lesson {
 		return nil
 	}
 	publisher := strings.ToLower(parts[1])
-	grade := gradeOf(parts[2])
+	grade := gradeOf(parts[2+off])
 	if grade == 0 {
 		return nil
 	}
+	// 初中新命名用绝对年级 7~9，内部仍按学段内序号 1~3 记录（与旧 middle 一致）。
+	if stage == "junior" && grade > 6 {
+		grade -= 6
+	}
 	volume, review := 0, false
-	if seg := strings.ToLower(parts[3]); seg == "review" {
+	if seg := strings.ToLower(parts[3+off]); seg == "review" {
 		volume, review = VolReview, true // 高考复习专题：review 段顶替 volume<N>
 	} else {
 		volume = volumeOf(seg)
@@ -323,25 +359,26 @@ func parseLesson(parts []string) *Lesson {
 			return nil
 		}
 	}
-	subject := strings.ToLower(parts[4])
+	subject := strings.ToLower(parts[4+off])
 	if _, ok := subjectCN[subject]; !ok {
 		return nil
 	}
 
 	unitNo, unit := 0, ""
 	lessonNo, title := 0, ""
-	if len(parts) == 7 {
-		unitNo, unit = parseSeqName(parts[5])
-		lessonNo, title = parseSeqName(baseName(parts[6]))
+	if len(parts) == 7+off {
+		unitNo, unit = parseSeqName(parts[5+off])
+		lessonNo, title = parseSeqName(baseName(parts[6+off]))
 	} else {
-		lessonNo, title = parseSeqName(baseName(parts[5]))
+		lessonNo, title = parseSeqName(baseName(parts[5+off]))
 	}
 	if title == "" {
 		return nil
 	}
 	return &Lesson{
-		Stage: stage, Publisher: publisher,
+		Stage: NormalizeStage(stage), Publisher: publisher,
 		Grade: grade, Volume: volume, Review: review,
+		QType: qtype,
 		Subject: subject, SubjectCN: subjectCN[subject],
 		Unit: unit, UnitNo: unitNo,
 		Title: title, LessonNo: lessonNo,
@@ -468,6 +505,40 @@ func (l Lesson) LessonLabel() string {
 	return fmt.Sprintf("第%d课 %s", l.LessonNo, l.Title)
 }
 
+// QTypeCN 本题型展示名（选择题 / 判断题）。
+func (l Lesson) QTypeCN() string { return QTypeCN(l.QType) }
+
+// IsJudge 是否为判断题课。
+func (l Lesson) IsJudge() bool { return l.QType == QTypeJudge }
+
+// TwinKey 返回同一门课在「另一题型」下的 key（choose ↔ judge 互切）。
+// choose 与 judge 目录树完全镜像、文件名一致，所以只需替换路径里的题型段；
+// 没有题型段（旧结构）时返回空串，表示没有镜像课。
+func (l Lesson) TwinKey() string {
+	k := l.Key
+	if strings.Contains(k, "/"+QTypeChoose+"/") {
+		return strings.Replace(k, "/"+QTypeChoose+"/", "/"+QTypeJudge+"/", 1)
+	}
+	if strings.Contains(k, "/"+QTypeJudge+"/") {
+		return strings.Replace(k, "/"+QTypeJudge+"/", "/"+QTypeChoose+"/", 1)
+	}
+	return ""
+}
+
+// QTypeOfKey 从课程 key（相对路径）推断题型：
+// 路径含 /choose/ 或 /judge/ 段则取之；旧结构没有题型段，按选择题处理。
+// 用于给历史试卷记录（只存了 lesson_key）判断题型归属。
+func QTypeOfKey(key string) string {
+	k := strings.ToLower(strings.ReplaceAll(key, "\\", "/"))
+	switch {
+	case strings.Contains(k, "/"+QTypeJudge+"/"):
+		return QTypeJudge
+	case strings.Contains(k, "/"+QTypeChoose+"/"):
+		return QTypeChoose
+	}
+	return QTypeChoose
+}
+
 // VolumeLabel 册别展示名：上册 / 下册；高考复习专题显示「高考复习」。
 func (l Lesson) VolumeLabel() string {
 	if l.Review {
@@ -503,6 +574,44 @@ func (s *Subject) buildUnits() {
 	for _, n := range order {
 		s.Units = append(s.Units, m[n])
 	}
+}
+
+// LessonsOf 返回指定题型（choose / judge）的课；qt 为空时返回全部。
+func (s *Subject) LessonsOf(qt string) []*Lesson {
+	if qt == "" {
+		return s.Lessons
+	}
+	out := make([]*Lesson, 0, len(s.Lessons))
+	for _, l := range s.Lessons {
+		if l.QType == qt {
+			out = append(out, l)
+		}
+	}
+	return out
+}
+
+// CountOf 指定题型的课数（用于导航里的「语文 · 24 课」）。
+func (s *Subject) CountOf(qt string) int { return len(s.LessonsOf(qt)) }
+
+// UnitsOf 返回按题型过滤后的单元列表，空单元自动剔除。
+func (s *Subject) UnitsOf(qt string) []*Unit {
+	if qt == "" {
+		return s.Units
+	}
+	out := make([]*Unit, 0, len(s.Units))
+	for _, u := range s.Units {
+		ls := make([]*Lesson, 0, len(u.Lessons))
+		for _, l := range u.Lessons {
+			if l.QType == qt {
+				ls = append(ls, l)
+			}
+		}
+		if len(ls) == 0 {
+			continue
+		}
+		out = append(out, &Unit{No: u.No, Name: u.Name, Lessons: ls})
+	}
+	return out
 }
 
 // splitTitle 从文件名解析单元名与课名，格式：「… · 第X单元 单元名 · 第X课 课名」。
@@ -596,7 +705,8 @@ func ParseBank(html string) []Question {
 			break
 		}
 		typ := string(body[pos])
-		if typ != "s" && typ != "m" {
+		// "s" 单选 / "m" 多选 / "j" 判断题（只有「正确 / 错误」两个选项，按单选处理）
+		if typ != "s" && typ != "m" && typ != "j" {
 			pos++
 			continue
 		}
@@ -626,6 +736,13 @@ func ParseBank(html string) []Question {
 		ans, np := readArray(body, pos)
 		pos = np
 
+		// 可选字段：解析（判断题必备，写为 ,e:"…"），缺省为空。
+		explain := ""
+		if k = strings.Index(body[pos:], ",e:\""); k == 0 {
+			pos += k + 4
+			explain, pos = readQuoted(body, pos)
+		}
+
 		if len(opts) == 0 || len(ans) == 0 {
 			continue
 		}
@@ -634,6 +751,7 @@ func ParseBank(html string) []Question {
 			Stem:    stem,
 			Options: opts,
 			Answers: ans,
+			Explain: explain,
 			Key:     stem,
 		})
 	}

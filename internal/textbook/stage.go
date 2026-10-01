@@ -10,13 +10,16 @@ const (
 	StagePrimary = "primary" // 小学
 	StageMiddle  = "middle"  // 中学（初中）
 	StageHigh    = "high"    // 高中
+	// 新目录命名：初中 / 高中（与 middle / high 等价，仅目录名与年级编号不同）
+	StageJunior = "junior"
+	StageSenior = "senior"
 )
 
 // stageOrder 学段排序权重：小学 → 中学 → 高中；未知学段排在最后。
 var stageOrder = map[string]int{
 	StagePrimary: 1, "primary-school": 1,
-	StageMiddle: 2, "middle-school": 2,
-	StageHigh: 3, "high-school": 3,
+	StageMiddle: 2, "middle-school": 2, StageJunior: 2,
+	StageHigh: 3, "high-school": 3, StageSenior: 3,
 }
 
 // stageGrades 各学段的标准年级数（小学 6 个年级、中学 / 高中各 3 个）。
@@ -32,9 +35,9 @@ func NormalizeStage(stage string) string {
 	switch s {
 	case StagePrimary, "primary-school":
 		return StagePrimary
-	case StageMiddle, "middle-school":
+	case StageMiddle, "middle-school", StageJunior:
 		return StageMiddle
-	case StageHigh, "high-school":
+	case StageHigh, "high-school", StageSenior:
 		return StageHigh
 	}
 	return s

@@ -33,12 +33,13 @@
   <h2>逐题解析</h2>
   {{range .Ans}}
   <div class="result-item {{if .Right}}right{{else}}wrong{{end}}">
-    <div><b>第 {{.QIndex | add1}} 题</b>（{{if eq .QType "m"}}多选{{else}}单选{{end}}） {{.Stem}}</div>
+    <div><b>第 {{.QIndex | add1}} 题</b>（{{if eq .QType "j"}}判断{{else if eq .QType "m"}}多选{{else}}单选{{end}}） {{.Stem}}</div>
     <div class="ansline">
       {{if .Right}}✓ 回答正确{{else}}✗ 回答错误{{end}}
       {{if .Picked}}　你的答案：{{join .Picked "、"}}{{else}}　未作答{{end}}
       　正确答案：{{join .Correct "、"}}
     </div>
+    {{with index $.Explain .Stem}}<div class="explain">解析：{{.}}</div>{{end}}
   </div>
   {{end}}
 </div>

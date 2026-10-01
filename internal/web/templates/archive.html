@@ -2,6 +2,18 @@
 <h1>试卷归档</h1>
 <p class="muted">归档目录：<code>archive/{{.Session.UserID}}/</code>　·　仅可查看本人试卷</p>
 
+{{/* 题型分类：选择题 ↔ 判断题。试卷按 lesson_key 里的 choose/judge 段归类，
+     切换只影响本页列表筛选，删除等原有操作不受影响；参数 qt=choose|judge。 */}}
+<div class="qtype-tabs" role="tablist" aria-label="试卷题型筛选">
+  <a class="qtab{{if eq .QT "choose"}} is-on{{end}}" role="tab"
+     aria-selected="{{if eq .QT "choose"}}true{{else}}false{{end}}"
+     href="/archive?qt=choose" title="只看选择题试卷">选择题 {{index .QTCount "choose"}}</a>
+  <a class="qtab{{if eq .QT "judge"}} is-on{{end}}" role="tab"
+     aria-selected="{{if eq .QT "judge"}}true{{else}}false{{end}}"
+     href="/archive?qt=judge" title="只看判断题试卷">判断题 {{index .QTCount "judge"}}</a>
+  <span class="qtype-hint muted">当前显示 {{len .Exams}} 份{{if lt (len .Exams) .AllCount}}（共 {{.AllCount}} 份）{{end}}</span>
+</div>
+
 <div class="card">
 {{if .Exams}}
 <div class="sb-toolbar">
@@ -16,7 +28,7 @@
 <table id="sb-examtable">
   <tr>
     <th class="sb-col-check"><span class="sr-only">选择</span></th>
-    <th>编号</th><th>时间</th><th>课程</th><th>题数</th><th>得分</th><th>结果</th><th>操作</th>
+    <th>编号</th><th>题型</th><th>时间</th><th>课程</th><th>题数</th><th>得分</th><th>结果</th><th>操作</th>
   </tr>
   {{range .Exams}}
   <tr>
@@ -26,6 +38,10 @@
       </label>
     </td>
     <td>#{{.ID}}</td>
+    <td>
+      {{if eq (index $.ExamQT .ID) "judge"}}<span class="badge info">判断题</span>
+      {{else}}<span class="badge new">选择题</span>{{end}}
+    </td>
     <td>{{.CreatedAt}}</td>
     <td>{{.Title}}</td>
     <td>{{.Total}}</td>
@@ -45,7 +61,11 @@
   {{end}}
 </table>
 {{else}}
-<div class="notice">还没有自测记录。去<a href="/study">学习主页</a>开始第一次自测吧。</div>
+<div class="notice">
+{{if lt 0 .AllCount}}还没有{{.QTCN}}试卷记录。可切换到
+<a href="/archive?qt={{if eq .QT "choose"}}judge{{else}}choose{{end}}">{{if eq .QT "choose"}}判断题{{else}}选择题{{end}}</a>
+归档查看，或去<a href="/study?qt={{.QT}}">学习主页</a>开始自测。{{else}}还没有自测记录。去<a href="/study">学习主页</a>开始第一次自测吧。{{end}}
+</div>
 {{end}}
 </div>
 

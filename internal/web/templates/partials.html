@@ -1,8 +1,21 @@
+{{/* ============ 线性 SVG 图标（stroke 描边、fill 无色，统一 2D 扁平风格） ============
+     尺寸与颜色由 CSS 的 .ico 统一控制，跟随 currentColor，深浅色自动适配。 */}}
+{{define "ico_book"}}<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H19v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 5.5v15"/><path d="M9 7.5h7M9 11h5"/></svg>{{end}}
+{{define "ico_archive"}}<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7.5A1.5 1.5 0 0 1 4.5 6h15A1.5 1.5 0 0 1 21 7.5V18a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18z"/><path d="M3 10.5h18"/><path d="M9.5 14h5"/></svg>{{end}}
+{{define "ico_gear"}}<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 14.5a1.6 1.6 0 0 0 .32 1.77l.06.06a1.9 1.9 0 1 1-2.69 2.69l-.06-.06a1.6 1.6 0 0 0-1.77-.32 1.6 1.6 0 0 0-.97 1.47V21a1.9 1.9 0 1 1-3.8 0v-.1a1.6 1.6 0 0 0-1.05-1.47 1.6 1.6 0 0 0-1.77.32l-.06.06a1.9 1.9 0 1 1-2.69-2.69l.06-.06a1.6 1.6 0 0 0 .32-1.77 1.6 1.6 0 0 0-1.47-.97H3a1.9 1.9 0 1 1 0-3.8h.1a1.6 1.6 0 0 0 1.47-1.05 1.6 1.6 0 0 0-.32-1.77l-.06-.06a1.9 1.9 0 1 1 2.69-2.69l.06.06a1.6 1.6 0 0 0 1.77.32H9a1.6 1.6 0 0 0 .97-1.47V3a1.9 1.9 0 1 1 3.8 0v.1a1.6 1.6 0 0 0 .97 1.47 1.6 1.6 0 0 0 1.77-.32l.06-.06a1.9 1.9 0 1 1 2.69 2.69l-.06.06a1.6 1.6 0 0 0-.32 1.77V9a1.6 1.6 0 0 0 1.47.97H21a1.9 1.9 0 1 1 0 3.8h-.1a1.6 1.6 0 0 0-1.47.97z"/></svg>{{end}}
+{{define "ico_chevron"}}<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5l6 6 6-6"/></svg>{{end}}
+{{define "ico_sun"}}<svg class="ico ico-fab" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.4 5.4l1.6 1.6M17 17l1.6 1.6M18.6 5.4L17 7M7 17l-1.6 1.6"/></svg>{{end}}
+{{define "ico_moon"}}<svg class="ico ico-fab" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.3A8.5 8.5 0 0 1 9.7 3.5a8.5 8.5 0 1 0 10.8 10.8z"/></svg>{{end}}
+{{define "ico_arrow_up"}}<svg class="ico ico-fab" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V6"/><path d="M5.8 12.2L12 6l6.2 6.2"/></svg>{{end}}
+
 {{define "header"}}<!DOCTYPE html>
-<html lang="zh-CN" data-skin="{{.Skin}}"{{if .Wallpaper}} data-wallpaper="{{.WallpaperName}}"{{end}}>
+<html lang="zh-CN" data-skin="{{.Skin}}"{{if .Theme}} data-theme="{{.Theme}}"{{end}}{{if .Wallpaper}} data-wallpaper="{{.WallpaperName}}"{{end}}>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{{/* 首次访问（无 sb_theme cookie）时 .Theme 为空、不输出 data-theme，
+     由本 meta + CSS 的 prefers-color-scheme 媒体查询共同决定，即「跟随系统」。 */}}
+<meta name="color-scheme" content="light dark">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <title>{{.Title}} · StudyBuddy</title>
 <link rel="stylesheet" href="/static/style.css">
@@ -38,8 +51,8 @@
   </a>
   <nav>
     {{if .Session}}
-      <a class="tnav{{if eq .Nav "study"}} is-on{{end}}" href="/study"><span class="tnav-ico">📖</span>学习主页</a>
-      <a class="tnav{{if eq .Nav "archive"}} is-on{{end}}" href="/archive"><span class="tnav-ico">🗂</span>试卷归档</a>
+      <a class="tnav{{if eq .Nav "study"}} is-on{{end}}" href="/study"><span class="tnav-ico">{{template "ico_book"}}</span>学习主页</a>
+      <a class="tnav{{if eq .Nav "archive"}} is-on{{end}}" href="/archive"><span class="tnav-ico">{{template "ico_archive"}}</span>试卷归档</a>
       <span class="who"><span class="avatar">{{initial .Session.Name}}</span><span class="whotxt">{{.Session.Name}}{{if .Session.IsAdmin}}<span class="tag">管理员</span>{{end}}</span></span>
       {{template "settings_menu" .}}
     {{else}}
@@ -56,7 +69,7 @@
 {{define "settings_menu"}}
 <details class="setpick" id="setpick" data-menu>
   <summary aria-label="打开设置">
-    <span class="setico">⚙️</span><span class="settxt">设置</span><span class="setchev">▾</span>
+    <span class="setico">{{template "ico_gear"}}</span><span class="settxt">设置</span><span class="setchev">{{template "ico_chevron"}}</span>
   </summary>
   <div class="setpanel">
     <div class="setpanel-h">
@@ -132,7 +145,106 @@
 </details>
 {{end}}
 
+{{/* 悬浮操作球：左下 = 明暗模式一键切换，右下 = 一键返回顶部。
+     两者同处 .fab-dock 一行容器，永远保持同一水平线，固定不随滚动消失。
+     图标用线性 SVG，浅色显示月亮（点了进深色）、深色显示太阳（点了回浅色）。 */}}
+{{define "fab_dock"}}
+<div class="fab-dock">
+  <button type="button" class="fab" id="sb-fab-theme" aria-label="切换深色模式" title="切换深色 / 浅色模式">
+    <span class="ico-when-light">{{template "ico_moon"}}</span>
+    <span class="ico-when-dark">{{template "ico_sun"}}</span>
+  </button>
+  <button type="button" class="fab" id="sb-fab-top" aria-label="返回顶部" title="返回顶部" hidden>
+    {{template "ico_arrow_up"}}
+  </button>
+</div>
+{{end}}
+
+{{/* 悬浮球脚本：明暗模式三态循环（跟随系统 → 深色 → 浅色 → 跟随系统），
+     手动选择写 cookie（服务端下次渲染时带出，无闪烁）；跟随系统态删除 cookie，
+     由 CSS 的 prefers-color-scheme 决定，并在系统切换时实时跟随。
+     返回顶部按 prefers-reduced-motion 决定是否平滑滚动。 */}}
+{{define "fab_js"}}
+<script>
+(function () {
+  var root = document.documentElement;
+  var KEY = 'sb_theme';
+  var mq = window.matchMedia ? matchMedia('(prefers-color-scheme: dark)') : null;
+
+  /* 偏好：'dark' / 'light' / 'auto'（无 cookie 或非法值一律视为 auto = 跟随系统） */
+  function pref() {
+    var m = document.cookie.match(/(?:^|;\s*)sb_theme=([^;]*)/);
+    var v = m ? m[1].toLowerCase().replace(/\s+/g, '') : '';
+    return (v === 'dark' || v === 'light') ? v : 'auto';
+  }
+  function sysDark() { return !!(mq && mq.matches); }
+  /* 实际生效的外观：auto 时由系统决定 */
+  function effective() { return pref() === 'auto' ? (sysDark() ? 'dark' : 'light') : pref(); }
+
+  function apply(p) {
+    if (p === 'auto') {
+      document.cookie = KEY + '=;path=/;max-age=0;samesite=lax'; // 删除 = 跟随系统
+      root.removeAttribute('data-theme');                        // 交回 CSS 媒体查询
+    } else {
+      document.cookie = KEY + '=' + p + ';path=/;max-age=31536000;samesite=lax';
+      root.setAttribute('data-theme', p);                        // 即时生效，不刷新
+    }
+    syncBtn();
+  }
+
+  var btn = document.getElementById('sb-fab-theme');
+  function syncBtn() {
+    if (!btn) { return; }
+    var p = pref(), eff = effective();
+    var name = p === 'auto' ? '跟随系统' : (p === 'dark' ? '深色' : '浅色');
+    var nextName = p === 'auto' ? '深色' : (p === 'dark' ? '浅色' : '跟随系统');
+    var label = '明暗模式：' + name +
+      (p === 'auto' ? '（当前' + (eff === 'dark' ? '深色' : '浅色') + '）' : '') +
+      '，点击切换为' + nextName;
+    btn.setAttribute('aria-label', label);
+    btn.setAttribute('title', label);
+    btn.setAttribute('data-mode', p);
+  }
+
+  if (btn) {
+    btn.addEventListener('click', function () {
+      var p = pref();
+      apply(p === 'auto' ? 'dark' : (p === 'dark' ? 'light' : 'auto'));
+    });
+  }
+
+  /* 首次访问 / 跟随系统态：系统明暗变化时实时响应（配色由 CSS 媒体查询负责，
+     这里只同步按钮文案与 data-theme 属性的一致性）。 */
+  function onSysChange() { if (pref() === 'auto') { root.removeAttribute('data-theme'); syncBtn(); } }
+  if (mq) {
+    if (mq.addEventListener) { mq.addEventListener('change', onSysChange); }
+    else if (mq.addListener) { mq.addListener(onSysChange); }
+  }
+
+  /* 开屏校正：确保属性与 cookie 一致（例如服务端渲染期间系统刚切换过） */
+  apply(pref());
+  var top = document.getElementById('sb-fab-top');
+  if (top) {
+    var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function onScroll() {
+      var show = (window.pageYOffset || document.documentElement.scrollTop || 0) > 320;
+      if (show === !top.hidden) { return; }
+      top.hidden = !show;
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    top.addEventListener('click', function () {
+      try {
+        window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+      } catch (e) { window.scrollTo(0, 0); }
+    });
+  }
+})();
+</script>
+{{end}}
+
 {{define "footer"}}</main>
+{{template "fab_dock"}}
 <footer class="foot">StudyBuddy · 每个学生独立数据库，学习数据完全隔离</footer>
 <script src="/static/vendor/sal.js"></script>
 <script>
@@ -193,15 +305,17 @@
   });
 })();
 </script>
+{{template "fab_js"}}
 </body>
 </html>
 {{end}}
 
 {{define "header_auth"}}<!DOCTYPE html>
-<html lang="zh-CN" data-skin="{{.Skin}}">
+<html lang="zh-CN" data-skin="{{.Skin}}"{{if .Theme}} data-theme="{{.Theme}}"{{end}}>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <title>{{.Title}} · StudyBuddy</title>
 <link rel="stylesheet" href="/static/style.css">
@@ -210,6 +324,8 @@
 {{end}}
 
 {{define "footer_auth"}}
+{{template "fab_dock"}}
+{{template "fab_js"}}
 </body>
 </html>
 {{end}}
@@ -293,155 +409,237 @@
   var mouseX = window.innerWidth * 0.25;
   var mouseY = window.innerHeight * 0.45;
 
-  function el(id) { return document.getElementById(id); }
-  function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+  var reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  var follow = !reduce;              // 减弱动效偏好下关闭鼠标跟随
+  var SP = reduce ? 5 : 1;           // 减弱动效偏好下几乎瞬时归位
 
-  function faceOf(id) {
-    var r = el(id).getBoundingClientRect();
+  function el(id) { return document.getElementById(id); }
+  function r2(v) { return Math.round(v * 100) / 100; }
+  function r3(v) { return Math.round(v * 1000) / 1000; }
+  /* 软限位：越靠近边界增量越小，取代硬 clamp，消除"撞限位"的突跳并带来自然回弹 */
+  function soft(v, lim) { return lim * Math.tanh(v / lim); }
+
+  /* -------- LitePan 同款 quickTo：临界阻尼弹簧，帧率无关、无过冲抖动 -------- */
+  function Ch(w, init) { this.v = init || 0; this.vel = 0; this.t = init || 0; this.w = w; }
+  Ch.prototype.set = function (t) { this.t = t; };
+  Ch.prototype.step = function (dt) {
+    var w = this.w, f = 1 + 2 * dt * w, oo = w * w, hoo = dt * oo, hhoo = dt * hoo;
+    var inv = 1 / (f + hhoo);
+    var nv = (this.vel + hoo * (this.t - this.v)) * inv;
+    this.v = (f * this.v + dt * this.vel + hhoo * this.t) * inv;
+    this.vel = nv;
+  };
+
+  var W_BODY = 13 * SP, W_FACE = 18 * SP, W_PUPIL = 34 * SP, W_BLINK = 46 * SP;
+  var TALL = 410 / 370;              // 蓝伙伴"站直"时的纵向拉伸
+
+  function Char(id, faceId, pupilIds, eyeIds) {
+    var c = { el: el(id), face: el(faceId), eyes: [], pupils: [] }, i;
+    if (eyeIds) { for (i = 0; i < eyeIds.length; i++) { c.eyes.push(el(eyeIds[i])); } }
+    for (i = 0; i < pupilIds.length; i++) { c.pupils.push(el(pupilIds[i])); }
+    c.track = eyeIds || pupilIds;    // 瞳孔测距基准
+    c.maxD = eyeIds ? 5.5 : 8;       // 瞳孔最大偏移
+    c.skew = new Ch(W_BODY, 0); c.tx = new Ch(W_BODY, 0); c.sy = new Ch(W_BODY, 1);
+    c.fx = new Ch(W_FACE, 0); c.fy = new Ch(W_FACE, 0);
+    c.px = [new Ch(W_PUPIL, 0), new Ch(W_PUPIL, 0)];
+    c.py = [new Ch(W_PUPIL, 0), new Ch(W_PUPIL, 0)];
+    c.blink = new Ch(W_BLINK, 1);
+    return c;
+  }
+
+  var blue   = Char('char-blue',   'blue-eyes',   ['blue-pupil-l', 'blue-pupil-r'],
+                    ['blue-eye-l', 'blue-eye-r']);
+  var ink    = Char('char-ink',    'ink-eyes',    ['ink-pupil-l', 'ink-pupil-r'],
+                    ['ink-eye-l', 'ink-eye-r']);
+  var orange = Char('char-orange', 'orange-eyes', ['orange-pupil-l', 'orange-pupil-r'], null);
+  var yellow = Char('char-yellow', 'yellow-eyes', ['yellow-pupil-l', 'yellow-pupil-r'], null);
+  var all = [blue, ink, orange, yellow];
+
+  var mouth = el('yellow-mouth');
+  var mtx = new Ch(W_FACE, 0), mty = new Ch(W_FACE, 0), mrot = new Ch(W_FACE, 0);
+
+  /* -------- 几何缓存：只在 resize 时测一次，杜绝每帧 reflow -------- */
+  var MEASURE_IDS = ['char-blue', 'char-ink', 'char-orange', 'char-yellow',
+    'blue-eye-l', 'blue-eye-r', 'ink-eye-l', 'ink-eye-r',
+    'orange-pupil-l', 'orange-pupil-r', 'yellow-pupil-l', 'yellow-pupil-r'];
+  var CLEAR_IDS = MEASURE_IDS.concat(['blue-eyes', 'ink-eyes', 'orange-eyes',
+    'yellow-eyes', 'yellow-mouth']);
+  var rects = {}, needMeasure = true;
+
+  function measure() {
+    var saved = [], i, n;
+    for (i = 0; i < CLEAR_IDS.length; i++) {          // 先清零 transform，量到未变形的基准位
+      n = el(CLEAR_IDS[i]);
+      if (n) { saved.push([n, n.style.transform]); n.style.transform = 'none'; }
+    }
+    for (i = 0; i < MEASURE_IDS.length; i++) {
+      n = el(MEASURE_IDS[i]);
+      if (n) { rects[MEASURE_IDS[i]] = n.getBoundingClientRect(); }
+    }
+    for (i = 0; i < saved.length; i++) { saved[i][0].style.transform = saved[i][1]; }
+    needMeasure = false;
+  }
+
+  function faceOf(id, gain) {
+    var r = rects[id];
+    if (!follow || !r) { return { x: 0, y: 0, skew: 0 }; }
     var dx = mouseX - (r.left + r.width / 2);
     var dy = mouseY - (r.top + r.height / 3);
-    return {
-      x: clamp(dx / 20, -15, 15),
-      y: clamp(dy / 30, -10, 10),
-      skew: clamp(-dx / 120, -6, 6)
-    };
+    return { x: soft(dx / 20 * gain, 15), y: soft(dy / 30 * gain, 10), skew: soft(-dx / 120 * gain, 6) };
   }
 
   function pupilOf(id, maxDist) {
-    var r = el(id).getBoundingClientRect();
+    var r = rects[id];
+    if (!follow || !r) { return { x: 0, y: 0 }; }
     var dx = mouseX - (r.left + r.width / 2);
     var dy = mouseY - (r.top + r.height / 2);
-    var d = Math.min(Math.sqrt(dx * dx + dy * dy), maxDist);
-    var a = Math.atan2(dy, dx);
-    return { x: Math.cos(a) * d, y: Math.sin(a) * d };
+    var d = Math.sqrt(dx * dx + dy * dy);
+    if (d < 0.0001) { return { x: 0, y: 0 }; }
+    var m = maxDist * Math.tanh(d / maxDist);         // 瞳孔贴边时平滑收敛，不硬顶
+    return { x: dx / d * m, y: dy / d * m };
   }
 
-  function mv(id, x, y) {
-    var n = el(id);
-    if (n) { n.style.transform = 'translate(' + x + 'px,' + y + 'px)'; }
-  }
-
-  function eyeballChar(prefix, fx, fy, fixedX, fixedY, blink) {
-    mv(prefix + '-eyes', fx, fy);
-    var sides = ['l', 'r'];
-    for (var i = 0; i < sides.length; i++) {
-      var s = sides[i];
-      var ball = el(prefix + '-eye-' + s);
-      if (ball) { ball.style.height = blink ? '2px' : ''; }
-      var p = (fixedX === undefined) ? pupilOf(prefix + '-eye-' + s, 5) : { x: fixedX, y: fixedY };
-      mv(prefix + '-pupil-' + s, p.x, p.y);
+  /* px/py 留空 = 跟随鼠标；给定 = 固定视线 */
+  function pose(c, skew, tx, sy, fx, fy, px, py) {
+    c.skew.set(skew); c.tx.set(tx); c.sy.set(sy);
+    c.fx.set(fx); c.fy.set(fy);
+    var i;
+    if (px === undefined) {
+      for (i = 0; i < c.track.length; i++) {
+        var p = pupilOf(c.track[i], c.maxD);
+        c.px[i].set(p.x); c.py[i].set(p.y);
+      }
+    } else {
+      for (i = 0; i < c.px.length; i++) { c.px[i].set(px); c.py[i].set(py); }
     }
   }
 
-  function bareChar(prefix, fx, fy) {
-    var sides = ['l', 'r'];
-    for (var i = 0; i < sides.length; i++) {
-      var s = sides[i];
-      var p = (fx === undefined) ? pupilOf(prefix + '-pupil-' + s, 8) : { x: fx, y: fy };
-      mv(prefix + '-pupil-' + s, p.x, p.y);
+  var clock = 0;
+  function targets(dt) {
+    clock += dt;
+    var pwdLen = pwd.value.length;
+    var showing = pwdLen > 0 && showPassword;
+    var away = isPwdFocused && !showPassword;
+    var br = reduce ? 0 : 1;                          // 静止微呼吸，避免"死板"
+    var bB = 1 + 0.007 * Math.sin(clock * 1.15) * br;
+    var nB = 1 + 0.008 * Math.sin(clock * 1.35 + 1.2) * br;
+    var oB = 1 + 0.009 * Math.sin(clock * 1.55 + 2.1) * br;
+    var yB = 1 + 0.009 * Math.sin(clock * 1.28 + 3.4) * br;
+
+    var bf = faceOf('char-blue', 0.9), nf = faceOf('char-ink', 1.0);
+    var of = faceOf('char-orange', 1.1), yf = faceOf('char-yellow', 1.2);
+
+    if (isLoginError) {
+      pose(blue, 0, 0, 1, 30, 55, -3, 4);
+      pose(ink, 0, 0, 1, 15, 40, -3, 4);
+      pose(orange, 0, 0, 1, 60, 95, -3, 4);
+      pose(yellow, 0, 0, 1, 35, 45, -3, 4);
+      mtx.set(35); mty.set(53); mrot.set(-8);
+    } else if (showing) {
+      var bx = isBluePeeking ? 4 : -4, by = isBluePeeking ? 5 : -4;
+      pose(blue, 0, 0, bB, -4, 0, bx, by);
+      pose(ink, 0, 0, nB, -4, 0, -4, -4);
+      pose(orange, 0, 0, oB, 0, 0, -4, -4);
+      pose(yellow, 0, 0, yB, 0, 0, -4, -4);
+      mtx.set(-4); mty.set(0); mrot.set(0);
+    } else if (away) {
+      pose(blue, -14, -20, TALL * bB, -5, -5, -5, -5);
+      pose(ink, 12, -10, nB, -5, -5, -4, -5);
+      pose(orange, 0, 0, oB, -5, -5, -5, -5);
+      pose(yellow, 0, 0, yB, -5, -5, -5, -5);
+      mtx.set(-5); mty.set(0); mrot.set(0);
+    } else if (isLookingAtEachOther) {
+      // 输入用户名：小伙伴互相对视
+      pose(blue, bf.skew, 40, TALL * bB, 8, 18, 4, 6);
+      pose(ink, nf.skew + 10, 20, nB, -6, -6, -4, -4);
+      pose(orange, of.skew, 0, oB, 0, 0, 2, 4);
+      pose(yellow, yf.skew, 0, yB, 0, 0, -3, 3);
+      mtx.set(-3); mty.set(6); mrot.set(0);
+    } else if (isTyping) {
+      pose(blue, bf.skew - 12, 40, TALL * bB, bf.x, bf.y);
+      pose(ink, nf.skew + 10, 20, nB, nf.x, nf.y);
+      pose(orange, of.skew, 0, oB, of.x, of.y);
+      pose(yellow, yf.skew, 0, yB, yf.x, yf.y);
+      mtx.set(yf.x); mty.set(yf.y); mrot.set(0);
+    } else {
+      pose(blue, bf.skew, 0, bB, bf.x, bf.y);
+      pose(ink, nf.skew, 0, nB, nf.x, nf.y);
+      pose(orange, of.skew, 0, oB, of.x, of.y);
+      pose(yellow, yf.skew, 0, yB, yf.x, yf.y);
+      mtx.set(yf.x); mty.set(yf.y); mrot.set(0);
+    }
+    blue.blink.set(isBlueBlinking ? 0.1 : 1);
+    ink.blink.set(isInkBlinking ? 0.1 : 1);
+  }
+
+  function step(dt) {
+    for (var i = 0; i < all.length; i++) {
+      var c = all[i];
+      c.skew.step(dt); c.tx.step(dt); c.sy.step(dt);
+      c.fx.step(dt); c.fy.step(dt);
+      c.px[0].step(dt); c.py[0].step(dt); c.px[1].step(dt); c.py[1].step(dt);
+      c.blink.step(dt);
+    }
+    mtx.step(dt); mty.step(dt); mrot.step(dt);
+  }
+
+  function write() {
+    var i, k, c;
+    for (i = 0; i < all.length; i++) {
+      c = all[i];
+      if (c.el) {
+        c.el.style.transform = 'translateX(' + r2(c.tx.v) + 'px) skewX(' + r2(c.skew.v) +
+          'deg) scaleY(' + r3(c.sy.v) + ')';
+      }
+      if (c.face) { c.face.style.transform = 'translate(' + r2(c.fx.v) + 'px,' + r2(c.fy.v) + 'px)'; }
+      for (k = 0; k < c.pupils.length; k++) {
+        if (c.pupils[k]) {
+          c.pupils[k].style.transform = 'translate(' + r2(c.px[k].v) + 'px,' + r2(c.py[k].v) + 'px)';
+        }
+      }
+      for (k = 0; k < c.eyes.length; k++) {
+        if (c.eyes[k]) { c.eyes[k].style.transform = 'scaleY(' + r3(c.blink.v) + ')'; }
+      }
+    }
+    if (mouth) {
+      mouth.style.transform = 'translate(' + r2(mtx.v) + 'px,' + r2(mty.v) + 'px) rotate(' +
+        r2(mrot.v) + 'deg)';
     }
   }
 
-  function body(id, skew, dx, h) {
-    var n = el(id);
-    if (!n) { return; }
-    n.style.transform = 'skewX(' + skew + 'deg)' + (dx ? ' translateX(' + dx + 'px)' : '');
-    if (h) { n.style.height = h; }
+  var last = 0, rafId = 0;
+  function frame(ts) {
+    rafId = requestAnimationFrame(frame);
+    if (scene.offsetParent === null) { return; }     // 窄屏隐藏左侧，直接省算力
+    var dt = last ? (ts - last) / 1000 : 0.016;
+    last = ts;
+    if (!(dt > 0)) { dt = 0.016; }
+    if (dt > 0.05) { dt = 0.05; }                    // 切回标签页时不跳变
+    if (needMeasure) { measure(); }
+    targets(dt);
+    step(dt);
+    write();
   }
 
   function sceneClass(name, on) {
     if (on) { scene.classList.add(name); } else { scene.classList.remove(name); }
   }
 
-  function update() {
-    var pwdLen = pwd.value.length;
-    var showing = pwdLen > 0 && showPassword;
-    var away = isPwdFocused && !showPassword;
-
-    var bf = faceOf('char-blue'), nf = faceOf('char-ink');
-    var of = faceOf('char-orange'), yf = faceOf('char-yellow');
-
-    if (isLoginError) {
-      body('char-blue', 0, 0, '370px');
-      body('char-ink', 0, 0, '');
-      mv('blue-eyes', 30, 55); mv('ink-eyes', 15, 40);
-      mv('orange-eyes', 60, 95); mv('yellow-eyes', 35, 45);
-      eyeballChar('blue', 30, 55, -3, 4, false);
-      eyeballChar('ink', 15, 40, -3, 4, false);
-      bareChar('orange', -3, 4);
-      bareChar('yellow', -3, 4);
-      var ym = el('yellow-mouth');
-      if (ym) { ym.style.transform = 'translate(35px,53px) rotate(-8deg)'; }
-      return;
-    }
-
-    // 身体姿态
-    if (showing) {
-      body('char-blue', 0, 0, '370px');
-      body('char-ink', 0, 0, '');
-    } else if (away) {
-      body('char-blue', -14, -20, '410px');
-      body('char-ink', 12, -10, '');
-    } else if (isTyping) {
-      body('char-blue', bf.skew - 12, 40, '410px');
-      body('char-ink', nf.skew + 10, 20, '');
-    } else {
-      body('char-blue', bf.skew, 0, '370px');
-      body('char-ink', nf.skew, 0, '');
-    }
-
-    // 眼睛
-    if (showing) {
-      var bx = isBluePeeking ? 4 : -4;
-      var by = isBluePeeking ? 5 : -4;
-      eyeballChar('blue', -4, 0, bx, by, isBlueBlinking);
-      eyeballChar('ink', -4, 0, -4, -4, isInkBlinking);
-      bareChar('orange', -4, -4);
-      bareChar('yellow', -4, -4);
-      mv('yellow-mouth', -4, 0);
-    } else if (away) {
-      eyeballChar('blue', -5, -5, -5, -5, isBlueBlinking);
-      eyeballChar('ink', -5, -5, -4, -5, isInkBlinking);
-      bareChar('orange', -5, -5);
-      bareChar('yellow', -5, -5);
-      mv('yellow-mouth', -5, 0);
-    } else if (isLookingAtEachOther) {
-      // 输入用户名：小伙伴互相对视
-      eyeballChar('blue', 8, 18, 4, 6, isBlueBlinking);
-      eyeballChar('ink', -6, -6, -4, -4, isInkBlinking);
-      bareChar('orange', 2, 4);
-      bareChar('yellow', -3, 3);
-      mv('yellow-mouth', -3, 6);
-    } else {
-      eyeballChar('blue', bf.x, bf.y, undefined, undefined, isBlueBlinking);
-      eyeballChar('ink', nf.x, nf.y, undefined, undefined, isInkBlinking);
-      bareChar('orange', of.x, of.y);
-      bareChar('yellow', yf.x, yf.y);
-      mv('yellow-mouth', yf.x, yf.y);
-    }
-  }
-
-  function blinkLoop(prefix, flagSetter) {
+  function blinkLoop(flagSetter) {
     setTimeout(function () {
-      flagSetter(true); update();
-      setTimeout(function () {
-        flagSetter(false); update();
-        blinkLoop(prefix, flagSetter);
-      }, 150);
+      flagSetter(true);
+      setTimeout(function () { flagSetter(false); blinkLoop(flagSetter); }, 150);
     }, Math.random() * 4000 + 3000);
   }
-  blinkLoop('blue', function (v) { isBlueBlinking = v; });
-  blinkLoop('ink', function (v) { isInkBlinking = v; });
+  blinkLoop(function (v) { isBlueBlinking = v; });
+  blinkLoop(function (v) { isInkBlinking = v; });
 
   function peekLoop() {
     if (pwd.value.length > 0 && showPassword) {
       setTimeout(function () {
         if (pwd.value.length > 0 && showPassword) {
-          isBluePeeking = true; update();
-          setTimeout(function () {
-            isBluePeeking = false; update();
-            peekLoop();
-          }, 800);
+          isBluePeeking = true;
+          setTimeout(function () { isBluePeeking = false; peekLoop(); }, 800);
         }
       }, Math.random() * 3000 + 2000);
     }
@@ -452,27 +650,29 @@
     if (t) {
       isLookingAtEachOther = true;
       clearTimeout(typingTimer);
-      typingTimer = setTimeout(function () {
-        isLookingAtEachOther = false; update();
-      }, 800);
+      typingTimer = setTimeout(function () { isLookingAtEachOther = false; }, 800);
     } else {
       isLookingAtEachOther = false;
     }
-    update();
   }
 
   document.addEventListener('mousemove', function (e) {
     mouseX = e.clientX; mouseY = e.clientY;
-    if (!isTyping && !isLoginError) { update(); }
+  }, { passive: true });
+
+  document.addEventListener('mouseleave', function () {   // 移出视窗后缓缓回正
+    mouseX = window.innerWidth * 0.25;
+    mouseY = window.innerHeight * 0.45;
   });
+
+  window.addEventListener('resize', function () { needMeasure = true; });
+  window.addEventListener('scroll', function () { needMeasure = true; }, { passive: true });
 
   user.addEventListener('focus', function () { setTyping(true); });
   user.addEventListener('blur', function () { setTyping(false); });
-  user.addEventListener('input', update);
 
-  pwd.addEventListener('focus', function () { isPwdFocused = true; update(); });
-  pwd.addEventListener('blur', function () { isPwdFocused = false; update(); });
-  pwd.addEventListener('input', update);
+  pwd.addEventListener('focus', function () { isPwdFocused = true; });
+  pwd.addEventListener('blur', function () { isPwdFocused = false; });
 
   toggle.addEventListener('click', function () {
     showPassword = !showPassword;
@@ -480,21 +680,21 @@
     eye.style.display = showPassword ? 'none' : 'block';
     eyeOff.style.display = showPassword ? 'block' : 'none';
     if (showPassword) { peekLoop(); }
-    update();
   });
 
   if (isLoginError) {
     sceneClass('is-error', true);
-    update();
     setTimeout(function () {
       isLoginError = false;
       sceneClass('is-error', false);
-      if (!isPwdFocused) { isPwdFocused = false; }
-      update();
     }, 2500);
-  } else {
-    update();
   }
+
+  rafId = requestAnimationFrame(frame);
+  setTimeout(function () { needMeasure = true; }, 400);   // 字体/布局稳定后复测一次
+  window.addEventListener('load', function () { needMeasure = true; });
+
+  window.addEventListener('pagehide', function () { cancelAnimationFrame(rafId); });
 })();
 </script>
 {{end}}

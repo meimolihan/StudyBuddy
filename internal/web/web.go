@@ -144,6 +144,7 @@ func (a *App) Routes() *gin.Engine {
 	// 壁纸按 content/ 同构的目录树存放，所以图片路由必须是可吃多级路径的 catch-all。
 	r.GET("/wallpapers/*path", a.wallpaperFile)
 	r.GET("/api/wallpaper", a.wallpaperLookup)
+	r.GET("/theme/mode", a.setThemeMode) // 明暗模式：写 cookie，未登录也能切
 
 	auth2 := r.Group("", auth.RequireLogin())
 	{
@@ -380,7 +381,9 @@ func (a *App) studyPage(c *gin.Context) {
 		return
 	}
 
-	cur := a.currentLesson(st, u)
+	// 题型：choose 选择题（默认） / judge 判断题
+	qt := normalizeQType(c.Query("qt"))
+	cur := a.currentLesson(st, u, qt)
 	total, passed, avg, _ := st.Stats()
 	prog, _ := st.ListProgress()
 	pmap := map[string]*db.Progress{}
@@ -401,46 +404,94 @@ func (a *App) studyPage(c *gin.Context) {
 		"Avg":     avg,
 		"Recent":  recent,
 		"Pass":    a.Cfg.PassScore,
+		"QT":      qt,
+		"QTCN":    textbook.QTypeCN(qt),
+		"CurTwin": twinOf(a.Tree, cur),
 	})
 }
 
+// normalizeQType 规范题型参数：只认 choose / judge，其余（含空）按选择题。
+func normalizeQType(q string) string {
+	switch strings.ToLower(strings.TrimSpace(q)) {
+	case textbook.QTypeJudge:
+		return textbook.QTypeJudge
+	}
+	return textbook.QTypeChoose
+}
+
+// twinOf 取同一门课在另一题型下的镜像课（不存在返回 nil）。
+func twinOf(t *textbook.Tree, l *textbook.Lesson) *textbook.Lesson {
+	if l == nil || t == nil {
+		return nil
+	}
+	k := l.TwinKey()
+	if k == "" {
+		return nil
+	}
+	if x, ok := t.Lessons[k]; ok {
+		return x
+	}
+	return nil
+}
+
 // currentLesson 决定当前应学的课：优先学生库中的位置，否则按其学段 + 年级 + 册别取第一课。
-func (a *App) currentLesson(st *db.Student, u *db.User) *textbook.Lesson {
+// qt 为题型（choose / judge，空值按 choose）：只在同题型的课里挑；
+// 学生库里记住的是另一题型时，自动换到它的镜像课。
+func (a *App) currentLesson(st *db.Student, u *db.User, qt string) *textbook.Lesson {
+	if qt == "" {
+		qt = textbook.QTypeChoose
+	}
 	if k := st.GetState("current_lesson"); k != "" {
 		if l, ok := a.Tree.Lessons[k]; ok {
-			return l
-		}
-	}
-	// 三级回退：学段+年级+册别精确匹配 → 同学段第一课 → 全库第一课。
-	var first, stageFirst, match *textbook.Lesson
-	for _, g := range a.Tree.Grades {
-		stageOK := sameStage(g.Stage, u.Stage)
-		for _, v := range g.Volumes {
-			for _, s := range v.Subjects {
-				for _, l := range s.Lessons {
-					if first == nil {
-						first = l
-					}
-					if !stageOK {
-						continue
-					}
-					if stageFirst == nil {
-						stageFirst = l
-					}
-					if match == nil && l.Grade == u.Grade && l.Volume == u.Volume {
-						match = l
-					}
+			if l.QType == qt {
+				return l
+			}
+			if tk := l.TwinKey(); tk != "" {
+				if t, ok := a.Tree.Lessons[tk]; ok && t.QType == qt {
+					return t
 				}
 			}
 		}
 	}
-	if match != nil {
-		return match
+	// 三级回退：学段+年级+册别精确匹配 → 同学段第一课 → 全库第一课（均限定题型）。
+	pick := func(qtype string) *textbook.Lesson {
+		var first, stageFirst, match *textbook.Lesson
+		for _, g := range a.Tree.Grades {
+			stageOK := sameStage(g.Stage, u.Stage)
+			for _, v := range g.Volumes {
+				for _, s := range v.Subjects {
+					for _, l := range s.Lessons {
+						if qtype != "" && l.QType != qtype {
+							continue
+						}
+						if first == nil {
+							first = l
+						}
+						if !stageOK {
+							continue
+						}
+						if stageFirst == nil {
+							stageFirst = l
+						}
+						if match == nil && l.Grade == u.Grade && l.Volume == u.Volume {
+							match = l
+						}
+					}
+				}
+			}
+		}
+		if match != nil {
+			return match
+		}
+		if stageFirst != nil {
+			return stageFirst
+		}
+		return first
 	}
-	if stageFirst != nil {
-		return stageFirst
+	if l := pick(qt); l != nil {
+		return l
 	}
-	return first
+	return pick("") // 该题型下还没有课（如 judge 尚未生成）时不限题型回退
 }
 
 // sameStage 判断课程学段是否匹配学生学段；学生未设置学段（旧数据）时视为不限。
@@ -488,6 +539,51 @@ func (a *App) setTheme(c *gin.Context) {
 	c.Redirect(http.StatusSeeOther, back)
 }
 
+// ---- 明暗模式 ----
+
+// themeCookie 明暗模式偏好：dark / light；不存在或为其它值 = 跟随系统。
+const themeCookie = "sb_theme"
+
+// themeModeFromCookie 读取用户手动选择的明暗模式。
+//
+// 返回 "dark" / "light" 表示用户手动锁定；返回空串表示「跟随系统」——
+// 首次访问（无 cookie）、cookie 值为 auto、以及任何非法值都属于这种情况。
+// 空串时模板不会输出 data-theme 属性，配色完全交给 CSS 的
+// @media (prefers-color-scheme: dark) 决定，因此首次打开即自动跟随系统，
+// 且系统切换时无需刷新即可生效。
+func themeModeFromCookie(c *gin.Context) string {
+	v, err := c.Cookie(themeCookie)
+	if err != nil {
+		return "" // 首次访问：跟随系统
+	}
+	switch strings.ToLower(strings.TrimSpace(v)) {
+	case "dark":
+		return "dark"
+	case "light":
+		return "light"
+	}
+	return "" // auto 或非法值：跟随系统
+}
+
+// setThemeMode 手动切换明暗模式：写入长期 cookie 后回跳原页面。
+// mode=dark / light 为强制模式，mode=auto 或其它值表示交回「跟随系统」。
+func (a *App) setThemeMode(c *gin.Context) {
+	m := strings.ToLower(strings.TrimSpace(c.Query("mode")))
+	if m != "dark" && m != "light" {
+		m = ""
+	}
+	if m == "" {
+		c.SetCookie(themeCookie, "", -1, "/", "", false, true) // 删除 cookie = 跟随系统
+	} else {
+		c.SetCookie(themeCookie, m, 365*24*3600, "/", "", false, true)
+	}
+	back := c.Query("back")
+	if !strings.HasPrefix(back, "/") || strings.HasPrefix(back, "//") {
+		back = "/study" // 防开放重定向：只接受站内相对路径
+	}
+	c.Redirect(http.StatusSeeOther, back)
+}
+
 // ---- 课程 / 刷题 ----
 
 func (a *App) lessonPage(c *gin.Context) {
@@ -509,6 +605,8 @@ func (a *App) lessonPage(c *gin.Context) {
 		"Progress": p,
 		"Pass":     a.Cfg.PassScore,
 		"Session":  s,
+		"Twin":     twinOf(a.Tree, l), // 同课的另一种题型（选择题 ↔ 判断题互跳）
+		"QT":       l.QType,
 	})
 }
 
@@ -554,6 +652,8 @@ func renderQuiz(a *App, c *gin.Context, paper *quiz.Paper, st *db.Student, u *db
 		t := "单选"
 		if q.IsMulti() {
 			t = "多选"
+		} else if q.Type == "j" {
+			t = "判断"
 		}
 		v := view{Idx: i, TypeCN: t, Stem: q.Stem}
 		for j, o := range q.Options {
@@ -666,9 +766,16 @@ func (a *App) nextLesson(l *textbook.Lesson) *textbook.Lesson {
 					continue
 				}
 				for i, x := range s.Lessons {
-					if x.Key == l.Key && i+1 < len(s.Lessons) {
-						return s.Lessons[i+1]
+					if x.Key != l.Key {
+						continue
 					}
+					// choose / judge 两套镜像课混在同一列表里，下一课必须沿用同一题型
+					for _, y := range s.Lessons[i+1:] {
+						if y.QType == l.QType {
+							return y
+						}
+					}
+					return nil
 				}
 			}
 		}
@@ -692,6 +799,17 @@ func (a *App) resultPage(c *gin.Context) {
 	if e.Passed && l != nil {
 		nxt = a.nextLesson(l)
 	}
+	// 解析按题干从当课题库里取（判断题每题都带解析），无需改动答卷表结构。
+	explain := map[string]string{}
+	if l != nil {
+		if b, err := l.Bank(); err == nil {
+			for _, q := range b {
+				if q.Explain != "" {
+					explain[q.Stem] = q.Explain
+				}
+			}
+		}
+	}
 	a.html(c, "result.html", gin.H{
 		"Title":   "自测结果",
 		"Exam":    e,
@@ -701,6 +819,7 @@ func (a *App) resultPage(c *gin.Context) {
 		"Full":    e.Total * 10,
 		"Pass":    a.Cfg.PassScore,
 		"Session": s,
+		"Explain": explain,
 	})
 }
 
@@ -724,6 +843,8 @@ func (a *App) lessonDocx(c *gin.Context) {
 		t := "单选"
 		if q.IsMulti() {
 			t = "多选"
+		} else if q.Type == "j" {
+			t = "判断"
 		}
 		var ans []string
 		for _, x := range q.AnswerIdx() {
@@ -805,8 +926,26 @@ func (a *App) archivePage(c *gin.Context) {
 	u, _ := a.Global.ByID(s.UserID)
 	st, _ := a.st(u)
 	list, _ := st.ListExams(200)
+
+	// 题型分类：choose 选择题（默认） / judge 判断题。
+	// 试卷只存了 lesson_key，题型由 key 里的 choose/judge 段推断（旧记录按选择题）。
+	qt := normalizeQType(c.Query("qt"))
+	qtMap := map[int64]string{}
+	qtCount := map[string]int{textbook.QTypeChoose: 0, textbook.QTypeJudge: 0}
+	shown := make([]*db.Exam, 0, len(list))
+	for _, e := range list {
+		q := textbook.QTypeOfKey(e.LessonKey)
+		qtMap[e.ID] = q
+		qtCount[q]++
+		if q == qt {
+			shown = append(shown, e)
+		}
+	}
+
 	a.html(c, "archive.html", gin.H{
-		"Title": "试卷归档", "Exams": list, "Session": s, "User": u,
+		"Title": "试卷归档", "Exams": shown, "Session": s, "User": u,
+		"QT": qt, "QTCN": textbook.QTypeCN(qt),
+		"ExamQT": qtMap, "QTCount": qtCount, "AllCount": len(list),
 	})
 }
 
@@ -823,6 +962,8 @@ func (a *App) archiveView(c *gin.Context) {
 	as, _ := st.Answers(id)
 	a.html(c, "archive_view.html", gin.H{
 		"Title": "试卷详情", "Exam": e, "Ans": as, "Session": s, "Full": e.Total * 10,
+		// 题型由 lesson_key 推断，用于详情页徽标与「返回归档列表」保持同一分类
+		"QT": textbook.QTypeOfKey(e.LessonKey),
 	})
 }
 
@@ -1055,6 +1196,8 @@ func (a *App) html(c *gin.Context, name string, data gin.H) {
 	}
 	data["WallpaperWant"] = wpWant
 	data["Path"] = c.Request.URL.RequestURI()
+	// 明暗模式：cookie 里存手动选择（dark / light），为空表示跟随系统（由 CSS 媒体查询决定）。
+	data["Theme"] = themeModeFromCookie(c)
 	// 顶栏高亮用：把当前路径归到「学习 / 归档 / 管理」三个分区之一。
 	data["Nav"] = navSection(c.Request.URL.Path)
 	if err := a.tmpl.ExecuteTemplate(c.Writer, name, data); err != nil {

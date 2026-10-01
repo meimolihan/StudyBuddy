@@ -389,24 +389,34 @@ def shuffle_options(questions):
     """
     import hashlib
     out = []
-    for t, q, o, a in questions:
+    for item in questions:
+        t, q, o, a = item[0], item[1], item[2], item[3]
+        e = item[4] if len(item) > 4 else ""   # 可选第 5 项：解析（判断题必备）
+        if t == "j":      # 判断题固定「正确 / 错误」顺序，不打乱
+            out.append((t, q, o, a, e))
+            continue
         seed = int(hashlib.md5(q.encode("utf-8")).hexdigest()[:8], 16)
         idx = list(range(len(o)))
         random.Random(seed).shuffle(idx)
         new_o = [o[i] for i in idx]                       # 打乱后的选项
         old2new = {old: new for new, old in enumerate(idx)}
         new_a = sorted("ABCD"[old2new["ABCD".index(x)]] for x in a)
-        out.append((t, q, new_o, new_a))
+        out.append((t, q, new_o, new_a, e))
     return out
 
 def js_array(questions):
     questions = shuffle_options(questions)
     parts = []
-    for t, q, o, a in questions:
+    for item in questions:
+        t, q, o, a = item[0], item[1], item[2], item[3]
+        e = item[4] if len(item) > 4 else ""
         opts = ", ".join('"%s"' % x.replace('"', '\\"') for x in o)
         ans = ", ".join('"%s"' % x for x in a)
-        parts.append(' {t:"%s",q:%s,o:[%s],a:[%s]}' % (
-            t, '"%s"' % q.replace('"', '\\"').replace("\n", ""), opts, ans))
+        seg = ' {t:"%s",q:%s,o:[%s],a:[%s]' % (
+            t, '"%s"' % q.replace('"', '\\"').replace("\n", ""), opts, ans)
+        if e:
+            seg += ',e:%s' % ('"%s"' % e.replace('"', '\\"').replace("\n", ""))
+        parts.append(seg + '}')
     return "[" + ",\n".join(parts) + "]"
 
 HTML_TEMPLATE = """<!DOCTYPE html>
@@ -604,13 +614,13 @@ function render(){
     wrap.className="q"; wrap.id="q"+i;
     const qtop=document.createElement("div"); qtop.className="qtop";
     const badge=document.createElement("span");
-    badge.className="badge "+(item.t==="s"?"s":"m");
-    badge.textContent=item.t==="s"?"单选题":"多选题";
+    badge.className="badge "+(item.t==="m"?"m":"s");
+    badge.textContent=item.t==="j"?"判断题":(item.t==="s"?"单选题":"多选题");
     const qno=document.createElement("span"); qno.className="qno"; qno.textContent="第 "+(i+1)+" 题";
     const qspk=document.createElement("button"); qspk.className="spk qspk"; qspk.type="button";
     qspk.title="读题（朗读题目与选项）"; qspk.textContent="🔊";
     const full=item.q+"。"+item.o.map((o,j)=>"ABCD"[j]+"："+o).join("，")+"。"
-      +(item.t==="s"?"这是单选题，请选一个答案。":"这是多选题，可以选多个答案。");
+      +(item.t==="j"?"这是判断题，请判断正确还是错误。":(item.t==="s"?"这是单选题，请选一个答案。":"这是多选题，可以选多个答案。"));
     qspk.addEventListener("click",function(){ speak(full, qspk); });
     qtop.appendChild(badge); qtop.appendChild(qno); qtop.appendChild(qspk);
     const stem=document.createElement("div"); stem.className="stem"; stem.textContent=item.q;
@@ -648,7 +658,7 @@ function newRound(){
 function pick(i,j){
   const item=Q[i];
   const el=document.getElementById("o"+i+"_"+j);
-  if(item.t==="s"){
+  if(item.t==="s"||item.t==="j"){
     for(let k=0;k<item.o.length;k++){
       document.getElementById("o"+i+"_"+k).classList.remove("sel");
       document.getElementById("tk"+i+"_"+k).textContent="○";
@@ -684,7 +694,8 @@ function grade(){
         document.getElementById("tk"+i+"_"+idx).textContent="✘";}});
     }
     document.getElementById("ans"+i).innerHTML =
-      "<b>正确答案："+item.a.join("、")+"</b>" + (right?" ✓ 你答对啦！":"（本题你未答对）");
+      "<b>正确答案："+item.a.join("、")+"</b>" + (right?" ✓ 你答对啦！":"（本题你未答对）")
+      + (item.e?"<br>解析："+item.e:"");
   });
   const maxScore = Q.length * 10;
   const sc=document.getElementById("score");
@@ -747,6 +758,11 @@ def grade_label(out_path, default="四年级"):
     if not m:
         return default
     n = int(m.group(1))
+    # 新目录命名：初中 junior/grade7~9 → 七/八/九年级；高中 senior/grade1~3 → 高一~高三
+    if "/junior/" in p:
+        return "%s年级" % _CN_NUM[n] if 0 <= n < len(_CN_NUM) else str(n)
+    if "/senior/" in p:
+        return "高%s" % _CN_NUM[n] if 0 <= n < len(_CN_NUM) else str(n)
     # 学段不同叫法不同：初中 grade1/2/3 → 七/八/九年级；高中 → 高一/高二/高三
     if "/middle/" in p or "/middle-school/" in p:
         mid = {1: "七", 2: "八", 3: "九"}.get(n)

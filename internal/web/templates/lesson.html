@@ -32,6 +32,11 @@
       <button class="btn ghost" type="submit">设为当前课程</button>
     </form>
     <a class="btn ghost" href="/study">返回学习主页</a>
+    {{if .Twin}}
+    <a class="btn ghost" href="/lesson?key={{urlquery .Twin.Key}}"
+       title="同一课的{{if .Lesson.IsJudge}}选择题{{else}}判断题{{end}}（镜像题库，文件名一致）">
+      {{if .Lesson.IsJudge}}切换到选择题{{else}}切换到判断题{{end}}</a>
+    {{end}}
   </div>
 </div>
 {{template "footer" .}}

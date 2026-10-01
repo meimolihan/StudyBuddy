@@ -418,18 +418,46 @@ body.auth-page{min-height:100vh; overflow-x:hidden}
 .characters-wrapper{position:relative; z-index:2; display:flex; align-items:flex-end;
   justify-content:center; height:400px}
 .characters-scene{position:relative; width:480px; height:360px; transform-origin:bottom center}
-.character{position:absolute; bottom:0; transition:all .7s ease-in-out; transform-origin:bottom center}
-.char-blue{left:60px;  width:170px; height:370px; background:#2f6fd0; border-radius:10px 10px 0 0; z-index:1}
-.char-ink{left:220px;  width:115px; height:290px; background:#2d3550; border-radius:8px 8px 0 0;   z-index:2}
-.char-orange{left:0;   width:230px; height:190px; background:#ff9b6b; border-radius:115px 115px 0 0; z-index:3}
-.char-yellow{left:290px;width:135px; height:215px; background:#ffd166; border-radius:68px 68px 0 0;  z-index:4}
-.eyes{position:absolute; display:flex; transition:all .7s ease-in-out}
+
+/* 主体由 JS 逐帧写 transform，禁用 CSS transition，避免补间与逐帧插值互相打断产生抖动 */
+.character{position:absolute; bottom:0; transform-origin:bottom center;
+  will-change:transform; backface-visibility:hidden}
+/* 体积光：左上提亮 + 底部收深，制造立体层次 */
+.character::before{content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
+  background:linear-gradient(155deg, rgba(255,255,255,.30) 0%, rgba(255,255,255,.08) 36%,
+    rgba(255,255,255,0) 60%),
+    linear-gradient(to top, rgba(8,18,42,.20) 0%, rgba(8,18,42,0) 44%)}
+/* 接地投影：强化前后层次与悬浮感 */
+.character::after{content:""; position:absolute; left:10%; right:10%; bottom:-8px; height:14px;
+  border-radius:50%; pointer-events:none; filter:blur(4px);
+  background:radial-gradient(ellipse at center, rgba(10,22,48,.32) 0%, rgba(10,22,48,0) 72%)}
+
+/* 主体本色沿用原配色：蓝 / 墨 / 橙 / 黄；层次交由 ::before 体积光与 box-shadow 表现 */
+.char-blue{left:60px;  width:170px; height:370px; border-radius:10px 10px 0 0; z-index:1;
+  background:#2f6fd0;
+  box-shadow:0 16px 32px rgba(16,40,82,.34), inset 0 -20px 36px rgba(10,30,62,.20),
+    inset 0 2px 0 rgba(255,255,255,.14)}
+.char-ink{left:220px;  width:115px; height:290px; border-radius:8px 8px 0 0;   z-index:2;
+  background:#2d3550;
+  box-shadow:0 14px 28px rgba(10,16,32,.36), inset 0 -16px 28px rgba(6,10,22,.24),
+    inset 0 2px 0 rgba(255,255,255,.10)}
+.char-orange{left:0;   width:230px; height:190px; border-radius:115px 115px 0 0; z-index:3;
+  background:#ff9b6b;
+  box-shadow:0 14px 28px rgba(146,66,30,.30), inset 0 -16px 30px rgba(132,56,22,.18),
+    inset 0 2px 0 rgba(255,255,255,.18)}
+.char-yellow{left:290px;width:135px; height:215px; border-radius:68px 68px 0 0;  z-index:4;
+  background:#ffd166;
+  box-shadow:0 14px 28px rgba(146,102,18,.28), inset 0 -16px 28px rgba(132,90,12,.16),
+    inset 0 2px 0 rgba(255,255,255,.20)}
+
+.eyes{position:absolute; display:flex; will-change:transform}
 .eyeball{border-radius:50%; background:#fff; display:flex; align-items:center; justify-content:center;
-  transition:height .15s ease; overflow:hidden}
-.pupil{border-radius:50%; background:#2d3550; transition:transform .1s ease-out}
-.bare-pupil{width:12px; height:12px; border-radius:50%; background:#2d3550; transition:transform .7s ease-in-out}
+  overflow:hidden; will-change:transform; transform-origin:center center;
+  box-shadow:inset 0 1px 2px rgba(18,30,54,.30)}
+.pupil{border-radius:50%; background:#2d3550; will-change:transform}
+.bare-pupil{width:12px; height:12px; border-radius:50%; background:#2d3550; will-change:transform}
 .yellow-mouth{position:absolute; width:50px; height:4px; background:#2d3550; border-radius:2px;
-  transition:all .7s ease-in-out}
+  will-change:transform}
 .orange-mouth{position:absolute; width:28px; height:14px; border:3px solid #2d3550; border-top:none;
   border-radius:0 0 14px 14px; opacity:0; transition:opacity .7s ease-in-out}
 .characters-scene.is-error .orange-mouth{opacity:1}
@@ -1330,3 +1358,269 @@ main > .card:first-of-type{margin-bottom:12px}
 @media (prefers-reduced-motion:reduce){
   .card,.stat,ul.lessons li,tbody tr{transition:none !important}
 }
+
+/* ---- 题型切换选项卡（选择题 / 判断题）与解析行 ----
+   沿用既有主题变量，不新增配色；hover 0.22s ease 且仅精确指针生效；
+   触屏热区 ≥44px；只用留白与柔和阴影分层，不新增装饰性边框线。 */
+.qtype-tabs{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:0 0 16px}
+.qtab{padding:8px 20px; border-radius:999px; background:var(--card); color:var(--muted);
+      font-size:14px; box-shadow:var(--shadow); text-decoration:none}
+.qtab.is-on{background:var(--brand); color:#fff; font-weight:600}
+.qtype-hint{font-size:13px}
+.explain{margin-top:6px; padding:8px 12px; border-radius:8px; background:var(--brand-soft);
+         color:var(--ink); font-size:13px; line-height:1.7}
+@media (hover:hover){
+  .qtab{transition:background-color .22s ease, color .22s ease, transform .22s ease}
+  .qtab:hover{text-decoration:none; transform:translateY(-1px)}
+  .qtab:not(.is-on):hover{background:var(--brand-soft); color:var(--brand)}
+}
+@media (pointer:coarse){
+  .qtab{min-height:44px; display:inline-flex; align-items:center; justify-content:center}
+}
+@media (prefers-reduced-motion:reduce){ .qtab{transition:none !important} }
+
+/* =========================================================
+   视觉升级（纯追加段 · 现代极简 / 明暗双主题 / 统一圆角 / 柔和低饱和阴影）
+   原则：只覆盖「令牌 + 排版 + 阴影 + 圆角 + 留白」，不动业务逻辑与 DOM；
+   浅色干净通透，深色用深灰基底（非纯黑）避免眩光；
+   去掉多余的分割线（卡片 / 统计块 / 导航容器 / 列表项），
+   层级改由「留白 + 柔和阴影 + 字重」表达；hover 统一 0.25s ease，
+   触屏（pointer:coarse）不触发 hover 且热区 ≥44px。
+   ========================================================= */
+
+/* ---- 1) 设计令牌 ---- */
+:root{
+  --bg:#f5f7fa;            /* 浅色：干净通透 */
+  --card:#ffffff;
+  --ink:#1b2430; --muted:#75828f;
+  --line:#eef1f6;          /* 分割线更淡，只保留必要的表格线 */
+  --radius:16px; --r-sm:12px; --r-lg:22px;
+  --shadow:0 1px 2px rgba(31,41,55,.04), 0 10px 24px rgba(31,41,55,.06);
+  --shadow-lg:0 2px 4px rgba(31,41,55,.05), 0 18px 40px rgba(31,41,55,.09);
+}
+/* 手动深色 */
+html[data-theme="dark"]{
+  --bg:#151a21;              /* 深灰基底，避免纯黑眩光 */
+  --card:#1c222b;
+  --ink:#e7ecf3; --muted:#9aa7b6;
+  --line:#2a323d;
+  --shadow:0 1px 2px rgba(0,0,0,.22), 0 10px 26px rgba(0,0,0,.30);
+  --shadow-lg:0 2px 6px rgba(0,0,0,.26), 0 18px 40px rgba(0,0,0,.34);
+}
+/* 跟随系统深色（未手动指定时） */
+@media (prefers-color-scheme: dark){
+  html:not([data-theme="light"]){
+    --bg:#151a21; --card:#1c222b;
+    --ink:#e7ecf3; --muted:#9aa7b6;
+    --line:#2a323d;
+    --shadow:0 1px 2px rgba(0,0,0,.22), 0 10px 26px rgba(0,0,0,.30);
+    --shadow-lg:0 2px 6px rgba(0,0,0,.26), 0 18px 40px rgba(0,0,0,.34);
+  }
+}
+
+/* ---- 2) 线性 SVG 图标 ---- */
+.ico{width:18px; height:18px; flex:none; display:block;
+     fill:none; stroke:currentColor; stroke-width:1.7;
+     stroke-linecap:round; stroke-linejoin:round; vertical-align:-3px}
+.ico-fab{width:22px; height:22px; stroke-width:1.8}
+.tnav-ico,.setico{display:inline-flex; align-items:center; justify-content:center}
+.setchev{display:inline-flex; align-items:center}
+details[open] .setchev{transform:rotate(180deg)}
+.setchev .ico{transition:transform .25s ease}
+
+/* ---- 3) 留白与视觉层级 ---- */
+main{padding:30px 24px 88px}
+h1{font-size:24px; font-weight:700; letter-spacing:.01em; margin:0 0 18px}
+h2{font-size:18px; font-weight:600; margin:0 0 12px}
+h3{font-size:15px; font-weight:600}
+.foot{padding:22px 18px 26px}
+
+/* ---- 4) 卡片与容器：去分割线 + 统一圆角 + 柔和阴影 ---- */
+.card{border:none; border-radius:var(--radius); box-shadow:var(--shadow);
+      padding:22px 24px; margin-bottom:20px; background:var(--card)}
+.stat{border:none; border-radius:var(--r-sm); box-shadow:var(--shadow);
+      padding:16px 18px; background:var(--card)}
+.stat .num{font-size:26px}
+.q{border:none; border-radius:var(--r-sm); box-shadow:var(--shadow);
+   padding:18px 20px; margin-bottom:16px; background:var(--card)}
+.result-item{border:none; border-left:4px solid var(--line); border-radius:var(--r-sm);
+             padding:13px 16px; margin-bottom:10px; background:var(--card); box-shadow:var(--shadow)}
+.result-item.right{border-left-color:var(--ok)}
+.result-item.wrong{border-left-color:var(--bad)}
+.alert{border:none; border-radius:var(--r-sm); box-shadow:none}
+.notice{border:none; border-radius:var(--r-sm)}
+
+/* 导航树：容器不再画线，层级靠缩进与间距 */
+details{border:none; background:transparent; border-radius:var(--r-sm); margin-bottom:6px}
+details summary{border-bottom:none; background:transparent; border-radius:var(--r-sm);
+                padding:10px 12px; font-weight:600}
+details[open] summary{border-bottom:none}
+.tree-body{padding:4px 12px 12px}
+ul.lessons li{border-bottom:none; padding:8px 8px; border-radius:10px; gap:8px}
+.unitname{margin-top:12px}
+
+/* 表格：保留必要的行线，去掉外框 */
+table{background:transparent}
+th,td{padding:11px 12px; border-bottom:1px solid var(--line)}
+th{background:transparent; font-size:13px; letter-spacing:.02em; font-weight:600}
+tr:last-child td{border-bottom:none}
+
+/* 表单与按钮 */
+input,select,label input,label select{border-radius:var(--r-sm); border:1px solid var(--line);
+                                      padding:11px 13px; background:var(--card)}
+.btn{border-radius:var(--r-sm); padding:11px 20px; font-weight:600; box-shadow:var(--shadow)}
+.btn.sm{padding:7px 14px}
+.opts label{border-radius:var(--r-sm); border:1px solid var(--line); padding:11px 13px}
+
+/* ---- 5) hover：0.25s ease，仅精确指针设备 ---- */
+@media (hover:hover){
+  .card,.stat,.q,.result-item{transition:box-shadow .25s ease, transform .25s ease}
+  .card:hover,.stat:hover,.q:hover{box-shadow:var(--shadow-lg); transform:translateY(-2px)}
+  .btn{transition:background-color .25s ease, transform .25s ease, box-shadow .25s ease}
+  .btn:hover{transform:translateY(-1px); box-shadow:var(--shadow-lg)}
+  .opts label{transition:background-color .25s ease, border-color .25s ease}
+  ul.lessons li{transition:background-color .25s ease}
+  ul.lessons li:hover{background:var(--brand-soft)}
+  tbody tr{transition:background-color .25s ease}
+  tbody tr:hover{background:var(--brand-soft)}
+  details summary{transition:background-color .25s ease}
+  details summary:hover{background:var(--brand-soft)}
+  .qtab,.fab{transition:transform .25s ease, box-shadow .25s ease, background-color .25s ease}
+  .fab:hover{transform:translateY(-2px); box-shadow:var(--shadow-lg)}
+}
+
+/* ---- 6) 悬浮操作球：左下明暗切换 / 右下返回顶部，同一水平线 ---- */
+.fab-dock{
+  position:fixed; left:0; right:0; bottom:24px; z-index:70;
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  padding:0 24px; pointer-events:none;   /* 中间区域不挡页面交互 */
+}
+.fab{
+  pointer-events:auto;
+  width:48px; height:48px; border-radius:50%;
+  display:inline-flex; align-items:center; justify-content:center;
+  background:var(--card); color:var(--ink);
+  border:1px solid var(--line); box-shadow:var(--shadow-lg); cursor:pointer;
+}
+.fab[hidden]{display:none !important}   /* 作者样式会顶掉 UA 的 hidden，必须显式声明 */
+.ico-when-dark{display:none}
+html[data-theme="dark"] .ico-when-light{display:none}
+html[data-theme="dark"] .ico-when-dark{display:inline-flex}
+@media (prefers-color-scheme: dark){
+  html:not([data-theme="light"]) .ico-when-light{display:none}
+  html:not([data-theme="light"]) .ico-when-dark{display:inline-flex}
+}
+@media (pointer:coarse){ .fab{width:52px; height:52px} }
+@media (max-width:640px){ .fab-dock{bottom:16px; padding:0 14px} }
+
+/* ---- 7) 响应式：移动端留白收紧，其余规则不变 ---- */
+@media (max-width:640px){
+  main{padding:22px 16px 84px}
+  .card{padding:18px}
+  h1{font-size:20px}
+  .stat .num{font-size:22px}
+}
+@media (prefers-reduced-motion:reduce){
+  .card,.stat,.q,.btn,.fab,.opts label,ul.lessons li,tbody tr,details summary{transition:none !important}
+}
+
+/* =========================================================
+   UI 审查 · 暗色模式补全补丁（纯新增段）
+   铁律遵守：不新增 / 删除任何 HTML 节点，不改 DOM、不改布局、不改交互逻辑，
+            不修改、不删除、不覆盖任何亮色规则 —— 亮色模式渲染结果与本段之前完全一致。
+   全部规则只挂在原有深色根选择器下：
+     A 段 = html:not([data-theme="light"])（跟随系统深色）
+     B 段 = html[data-theme="dark"]（手动切换）
+   两段内容一致，后续修改请同步。
+   覆盖：白字白底对比度、浮层 / 遮罩分层、硬编码图标色、早期补丁残留的实底色块、
+        非 WebKit 滚动条、禁用态可读性、深色下靠阴影分层失效的小控件。
+   ========================================================= */
+
+/* ---------- A 段：跟随系统深色 ---------- */
+@media (prefers-color-scheme: dark){
+
+  /* 修复问题#1：批量删除 / 确认删除按钮：亮红底(--bad)配白字，对比度约 2.5:1，白字不可读 */
+  html:not([data-theme="light"]) .btn.danger{background:#a32e2e; color:#fff}
+  html:not([data-theme="light"]) .btn.danger:hover{background:#8f2626}
+
+  /* 修复问题#2：题型选项卡选中态：亮蓝底(--brand)配白字，对比度约 2.6:1 */
+  html:not([data-theme="light"]) .qtab.is-on{background:var(--brand); color:#0b1220; font-weight:600}
+
+  /* 修复问题#3：设置面板阴影在深灰底上失效，浮层与页面糊在一起 */
+  html:not([data-theme="light"]) .setpanel{box-shadow:0 18px 44px rgba(0,0,0,.55)}
+
+  /* 修复问题#4：遮罩层与深色背景几乎同色，弹窗层级丢失 */
+  html:not([data-theme="light"]) .sb-modal-mask{background:rgba(0,0,0,.62)}
+  html:not([data-theme="light"]) .sheetscrim{background:rgba(0,0,0,.62)}
+
+  /* 修复问题#5：早期补丁残留的实底色块（details summary / th），与浅色「透明底」不一致 */
+  html:not([data-theme="light"]) details summary{background:transparent}
+  html:not([data-theme="light"]) th{background:rgba(255,255,255,.04)}
+
+  /* 修复问题#6：登录 / 注册页 sparkle 图标硬编码深蓝 fill，深色下发灰发暗（对比度约 3.2:1） */
+  html:not([data-theme="light"]) .sparkle-icon svg path{fill:var(--brand)}
+
+  /* 修复问题#7：背景壁纸开关：关闭态轨道与滑块在深色下边界发虚 */
+  html:not([data-theme="light"]) .sw{background:rgba(154,167,182,.34)}
+  html:not([data-theme="light"]) .sw-k{box-shadow:0 1px 3px rgba(0,0,0,.45), 0 0 0 1px rgba(0,0,0,.35)}
+
+  /* 修复问题#8：主题色卡 inset 描边 rgba(0,0,0,.08) 在深色下完全消失 */
+  html:not([data-theme="light"]) .skinsw{box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)}
+
+  /* 修复问题#9：禁用态按钮（未勾选时的批量删除）白字在深色底上不可读 */
+  html:not([data-theme="light"]) .btn:disabled{opacity:.62}
+
+  /* 修复问题#10：Toast / 确认弹窗 / 底部弹层阴影在深色下贴死背景 */
+  html:not([data-theme="light"]) .sb-toast{box-shadow:0 8px 26px rgba(0,0,0,.5)}
+  html:not([data-theme="light"]) .sb-modal{box-shadow:0 18px 50px rgba(0,0,0,.6)}
+  html:not([data-theme="light"]) .sheet{box-shadow:0 -10px 40px rgba(0,0,0,.55)}
+
+  /* 修复问题#11：只补了 ::-webkit-scrollbar，Firefox / 标准属性滚动条在深色页仍是亮色 */
+  html:not([data-theme="light"]){scrollbar-color:#2c3d52 var(--bg)}
+  html:not([data-theme="light"]) .setpanel,
+  html:not([data-theme="light"]) .wheel,
+  html:not([data-theme="light"]) .card:has(> table){scrollbar-color:#2c3d52 transparent}
+
+  /* 修复问题#12：.qtab 无边框，深色下仅靠弱化阴影分层会与背景融合 */
+  html:not([data-theme="light"]) .qtab{box-shadow:var(--shadow), inset 0 0 0 1px rgba(255,255,255,.07)}
+}
+
+/* ---------- B 段：手动切换（内容与 A 段一致） ---------- */
+html[data-theme="dark"] .btn.danger{background:#a32e2e; color:#fff}
+html[data-theme="dark"] .btn.danger:hover{background:#8f2626}
+html[data-theme="dark"] .qtab.is-on{background:var(--brand); color:#0b1220; font-weight:600}
+html[data-theme="dark"] .setpanel{box-shadow:0 18px 44px rgba(0,0,0,.55)}
+html[data-theme="dark"] .sb-modal-mask{background:rgba(0,0,0,.62)}
+html[data-theme="dark"] .sheetscrim{background:rgba(0,0,0,.62)}
+html[data-theme="dark"] details summary{background:transparent}
+html[data-theme="dark"] th{background:rgba(255,255,255,.04)}
+html[data-theme="dark"] .sparkle-icon svg path{fill:var(--brand)}
+html[data-theme="dark"] .sw{background:rgba(154,167,182,.34)}
+html[data-theme="dark"] .sw-k{box-shadow:0 1px 3px rgba(0,0,0,.45), 0 0 0 1px rgba(0,0,0,.35)}
+html[data-theme="dark"] .skinsw{box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)}
+html[data-theme="dark"] .btn:disabled{opacity:.62}
+html[data-theme="dark"] .sb-toast{box-shadow:0 8px 26px rgba(0,0,0,.5)}
+html[data-theme="dark"] .sb-modal{box-shadow:0 18px 50px rgba(0,0,0,.6)}
+html[data-theme="dark"] .sheet{box-shadow:0 -10px 40px rgba(0,0,0,.55)}
+html[data-theme="dark"]{scrollbar-color:#2c3d52 var(--bg)}
+html[data-theme="dark"] .setpanel,
+html[data-theme="dark"] .wheel,
+html[data-theme="dark"] .card:has(> table){scrollbar-color:#2c3d52 transparent}
+html[data-theme="dark"] .qtab{box-shadow:var(--shadow), inset 0 0 0 1px rgba(255,255,255,.07)}
+
+/* =========================================================
+   .btn.ghost 悬停可读性修复（浅色模式专用）
+   问题：皮肤段 `html[data-skin="x"] .btn:hover{background:var(--btn-bg-hover)}`
+        优先级 (0,3,1) 盖过 `.btn.ghost`(0,2,0)；而各皮肤的 --btn-bg-hover 与
+        ghost 的文字色 --brand-dark 取同一个色值（男生主题均 #1a3fa0），
+        导致「课程详情 / 判断题版 / 返回课程 / 下载 Word」等 ghost 按钮在浅色
+        模式悬停时变成「深蓝底 + 深蓝字」，文字完全不可见。
+   修复：给 ghost 单独定义悬停态 —— 底色走 --brand-dark、文字转白（对比度 ≥4.5:1），
+        与主按钮悬停保持同一设计语言；优先级 (0,4,1)，稳定盖过皮肤 hover。
+   仅作用于非深色：深色沿用既有的 html[data-theme="dark"] .btn.ghost:hover。
+   A 段覆盖「系统浅色 + 未手动切换」，B 段覆盖「手动切回浅色」。
+   ========================================================= */
+@media (prefers-color-scheme: light){
+  html:not([data-theme="dark"]) .btn.ghost:hover{background:var(--brand-dark); color:#fff}
+}
+html[data-theme="light"] .btn.ghost:hover{background:var(--brand-dark); color:#fff}
