@@ -243,6 +243,49 @@
 </script>
 {{end}}
 
+{{/* 教材导航当前课定位：开屏后把 .current-lesson 滚到视口中央。
+     仅学习主页引入（study.html）；无当前课时模板不会输出本脚本。 */}}
+{{define "study_nav_js"}}
+<script>
+(function () {
+  /* 手风琴：导航卡内点开一个科目，自动收起其他已展开科目，避免长树越叠越长 */
+  var card = document.querySelector('.nav-card');
+  function toTop(node) {
+    /* 兄弟收起后布局会变化，等两帧再滚，位置才准 */
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        try { node.scrollIntoView({ block: 'start', behavior: 'smooth' }); }
+        catch (e) { try { node.scrollIntoView(); } catch (e2) {} }
+      });
+    });
+  }
+  if (card) {
+    card.addEventListener('click', function (e) {
+      var sum = e.target.closest('summary');
+      if (!sum) { return; }
+      var det = sum.parentElement;
+      if (det.parentElement !== card || det.tagName !== 'DETAILS') { return; }
+      /* summary 点击后 open 状态即将翻转；仅在本项将要展开时收起兄弟项 */
+      if (!det.open) {
+        var all = card.querySelectorAll(':scope > details[open]');
+        for (var i = 0; i < all.length; i++) { all[i].removeAttribute('open'); }
+        toTop(sum);   /* 切换学科后把该科目标题对齐到视口顶部 */
+      }
+    });
+  }
+
+  var el = document.querySelector('.current-lesson');
+  if (!el) { return; }
+  function go() {
+    try { el.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
+    catch (e) { try { el.scrollIntoView(); } catch (e2) {} }
+  }
+  /* 等开屏入场动画（sal.js，延迟封顶 420ms）结束再滚动，定位才准 */
+  setTimeout(go, 480);
+})();
+</script>
+{{end}}
+
 {{define "footer"}}</main>
 {{template "fab_dock"}}
 <footer class="foot">StudyBuddy · 每个学生独立数据库，学习数据完全隔离</footer>

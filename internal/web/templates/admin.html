@@ -1,6 +1,11 @@
 {{template "header" .}}
 <h1>用户管理 <span class="badge info">管理员</span></h1>
 
+{{if .Saved}}<div class="notice">账号资料已更新，学生端立即生效（无需重新登录）。</div>{{end}}
+{{if eq .EditErr "username"}}<div class="alert">修改失败：该用户名已被其他账号占用。</div>
+{{else if eq .EditErr "required"}}<div class="alert">修改失败：用户名与姓名不能为空。</div>
+{{else if eq .EditErr "save"}}<div class="alert">修改失败：保存时出错，请重试。</div>{{end}}
+
 <div class="card">
   <h2>生成邀请码</h2>
   <form method="post" action="/admin/invite/create" class="row">
@@ -82,11 +87,12 @@
   </form>
 </div>
 
-<div class="card">
+<div class="card" data-stages="{{.StageJSON}}">
   <h2>全部用户（{{len .Users}}）</h2>
   <table>
     <tr><th>ID</th><th>用户名</th><th>姓名</th><th>性别</th><th>班级</th><th>学段/年级/册别</th><th>角色</th><th>主题</th><th>注册时间</th><th>操作</th></tr>
     {{range .Users}}
+    {{$u := .}}
     <tr>
       <td>#{{.ID}}</td>
       <td>{{.Username}}</td>
@@ -111,6 +117,7 @@
       <td>{{if .Skin}}{{skinName .Skin}}{{else}}<span class="muted">按性别</span>{{end}}</td>
       <td>{{.CreatedAt}}</td>
       <td>
+        <button class="linkbtn" type="button" data-edit="{{.ID}}">编辑</button>
         {{if ne .ID $.Session.UserID}}
         <form method="post" action="/admin/user/role" class="inline">
           <input type="hidden" name="id" value="{{.ID}}">
@@ -118,6 +125,51 @@
           {{else}}<input type="hidden" name="role" value="admin"><button class="linkbtn" type="submit">设为管理员</button>{{end}}
         </form>
         {{else}}—{{end}}
+      </td>
+    </tr>
+    {{/* 编辑展开行：修改 用户名 / 姓名 / 学段 / 年级 / 册别 / 班级 / 性别。
+         班级序号由服务端从现有班级文本反解（classNo），避免保存时误清空。 */}}
+    <tr id="edit-{{$u.ID}}" hidden>
+      <td colspan="10" style="background:var(--bg)">
+        <form method="post" action="/admin/user/update" class="edit-form" style="margin:0">
+          <input type="hidden" name="id" value="{{$u.ID}}">
+          <div class="row">
+            <label style="margin:0">用户名<input name="username" value="{{$u.Username}}" required></label>
+            <label style="margin:0">姓名<input name="name" value="{{$u.Name}}" required></label>
+            <label style="margin:0">学段
+              <select name="stage" class="edit-stage">
+                <option value="" {{if not $u.Stage}}selected{{end}}>未设置</option>
+                {{range $.Stages}}<option value="{{.Key}}" {{if eq $u.Stage .Key}}selected{{end}}>{{.Name}}</option>{{end}}
+              </select>
+            </label>
+            <label style="margin:0">年级
+              <select name="grade" class="edit-grade">
+                {{if $u.Grade}}<option value="{{$u.Grade}}" selected>{{gradeLabel $u.Stage $u.Grade}}</option>
+                {{else}}<option value="0" selected>未设置</option>{{end}}
+              </select>
+            </label>
+            <label style="margin:0">册别
+              <select name="volume">
+                <option value="1" {{if eq $u.Volume 1}}selected{{end}}>上册</option>
+                <option value="2" {{if eq $u.Volume 2}}selected{{end}}>下册</option>
+              </select>
+            </label>
+            <label style="margin:0">班级
+              <select name="class_no">
+                <option value="0" {{if not (classNo $u.Class)}}selected{{end}}>不填</option>
+                {{range seq $.MaxClassNo}}<option value="{{.}}" {{if eq . (classNo $u.Class)}}selected{{end}}>{{classNoLabel .}}</option>{{end}}
+              </select>
+            </label>
+            <label style="margin:0">性别
+              <select name="gender">
+                <option value="male" {{if eq $u.Gender "male"}}selected{{end}}>男生</option>
+                <option value="female" {{if eq $u.Gender "female"}}selected{{end}}>女生</option>
+                <option value="" {{if not $u.Gender}}selected{{end}}>未设置</option>
+              </select>
+            </label>
+            <div style="align-self:end"><button class="btn primary sm" type="submit">保存</button></div>
+          </div>
+        </form>
       </td>
     </tr>
     {{end}}
@@ -156,6 +208,60 @@
   }
   stageSel.addEventListener('change', fill);
   fill();
+})();
+</script>
+<script>
+// 用户编辑展开行：点击「编辑」显示；学段联动年级下拉（含「未设置」态）。
+(function () {
+  var card = document.querySelector('.card[data-stages]');
+  if (!card) { return; }
+  var stages = {};
+  try {
+    var parsed = JSON.parse(card.getAttribute('data-stages') || '{}');
+    for (var k in parsed) {
+      if (Object.prototype.hasOwnProperty.call(parsed, k) && parsed[k] && parsed[k].key) { stages[k] = parsed[k]; }
+    }
+  } catch (e) { stages = {}; }
+
+  card.addEventListener('click', function (e) {
+    var t = e.target;
+    var btn = t.closest ? t.closest('[data-edit]') : null;
+    if (!btn) { return; }
+    var row = document.getElementById('edit-' + btn.getAttribute('data-edit'));
+    if (row) { row.hidden = !row.hidden; }
+  });
+
+  function rebuild(form) {
+    var stageSel = form.querySelector('.edit-stage');
+    var gradeSel = form.querySelector('.edit-grade');
+    if (!stageSel || !gradeSel) { return; }
+    var keep = gradeSel.value;
+    var cfg = stages[stageSel.value];
+    gradeSel.innerHTML = '';
+    if (!cfg) {
+      var o0 = document.createElement('option');
+      o0.value = '0'; o0.textContent = '未设置';
+      gradeSel.appendChild(o0);
+      return;
+    }
+    for (var i = 0; i < cfg.labels.length; i++) {
+      var o = document.createElement('option');
+      o.value = String(i + 1);
+      o.textContent = cfg.labels[i];
+      gradeSel.appendChild(o);
+    }
+    gradeSel.value = keep;
+    if (!gradeSel.value) { gradeSel.selectedIndex = 0; }
+  }
+
+  var forms = card.querySelectorAll('form.edit-form');
+  for (var i = 0; i < forms.length; i++) {
+    (function (form) {
+      rebuild(form);
+      var stageSel = form.querySelector('.edit-stage');
+      if (stageSel) { stageSel.addEventListener('change', function () { rebuild(form); }); }
+    })(forms[i]);
+  }
 })();
 </script>
 {{template "footer" .}}

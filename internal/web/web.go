@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"io/fs"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -70,6 +71,7 @@ func New(cfg *config.Config, g *db.Global, tree *textbook.Tree) (*App, error) {
 		"stageName":    StageNameCN,
 		"gradeLabel":   textbook.GradeLabel,
 		"classNoLabel": ClassNoLabel,
+		"classNo":      ParseClassNo,
 		// seq 生成 1..n，模板里用于渲染班级下拉与刻度。
 		"seq": func(n int) []int {
 			out := make([]int, 0, n)
@@ -171,6 +173,7 @@ func (a *App) Routes() *gin.Engine {
 		admin.POST("/user/create", a.userCreate)
 		admin.POST("/user/role", a.userRole)
 		admin.POST("/user/gender", a.userGender)
+		admin.POST("/user/update", a.userUpdate)
 	}
 	return r
 }
@@ -390,7 +393,18 @@ func (a *App) studyPage(c *gin.Context) {
 	for _, p := range prog {
 		pmap[p.LessonKey] = p
 	}
+	subjCards := a.subjectCards(st, u, qt, pmap)
 	recent, _ := st.ListExams(5)
+
+	// 教材导航主视图：URL 显式参数 > 用户档案 > 当前课位置 > 兜底（resolveNav 内部处理）。
+	// 只把选中的年级册别传给模板，其他年级不进 HTML（性能：不渲染不隐藏）。
+	qGrade, _ := strconv.Atoi(c.Query("grade"))
+	qVolume, _ := strconv.Atoi(c.Query("volume"))
+	nav := resolveNav(a.Tree, s, cur, qGrade, qVolume, qt)
+	var menu []swStage
+	if nav != nil {
+		menu = buildNavMenu(a.Tree)
+	}
 
 	a.html(c, "study.html", gin.H{
 		"Title":   "学习主页",
@@ -398,6 +412,7 @@ func (a *App) studyPage(c *gin.Context) {
 		"User":    u,
 		"Session": s,
 		"Current": cur,
+		"SubjectCards": subjCards,
 		"Prog":    pmap,
 		"Total":   total,
 		"Passed":  passed,
@@ -407,6 +422,8 @@ func (a *App) studyPage(c *gin.Context) {
 		"QT":      qt,
 		"QTCN":    textbook.QTypeCN(qt),
 		"CurTwin": twinOf(a.Tree, cur),
+		"NavView": nav,
+		"NavMenu": menu,
 	})
 }
 
@@ -494,6 +511,104 @@ func (a *App) currentLesson(st *db.Student, u *db.User, qt string) *textbook.Les
 	return pick("") // 该题型下还没有课（如 judge 尚未生成）时不限题型回退
 }
 
+// subjectCard 学习主页「当前进度」区的一张学科卡片：该科从哪一课继续、练到什么程度。
+type subjectCard struct {
+	Key    string           // 学科 key（chinese / math / …）
+	Name   string           // 学科中文名
+	Lesson *textbook.Lesson // 继续点课程（全部达标时为该科第一课，仅作入口）
+	Status string           // learning 练习中 / new 未开始 / done 全部达标
+	Best   int              // 继续点课程的最高分（0 = 还没考过）
+	Done   int              // 该科已达标课数
+	Total  int              // 该科总课数（当前题型）
+}
+
+// subjectCards 逐学科计算「继续学习点」：
+//  1. 学生库中「设为当前」的显式指针（current_lesson:<题型>:<学科>）优先，
+//     但该课已达标时不再停留，顺延到下一门未达标课；
+//  2. 无指针时按课程顺序取第一门未达标课（练习中 / 未开始均可）；
+//  3. 全部达标 → done，入口链接指回该科第一课。
+// 只统计学生档案（学段 / 年级 / 册别）所在视图、且当前题型下的课。
+func (a *App) subjectCards(st *db.Student, u *db.User, qt string, pmap map[string]*db.Progress) []*subjectCard {
+	if qt == "" {
+		qt = textbook.QTypeChoose
+	}
+	// 定位学生档案所在的册别视图；年级未设置时取该学段第一个年级。
+	var vol *textbook.Volume
+	for _, g := range a.Tree.Grades {
+		if !sameStage(g.Stage, u.Stage) {
+			continue
+		}
+		if u.Grade > 0 && g.No != u.Grade {
+			continue
+		}
+		for _, v := range g.Volumes {
+			if v.No == u.Volume {
+				vol = v
+				break
+			}
+		}
+		if vol != nil {
+			break
+		}
+	}
+	if vol == nil {
+		return nil
+	}
+	stat := func(p *db.Progress) string {
+		if p != nil && p.Status == "learning" {
+			return "learning"
+		}
+		return "new"
+	}
+	best := func(p *db.Progress) int {
+		if p == nil {
+			return 0
+		}
+		return p.BestScore
+	}
+	out := make([]*subjectCard, 0, len(vol.Subjects))
+	for _, s := range vol.Subjects {
+		var lessons []*textbook.Lesson
+		for _, l := range s.Lessons {
+			if l.QType == qt {
+				lessons = append(lessons, l)
+			}
+		}
+		if len(lessons) == 0 {
+			continue
+		}
+		c := &subjectCard{Key: s.Key, Name: s.Name, Total: len(lessons)}
+		for _, l := range lessons {
+			if p := pmap[l.Key]; p != nil && p.Status == "passed" {
+				c.Done++
+			}
+		}
+		// 1) 显式指针优先（未达标时才生效）
+		if k := st.GetState("current_lesson:" + qt + ":" + s.Key); k != "" {
+			if l, ok := a.Tree.Lessons[k]; ok && l.QType == qt {
+				if p := pmap[l.Key]; p == nil || p.Status != "passed" {
+					c.Lesson, c.Status, c.Best = l, stat(p), best(p)
+				}
+			}
+		}
+		// 2) 按课程顺序取第一门未达标课
+		if c.Lesson == nil {
+			for _, l := range lessons {
+				if p := pmap[l.Key]; p == nil || p.Status != "passed" {
+					c.Lesson, c.Status, c.Best = l, stat(p), best(p)
+					break
+				}
+			}
+		}
+		// 3) 全部达标
+		if c.Lesson == nil {
+			c.Lesson, c.Status, c.Done = lessons[0], "done", len(lessons)
+		}
+		out = append(out, c)
+	}
+	return out
+}
+
 // sameStage 判断课程学段是否匹配学生学段；学生未设置学段（旧数据）时视为不限。
 func sameStage(lessonStage, userStage string) bool {
 	u := textbook.NormalizeStage(userStage)
@@ -508,10 +623,198 @@ func (a *App) setCurrent(c *gin.Context) {
 	u, _ := a.Global.ByID(s.UserID)
 	st, _ := a.st(u)
 	key := c.PostForm("key")
-	if _, ok := a.Tree.Lessons[key]; ok {
-		_ = st.SetState("current_lesson", key)
+	if l, ok := a.Tree.Lessons[key]; ok {
+		_ = st.SetState("current_lesson", key) // 全局指针：教材导航定位沿用
+		// 各科进度卡片的「继续点」：按 题型:学科 记忆，语文 / 数学 / 英语互不干扰
+		_ = st.SetState("current_lesson:"+l.QType+":"+l.Subject, key)
 	}
-	c.Redirect(http.StatusSeeOther, "/study")
+	// 回跳保留来源视图（题型/年级/册别）：「设为当前」后停留在原视图并直接看到新课高亮。
+	// 表单未带这些字段时（旧入口）维持原行为，回 /study。
+	back := "/study"
+	q := url.Values{}
+	if raw := strings.TrimSpace(c.PostForm("qt")); raw != "" {
+		q.Set("qt", normalizeQType(raw))
+	}
+	if g, err := strconv.Atoi(c.PostForm("grade")); err == nil && g > 0 {
+		q.Set("grade", strconv.Itoa(g))
+	}
+	if v, err := strconv.Atoi(c.PostForm("volume")); err == nil && v > 0 {
+		q.Set("volume", strconv.Itoa(v))
+	}
+	if len(q) > 0 {
+		back += "?" + q.Encode()
+	}
+	c.Redirect(http.StatusSeeOther, back)
+}
+
+// ---- 教材导航主视图（study.html 的「教材导航」卡片） ----
+
+// navStageOrder 切换年级菜单的学段分组顺序。
+var navStageOrder = []string{"primary", "middle", "high"}
+
+// navView 教材导航卡片的主视图：整棵树里只渲染这一个年级册别。
+type navView struct {
+	Stage  string           // primary / middle / high
+	Grade  int              // 学段内年级序号（小学 1~6，初高中 1~3）
+	Volume int              // 1 / 2 / textbook.VolReview(9)
+	Title  string           // 卡片标题，如「一年级 · 上册」「高三 · 高考复习」
+	G      *textbook.Grade  // 年级节点
+	V      *textbook.Volume // 册别节点
+}
+
+// swGrade / swStage 「切换年级」菜单的视图模型：服务端组装好，模板只做展示。
+type swGrade struct {
+	Stage   string // 学段（用于模板判断当前项高亮）
+	No      int    // 学段内年级序号
+	Label   string // 展示名，如「一年级」「高一」
+	Volumes []*textbook.Volume
+}
+
+type swStage struct {
+	Label  string // 小学 / 初中 / 高中
+	Grades []swGrade
+}
+
+// gradeNode 在树里找学段+年级节点；找不到返回 nil。
+func gradeNode(t *textbook.Tree, stage string, grade int) *textbook.Grade {
+	if t == nil || stage == "" || grade <= 0 {
+		return nil
+	}
+	for _, g := range t.Grades {
+		if textbook.NormalizeStage(g.Stage) == stage && g.No == grade {
+			return g
+		}
+	}
+	return nil
+}
+
+// volumeHasQT 判断某册别下是否存在指定题型的课。
+func volumeHasQT(v *textbook.Volume, qt string) bool {
+	if v == nil {
+		return false
+	}
+	for _, s := range v.Subjects {
+		if s.CountOf(qt) > 0 {
+			return true
+		}
+	}
+	return false
+}
+
+// resolveNav 解析教材导航主视图。优先级从高到低：
+//  1. URL 显式参数 ?grade=N&volume=M（非法值忽略；N 为学段内序号，不能超过该学段年级数）
+//  2. 用户档案 Session.Stage/Grade/Volume
+//  3. 当前课所在位置（currentLesson 已做过「档案→同学段→全库」三级回退，保证有数据）
+//  4. 同学段第一个有数据的年级册别 → 全库第一个
+//
+// 每一步都要求目标位置确实存在当前题型的课；年级匹配但册别无数据时，先在该年级内
+// 换一个有数据的册别再顺延。全部落空返回 nil（模板走「未识别到课程」分支，不报错）。
+func resolveNav(t *textbook.Tree, s *auth.Session, cur *textbook.Lesson, qGrade, qVolume int, qt string) *navView {
+	if t == nil || len(t.Grades) == 0 {
+		return nil
+	}
+	// 基础值来自用户档案；档案缺失（老用户 Stage==""/Grade==0）时以当前课为准
+	stage := textbook.NormalizeStage(s.Stage)
+	grade, volume := s.Grade, s.Volume
+	if cur != nil {
+		cs := textbook.NormalizeStage(cur.Stage)
+		if stage == "" {
+			stage = cs
+		}
+		if cs == stage {
+			if grade <= 0 {
+				grade = cur.Grade
+			}
+			if volume <= 0 && grade == cur.Grade {
+				volume = cur.Volume
+			}
+		}
+	}
+	// URL 显式参数最优先
+	if stage != "" {
+		if n := textbook.GradeCount(stage); qGrade > 0 && qGrade <= n {
+			grade = qGrade
+		}
+		if qVolume > 0 {
+			volume = qVolume
+		}
+	}
+
+	build := func(g *textbook.Grade, v *textbook.Volume) *navView {
+		return &navView{
+			Stage: textbook.NormalizeStage(g.Stage), Grade: g.No, Volume: v.No,
+			Title: strings.TrimSpace(textbook.GradeLabel(g.Stage, g.No) + " · " + v.Name),
+			G:     g, V: v,
+		}
+	}
+	// 在一个年级里挑册别：优先指定册别（且需有当前题型的课），否则取第一个有数据的册别
+	pickIn := func(g *textbook.Grade, volume int) *navView {
+		if g == nil {
+			return nil
+		}
+		for _, v := range g.Volumes {
+			if v.No == volume && volumeHasQT(v, qt) {
+				return build(g, v)
+			}
+		}
+		for _, v := range g.Volumes {
+			if volumeHasQT(v, qt) {
+				return build(g, v)
+			}
+		}
+		return nil
+	}
+
+	// 1) 首选：URL 参数 / 用户档案组合
+	if grade > 0 {
+		if nv := pickIn(gradeNode(t, stage, grade), volume); nv != nil {
+			return nv
+		}
+	}
+	// 2) 当前课所在位置
+	if cur != nil {
+		if nv := pickIn(gradeNode(t, textbook.NormalizeStage(cur.Stage), cur.Grade), cur.Volume); nv != nil {
+			return nv
+		}
+	}
+	// 3) 同学段第一个有数据的；4) 全库第一个
+	for _, g := range t.Grades {
+		if stage == "" || textbook.NormalizeStage(g.Stage) == stage {
+			if nv := pickIn(g, 0); nv != nil {
+				return nv
+			}
+		}
+	}
+	for _, g := range t.Grades {
+		if nv := pickIn(g, 0); nv != nil {
+			return nv
+		}
+	}
+	return nil
+}
+
+// buildNavMenu 组装「切换年级」菜单：按 小学/初中/高中 分组，只列树中实际存在的年级与册别
+//（含高考复习虚拟册别 VolReview）。
+func buildNavMenu(t *textbook.Tree) []swStage {
+	if t == nil {
+		return nil
+	}
+	byStage := map[string][]swGrade{}
+	for _, g := range t.Grades {
+		st := textbook.NormalizeStage(g.Stage)
+		byStage[st] = append(byStage[st], swGrade{
+			Stage: st, No: g.No,
+			Label:   textbook.GradeLabel(g.Stage, g.No),
+			Volumes: g.Volumes,
+		})
+	}
+	var out []swStage
+	for _, st := range navStageOrder {
+		if gs := byStage[st]; len(gs) > 0 {
+			out = append(out, swStage{Label: textbook.StageCN(st), Grades: gs})
+		}
+	}
+	return out
 }
 
 // ---- 主题切换 ----
@@ -1035,6 +1338,7 @@ func (a *App) adminPage(c *gin.Context) {
 	invites, _ := a.Global.ListInvites()
 	a.html(c, "admin.html", gin.H{
 		"Title": "用户管理", "Users": users, "Invites": invites, "Session": s,
+		"EditErr": c.Query("err"), "Saved": c.Query("saved") == "1",
 	})
 }
 
@@ -1118,6 +1422,49 @@ func (a *App) userGender(c *gin.Context) {
 		_ = a.Global.SetGender(id, gender)
 	}
 	c.Redirect(http.StatusSeeOther, "/admin")
+}
+
+// userUpdate 管理员修改账号资料：用户名 / 姓名 / 学段 / 年级 / 册别 / 班级 / 性别。
+// 用户名唯一冲突或字段缺失时带回 err= 标记回管理页提示；成功后同步刷新该用户
+// 的在途会话，学生端无需重新登录即可看到新资料。
+func (a *App) userUpdate(c *gin.Context) {
+	id, _ := strconv.ParseInt(c.PostForm("id"), 10, 64)
+	if id <= 0 {
+		c.Redirect(http.StatusSeeOther, "/admin")
+		return
+	}
+	if _, err := a.Global.ByID(id); err != nil {
+		c.Redirect(http.StatusSeeOther, "/admin")
+		return
+	}
+	username := strings.TrimSpace(c.PostForm("username"))
+	name := strings.TrimSpace(c.PostForm("name"))
+	if username == "" || name == "" {
+		c.Redirect(http.StatusSeeOther, "/admin?err=required")
+		return
+	}
+	if other, err := a.Global.ByUsername(username); err == nil && other.ID != id {
+		c.Redirect(http.StatusSeeOther, "/admin?err=username")
+		return
+	}
+	stage, grade, _, classText := parseSchoolInfo(
+		c.PostForm("stage"), c.PostForm("grade"), c.PostForm("class_no"), c.PostForm("class"))
+	grade = ClampGrade(stage, grade)
+	volume := 1
+	if c.PostForm("volume") == "2" {
+		volume = 2
+	}
+	gender := normalizeGender(c.PostForm("gender"))
+	if err := a.Global.UpdateProfile(id, username, name, stage, grade, volume, classText, gender); err != nil {
+		c.Redirect(http.StatusSeeOther, "/admin?err=save")
+		return
+	}
+	a.Sess.RefreshByUser(id, func(sess *auth.Session) {
+		sess.Username, sess.Name = username, name
+		sess.Stage, sess.Grade, sess.Volume = stage, grade, volume
+		sess.Class, sess.Gender = classText, gender
+	})
+	c.Redirect(http.StatusSeeOther, "/admin?saved=1")
 }
 
 // ---- 渲染 ----

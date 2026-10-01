@@ -13,41 +13,47 @@
   <span class="qtype-hint muted">{{.QTCN}}题库</span>
 </div>
 
-{{if .Current}}
-<div class="card">
-  <h2>当前进度</h2>
-  <p style="margin:6px 0 12px">
-    <span class="badge info">{{.Current.SubjectCN}}</span>
-    <b>{{.Current.UnitLabel}} · {{.Current.LessonLabel}}</b>
-    <span class="muted">（{{.Current.Grade}} 年级{{.Current.VolumeLabel}}）</span>
-  </p>
-  <div class="row">
-    <a class="btn primary" href="/quiz?key={{urlquery .Current.Key}}">开始在线自测</a>
-    <form method="post" action="/lesson/docx" class="inline">
-      <input type="hidden" name="key" value="{{.Current.Key}}">
-      <button class="btn sec" type="submit">导出 Word 试卷</button>
-    </form>
-    <a class="btn ghost" href="/lesson?key={{urlquery .Current.Key}}">课程详情</a>
-    {{if $.CurTwin}}
-    <a class="btn ghost" href="/lesson?key={{urlquery $.CurTwin.Key}}"
-       title="切换到同一课的{{if eq $.QT "choose"}}判断题{{else}}选择题{{end}}">
-      {{if eq $.QT "choose"}}判断题版{{else}}选择题版{{end}}</a>
-    {{end}}
-  </div>
-  <p class="muted" style="margin-top:10px">达标线 {{$.Pass}} 分：未达标会继续针对本课出题，达标后自动推进到下一课。</p>
-</div>
-{{else}}
-<div class="card">
-  <div class="notice">尚未识别到教材课程。请把课程 HTML 按规则放入 <code>primary-school/…</code> 目录后重启服务。</div>
-</div>
-{{end}}
-
 <div class="grid" style="margin-bottom:16px">
   <div class="stat"><div class="num">{{.Total}}</div><div class="cap">累计自测次数</div></div>
   <div class="stat"><div class="num">{{.Passed}}</div><div class="cap">达标次数</div></div>
   <div class="stat"><div class="num">{{printf "%.0f" .Avg}}</div><div class="cap">平均得分</div></div>
   <div class="stat"><div class="num">{{.Session.Name}}</div><div class="cap">{{.Session.Class}}</div></div>
 </div>
+
+{{if .SubjectCards}}
+<div class="card" style="margin-bottom:16px">
+  <h2>当前进度</h2>
+  <div class="grid subj-grid">
+    {{range .SubjectCards}}
+    {{$c := .}}
+    <div class="subj-tile" data-status="{{$c.Status}}">
+      <div class="subj-head">
+        <b>{{$c.Name}}</b>
+        {{if eq $c.Status "done"}}<span class="badge ok">全部达标</span>
+        {{else if eq $c.Status "learning"}}<span class="badge warn">练习中</span>
+        {{else}}<span class="badge new">未开始</span>{{end}}
+      </div>
+      <p class="subj-lesson">
+        <b>{{$c.Lesson.UnitLabel}} · {{$c.Lesson.LessonLabel}}</b>
+      </p>
+      <p class="muted subj-meta">已达标 {{$c.Done}} / {{$c.Total}} 课{{if $c.Best}} · 本课最高 {{$c.Best}} 分{{end}}</p>
+      <div class="row" style="margin:0">
+        <a class="btn primary sm" href="/quiz?key={{urlquery $c.Lesson.Key}}">继续自测</a>
+        <a class="btn ghost sm" href="/lesson?key={{urlquery $c.Lesson.Key}}">课程详情</a>
+      </div>
+      {{/* 整卡可点：拉伸链接铺满卡片直达该科继续点的自测页，卡内按钮层级更高仍可单独点 */}}
+      <a class="cover-link" href="/quiz?key={{urlquery $c.Lesson.Key}}"
+         aria-label="继续{{$c.Name}}：{{$c.Lesson.Title}}"></a>
+    </div>
+    {{end}}
+  </div>
+  <p class="muted" style="margin:12px 0 0">每科独立记忆学习位置；达标线 {{.Pass}} 分，达标后自动推进到下一课。点击卡片即可从该科进度继续。</p>
+</div>
+{{else}}
+<div class="card">
+  <div class="notice">尚未识别到教材课程。请把课程 HTML 按规则放入 <code>primary-school/…</code> 目录后重启服务。</div>
+</div>
+{{end}}
 
 {{if .Recent}}
 <div class="card">
@@ -66,52 +72,71 @@
 </div>
 {{end}}
 
-<div class="card">
-  <h2>教材导航</h2>
-  <p class="muted">按 学段 → 出版社 → 题型 → 年级 → 册别 → 科目 → 单元 → 课 展开。当前展示：<b>{{.QTCN}}</b>，切换顶部选项卡可换到{{if eq .QT "choose"}}判断题{{else}}选择题{{end}}镜像题库。</p>
-  {{range $g := .Tree.Grades}}
-  {{$curGrade := and (eq $g.No $.Session.Grade) (or (not $.Session.Stage) (eq $g.Stage $.Session.Stage))}}
-  <details {{if $curGrade}}open{{end}}>
-    <summary>{{$g.Label}}</summary>
-    <div class="tree-body">
-    {{range $v := $g.Volumes}}
-      <details {{if and $curGrade (eq $v.No $.Session.Volume)}}open{{end}}>
-        <summary>{{$v.Name}}</summary>
-        <div class="tree-body">
-        {{range $s := $v.Subjects}}
-          {{$cnt := $s.CountOf $.QT}}
-          {{if $cnt}}
-          <details>
-            <summary>{{$s.Name}} · {{$cnt}} 课</summary>
-            <div class="tree-body">
-              {{range $s.UnitsOf $.QT}}
-              <div class="unitname">{{.Name}}</div>
-              <ul class="lessons">
-                {{range .Lessons}}
-                <li>
-                  <a href="/lesson?key={{urlquery .Key}}">{{.Title}}</a>
-                  {{$p := index $.Prog .Key}}
-                  {{if $p}}
-                    {{if eq $p.Status "passed"}}<span class="badge ok">已达标 {{$p.BestScore}}分</span>
-                    {{else}}<span class="badge warn">练习中 最高{{$p.BestScore}}分</span>{{end}}
-                  {{else}}<span class="badge new">未开始</span>{{end}}
-                  <form method="post" action="/study/current" class="inline">
-                    <input type="hidden" name="key" value="{{.Key}}">
-                    <button class="linkbtn" style="color:var(--brand)" type="submit">设为当前</button>
-                  </form>
-                </li>
-                {{end}}
-              </ul>
-              {{end}}
-            </div>
-          </details>
+<div class="card nav-card">
+  {{/* 教材导航：主视图只渲染 Nav 指定的一个年级册别（服务端剪枝，见 web.go resolveNav）；
+       其他年级收进「切换年级」菜单（NavMenu），整页跳转换视图。 */}}
+  <div class="nav-head">
+    <h2>{{if .NavView}}{{.NavView.Title}}{{else}}教材导航{{end}}</h2>
+    {{if .NavMenu}}
+    <details class="grade-switcher" data-menu>
+      <summary title="切换到其他年级 / 册别">切换年级</summary>
+      <div class="sw-body">
+        {{range .NavMenu}}
+        <div class="sw-stage">{{.Label}}</div>
+        {{range .Grades}}
+        {{$g := .}}
+        <div class="sw-grade">
+          <span class="sw-grade-label">{{$g.Label}}</span>
+          {{range $v := $g.Volumes}}
+          <a class="sw-vol{{if and (eq $.NavView.Stage $g.Stage) (eq $.NavView.Grade $g.No) (eq $.NavView.Volume $v.No)}} is-on{{end}}"
+             href="/study?grade={{$g.No}}&volume={{$v.No}}&qt={{$.QT}}"
+             title="{{$g.Label}}{{$v.Name}} · {{$.QTCN}}">{{if and (eq $.NavView.Stage $g.Stage) (eq $.NavView.Grade $g.No) (eq $.NavView.Volume $v.No)}}✓ {{end}}{{$v.Name}}</a>
           {{end}}
-        {{end}}
         </div>
-      </details>
+        {{end}}
+        {{end}}
+      </div>
+    </details>
     {{end}}
+  </div>
+
+  {{if and .NavView .NavView.V}}
+  <p class="muted">当前展示：<b>{{.NavView.Title}}</b> · {{.QTCN}}。换其他年级请点右上角「切换年级」。</p>
+  {{range $s := $.NavView.V.Subjects}}
+  {{$cnt := $s.CountOf $.QT}}
+  {{if $cnt}}
+  <details {{if and $.Current (eq $s.Key $.Current.Subject)}}open{{end}}>
+    <summary>{{$s.Name}} · {{$cnt}} 课</summary>
+    <div class="tree-body">
+      {{range $s.UnitsOf $.QT}}
+      <div class="unitname">{{.Name}}</div>
+      <ul class="lessons">
+        {{range .Lessons}}
+        <li{{if and $.Current (eq .Key $.Current.Key)}} class="current-lesson"{{end}}>
+          <a href="/lesson?key={{urlquery .Key}}">{{.Title}}</a>
+          {{$p := index $.Prog .Key}}
+          {{if $p}}
+            {{if eq $p.Status "passed"}}<span class="badge ok">已达标 {{$p.BestScore}}分</span>
+            {{else}}<span class="badge warn">练习中 最高{{$p.BestScore}}分</span>{{end}}
+          {{else}}<span class="badge new">未开始</span>{{end}}
+          <form method="post" action="/study/current" class="inline">
+            <input type="hidden" name="key" value="{{.Key}}">
+            <input type="hidden" name="qt" value="{{$.QT}}">
+            <input type="hidden" name="grade" value="{{$.NavView.Grade}}">
+            <input type="hidden" name="volume" value="{{$.NavView.Volume}}">
+            <button class="linkbtn" style="color:var(--brand)" type="submit">设为当前</button>
+          </form>
+        </li>
+        {{end}}
+      </ul>
+      {{end}}
     </div>
   </details>
   {{end}}
+  {{end}}
+  {{else}}
+  <div class="notice">教材目录里还没有可展示的课程。请把课程 HTML 按规则放入 <code>content/…</code> 目录后重启服务。</div>
+  {{end}}
 </div>
+{{template "study_nav_js"}}
 {{template "footer" .}}

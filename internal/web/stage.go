@@ -135,6 +135,30 @@ func BuildClassText(stage string, grade, classNo int) string {
 	return label + ClassNoLabel(classNo)
 }
 
+// ParseClassNo 从班级展示文本中反解班级序号（四年级二班 → 2；七年级11班 → 11）。
+// 解析不出（含「四年级」这类未填班级的文本）返回 0，供编辑表单回选班级下拉。
+func ParseClassNo(classText string) int {
+	s := strings.TrimSpace(classText)
+	if s == "" {
+		return 0
+	}
+	for _, o := range StageList {
+		for g := 1; g <= o.Grades; g++ {
+			lbl := textbook.GradeLabel(o.Key, g)
+			if lbl != "" && strings.HasPrefix(s, lbl) {
+				rest := strings.TrimPrefix(s, lbl)
+				for n := 1; n <= MaxClassNo; n++ {
+					if ClassNoLabel(n) == rest {
+						return n
+					}
+				}
+				return 0
+			}
+		}
+	}
+	return 0
+}
+
 // guessStage 按年级推断学段：1~6 → 小学，7~9 → 中学；其它返回 ""。
 func guessStage(grade int) string {
 	switch {

@@ -35,6 +35,21 @@ type Session struct {
 // IsAdmin 是否管理员。
 func (s *Session) IsAdmin() bool { return s != nil && s.Role == "admin" }
 
+// RefreshByUser 某用户资料被修改后，同步刷新其在途的全部会话（学生无需重新登录）。
+// apply 在持锁状态下对每个匹配会话调用，回调内不要再做加锁操作。
+func (s *Store) RefreshByUser(id int64, apply func(*Session)) {
+	if apply == nil {
+		return
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	for _, sess := range s.m {
+		if sess.UserID == id {
+			apply(sess)
+		}
+	}
+}
+
 // Store 线程安全的会话存储。
 type Store struct {
 	mu   sync.RWMutex

@@ -221,7 +221,10 @@ func main() {
 	check(!strings.Contains(body, "模板渲染失败"), "学习主页模板渲染正常")
 	check(strings.Contains(body, `data-skin="boy"`), "男生用户页面按性别渲染 data-skin=boy")
 	check(strings.Contains(body, "当前进度"), "学习主页显示当前进度")
-	check(strings.Contains(body, "教材导航"), "学习主页显示教材导航")
+	check(strings.Contains(body, "教材导航") || strings.Contains(body, "四年级 · 上册"),
+		"学习主页显示教材导航（动态标题）")
+	check(strings.Contains(body, "grade-switcher") && strings.Contains(body, "切换年级"),
+		"教材导航含「切换年级」菜单")
 	check(strings.Contains(body, "道德与法治"), "导航树识别出道德与法治科目")
 
 	w, body = do("GET", "/lesson?key="+url.QueryEscape(sampleKey), nil, ck)
@@ -249,14 +252,29 @@ func main() {
 	check(strings.Contains(body, `href="/study?qt=choose"`) && strings.Contains(body, `href="/study?qt=judge"`),
 		"学习主页含选择题 / 判断题切换入口")
 	check(strings.Contains(body, `qtab is-on" role="tab"`), "当前题型选项卡高亮")
+	// 教材导航重构后主树只渲染当前视图（用户档案 primary/g4/v1）这一个年级册别，
+	// 所以这里改用「该视图内」的 judge 课来断言，而不是全库第一门 judge 课。
+	viewJudge, viewChoose := "", ""
+	for k, l := range tree.Lessons {
+		if l.Stage != "primary" || l.Grade != 4 || l.Volume != 1 {
+			continue
+		}
+		if l.QType == "judge" && viewJudge == "" {
+			viewJudge = k
+		}
+		if l.QType == "choose" && viewChoose == "" {
+			viewChoose = k
+		}
+	}
+	check(viewJudge != "", "primary/g4/v1 视图下存在 judge 课")
 	// 注：目录名可能含空格，html/template 的 urlquery 会把空格转成 %20（而非 +），
 	// 所以这里用原始 key 匹配（课程链接与「设为当前」表单里都有）。
-	check(strings.Contains(body, judgeKey), "判断题模式下目录只列 judge 课程")
-	check(strings.Count(body, "/judge/") > 1000, "判断题目录渲染出成规模题库")
+	check(strings.Contains(body, viewJudge), "判断题模式下目录列出当前视图的 judge 课程")
+	check(strings.Count(body, "/judge/") > 20, "判断题目录渲染出当前视图的题库")
 
 	w, body = do("GET", "/study?qt=choose", nil, ck)
-	check(w.Code == 200 && strings.Contains(body, chooseKey),
-		"选择题模式下目录只列 choose 课程")
+	check(w.Code == 200 && strings.Contains(body, viewChoose),
+		"选择题模式下目录列出当前视图的 choose 课程")
 
 	w, body = do("GET", "/lesson?key="+url.QueryEscape(judgeKey), nil, ck)
 	check(w.Code == 200 && !strings.Contains(body, "模板渲染失败"), "判断题课程页渲染正常")
@@ -525,9 +543,10 @@ func main() {
 	check(strings.Contains(body, "七年级三班"), "用户表展示中学班级")
 	check(strings.Contains(body, ">中学</span>"), "用户表展示学段徽章")
 
-	// 教材导航按学段展示年级名
+	// 教材导航按学段展示年级名：切换年级菜单用 GradeLabel（四年级）+ 学段分组（小学）
 	w, body = do("GET", "/study", nil, ck)
-	check(strings.Contains(body, "小学 4 年级"), "教材导航年级显示学段前缀（小学 4 年级）")
+	check(strings.Contains(body, "四年级") && strings.Contains(body, "小学"),
+		"切换年级菜单按学段分组展示年级（小学 / 四年级）")
 
 	// 中学学生登录：当前只有小学教材，应优雅回退而不是报错
 	w, _ = do("POST", "/login", url.Values{

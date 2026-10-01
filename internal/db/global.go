@@ -236,6 +236,15 @@ func (g *Global) SetGender(id int64, gender string) error {
 	return err
 }
 
+// UpdateProfile 管理员修改账号基础资料：用户名、姓名、学段/年级/册别、班级、性别。
+// username 需由调用方保证唯一（users.username 有 UNIQUE 约束兜底）。
+func (g *Global) UpdateProfile(id int64, username, name, stage string, grade, volume int, class, gender string) error {
+	_, err := g.db.Exec(
+		`UPDATE users SET username=?, name=?, stage=?, grade=?, volume=?, class=?, gender=? WHERE id=?`,
+		username, name, stage, grade, volume, class, gender, id)
+	return err
+}
+
 // ---- 邀请码 ----
 
 // ErrInviteInvalid 邀请码无效（不存在 / 已用 / 已作废）。
