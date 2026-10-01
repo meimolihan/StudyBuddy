@@ -271,13 +271,16 @@ func main() {
 	check(w.Code == 200 && strings.Contains(body, ".sb-modal-mask[hidden]{display:none}"),
 		"弹窗遮罩 hidden 态显式 display:none（防 display:flex 顶掉 hidden 常驻盖页）")
 
-	// 4.4 排版优化（桌面左栏工作台 + 移动端单栏聚焦流，纯 CSS 追加段）
-	check(strings.Contains(body, "main:has(.unitname)") &&
-		strings.Contains(body, "grid-template-columns:300px minmax(0,1fr)"),
-		"学习主页桌面双栏栅格（左轨教材导航 + 右侧工作区）")
-	check(strings.Contains(body, "@media (max-width:1023px)") &&
-		strings.Contains(body, "main > .card:first-of-type{margin-bottom:12px}"),
-		"≤1023px 退回单栏聚焦流（Hero 与数据条成组）")
+	// 4.4 排版优化：方案 1「单栏聚焦流」（纯 CSS 追加段，全尺寸单列）
+	check(strings.Contains(body, "main:has(.unitname){max-width:960px}"),
+		"学习主页单栏聚焦流（960px 居中，不切双栏）")
+	check(strings.Contains(body, "main > .card:first-of-type{margin-bottom:12px}") &&
+		strings.Contains(body, "main > .card{margin-bottom:24px}"),
+		"Hero 与数据条成组：首卡 12px、其余 24px")
+	check(strings.Contains(body, "max-height:min(56vh,520px)"),
+		"仅教材导航卡片内部滚动（单一滚动区）")
+	check(!strings.Contains(body, "grid-template-columns:300px minmax(0,1fr)"),
+		"已移除左栏工作台双栏栅格")
 	check(strings.Contains(body, "@media (pointer:coarse)") && strings.Contains(body, "min-height:44px"),
 		"触屏热区 ≥44px")
 	check(strings.Contains(body, "@media (hover:hover)") &&

@@ -1253,55 +1253,31 @@ html.sb-anim [data-sal].sal-animate{
 
 /* =========================================================
    排版优化专项（纯追加段：只调整布局 / 间距 / 滚动区域 / 响应式）
-   —— 桌面 ≥1024px：左栏工作台（教材导航常驻左轨，右侧为工作区）
-   —— ≤1023px  ：单栏聚焦流（Hero 与数据条成组，目录内部滚动，手机自然流）
+   —— 全尺寸「方案 1 · 单栏聚焦流」：
+      单列流式，main 收窄到 960px 居中，视线路径最短；
+      「当前进度 + 数据条」压成一组 Hero；仅教材导航卡片内部滚动。
    约束：不改 DOM、不改业务逻辑、不改配色；颜色一律沿用既有变量；
         无新增边框装饰线，仅用留白 + 柔和阴影分层；hover 0.2~0.3s ease 且
         只在 hover:hover 生效；触屏热区 ≥44px。
    ========================================================= */
 
-/* ---- 1) 单栏聚焦流（≤1023px）：统一垂直节奏，Hero 与数据条成组 ---- */
-@media (max-width:1023px){
-  main > .card{margin-bottom:24px}
-  main > .card:first-of-type{margin-bottom:12px} /* 当前进度 + 数据条 视为一组 */
-}
-
-/* ---- 2) 桌面：左栏工作台 ----
-   仅作用于「学习主页」：用 .unitname（教材导航独有节点）唯一定位，
-   其余页面（lesson / quiz / result / archive / admin）结构不变。 */
+/* ---- 1) 单栏聚焦流：统一垂直节奏，Hero（当前进度 + 数据条）成组 ---- */
+main > .card{margin-bottom:24px}
+main > .card:first-of-type{margin-bottom:12px}
 @supports selector(:has(*)){
-@media (min-width:1024px){
-  main:has(.unitname){
-    max-width:1240px;
-    display:grid;
-    grid-template-columns:300px minmax(0,1fr);
-    column-gap:24px; row-gap:20px;
-    align-items:start;
-  }
-  main:has(.unitname) > h1{grid-column:1 / -1}
-  main:has(.unitname) > .card:first-of-type,
-  main:has(.unitname) > .grid,
-  main:has(.unitname) > .card:nth-last-of-type(2):not(.grid){grid-column:2}
-  main:has(.unitname) > .card{margin-bottom:0}
-  main:has(.unitname) > .grid{margin-bottom:0 !important} /* 抵消模板内联 style */
-  /* 左轨：教材导航常驻 + 内部独立滚动（页面本身尽量不双滚动条） */
-  main:has(.unitname) > .card:last-of-type{
-    grid-column:1; grid-row:2 / span 3;
-    position:sticky; top:18px;
-    max-height:calc(100vh - 40px);
-    overflow:auto; overscroll-behavior:contain;
-    padding:16px 18px;
-  }
-}
+  /* 学习主页收窄居中：用 .unitname（教材导航独有节点）唯一定位，
+     lesson / quiz / result / archive / admin 结构不受影响。 */
+  main:has(.unitname){max-width:960px}
 }
 
-/* ---- 3) 单元标题吸顶（目录滚动时不丢上下文） ---- */
+/* ---- 2) 单元标题吸顶（目录滚动时不丢上下文） ---- */
 .unitname{position:sticky; top:0; z-index:1; background:var(--card); padding:4px 0}
 
-/* ---- 4) 平板 641~1023px：目录卡片内部滚动，避免长目录把页面拉太长 ---- */
-@media (min-width:641px) and (max-width:1023px){
+/* ---- 3) 唯一滚动区：教材导航卡片内部滚动，页面本身保持单条滚动 ---- */
+@supports selector(:has(*)){
   main:has(.unitname) > .card:last-of-type{
-    max-height:60vh; overflow:auto; overscroll-behavior:contain;
+    max-height:min(56vh,520px);
+    overflow:auto; overscroll-behavior:contain;
   }
 }
 
@@ -1310,10 +1286,13 @@ html.sb-anim [data-sal].sal-animate{
   .card:has(> table){overflow-x:auto}
 }
 
-/* ---- 6) 移动端：卡片收紧、数据条降列、操作按钮铺满 ---- */
+/* ---- 6) 响应式：数据条降列、卡片收紧、操作按钮铺满 ---- */
+@media (max-width:900px){
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
 @media (max-width:640px){
   .card{padding:16px}
-  .grid{grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px}
+  .grid{gap:10px}
   .stat{padding:12px 14px}
   .row{flex-direction:column; align-items:stretch}
   .row > .btn,.row > .inline,.row > form{width:100%}
@@ -1323,6 +1302,7 @@ html.sb-anim [data-sal].sal-animate{
 }
 @media (max-width:420px){
   .grid{grid-template-columns:1fr}
+  h1{font-size:20px}
 }
 
 /* ---- 7) hover 交互：0.2~0.3s ease，仅指针精确设备 ---- */
