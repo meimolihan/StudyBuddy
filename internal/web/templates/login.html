@@ -1,0 +1,93 @@
+{{template "header_auth" .}}
+
+{{template "auth_bg" .}}
+
+<div class="auth-wrap">
+  <section class="auth-side">
+    <a class="auth-logo" href="/login">
+      <img src="/static/logo.svg" alt="StudyBuddy" class="auth-logo-img">
+      <span>StudyBuddy</span>
+    </a>
+
+    <div class="auth-slogan">
+      <h2>和小伙伴一起<br>每天进步一点点 ✨</h2>
+      <p>语文 · 数学 · 英语 · 科学 · 道德与法治<br>按课自测，达标后自动解锁下一课。</p>
+    </div>
+
+    {{template "auth_scene" .}}
+
+    <div class="auth-side-foot">每个人的学习数据独立保存，互不干扰。</div>
+  </section>
+
+  <section class="auth-form">
+    <div class="auth-card">
+      <div class="auth-mobile-brand">
+        <img src="/static/logo.svg" alt="StudyBuddy" class="auth-logo-img">
+        <span>StudyBuddy</span>
+      </div>
+
+      <div class="sparkle-icon">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2L13.5 9H10.5L12 2Z" fill="#2f6fd0"/>
+          <path d="M12 22L10.5 15H13.5L12 22Z" fill="#2f6fd0"/>
+          <path d="M2 12L9 10.5V13.5L2 12Z" fill="#2f6fd0"/>
+          <path d="M22 12L15 13.5V10.5L22 12Z" fill="#2f6fd0"/>
+        </svg>
+      </div>
+
+      <div class="form-header">
+        <h1>欢迎回来，同学！</h1>
+        <p>登录后继续今天的学习任务</p>
+      </div>
+
+      {{if .Error}}<div class="auth-error" id="auth-error">{{.Error}}</div>{{end}}
+
+      <form method="post" action="/login" id="login-form">
+        <div class="fg">
+          <label for="username">用户名</label>
+          <div class="input-wrap">
+            <input id="username" name="username" value="{{.Username}}" required autofocus
+                   autocomplete="username" placeholder="请输入用户名">
+          </div>
+        </div>
+
+        <div class="fg">
+          <label for="password">密码</label>
+          <div class="input-wrap">
+            <input type="password" id="password" name="password" required
+                   autocomplete="current-password" placeholder="请输入密码">
+            <button type="button" class="toggle-password" id="toggle-password" aria-label="显示或隐藏密码">
+              <svg id="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+              <svg id="eye-off-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                <line x1="1" y1="1" x2="23" y2="23"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-login" id="btn-login">
+          <span class="btn-text">登录</span>
+          <span class="btn-hover-content">
+            <span>开始学习</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </span>
+        </button>
+      </form>
+
+      <p class="auth-alt">还没有账号？<a href="/register">立即注册</a></p>
+    </div>
+  </section>
+</div>
+
+{{template "auth_js" .}}
+{{template "footer_auth" .}}

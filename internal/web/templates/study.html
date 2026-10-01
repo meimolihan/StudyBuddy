@@ -1,0 +1,97 @@
+{{template "header" .}}
+<h1>学习主页</h1>
+
+{{if .Current}}
+<div class="card">
+  <h2>当前进度</h2>
+  <p style="margin:6px 0 12px">
+    <span class="badge info">{{.Current.SubjectCN}}</span>
+    <b>{{.Current.UnitLabel}} · {{.Current.LessonLabel}}</b>
+    <span class="muted">（{{.Current.Grade}} 年级{{.Current.VolumeLabel}}）</span>
+  </p>
+  <div class="row">
+    <a class="btn primary" href="/quiz?key={{urlquery .Current.Key}}">开始在线自测</a>
+    <form method="post" action="/lesson/docx" class="inline">
+      <input type="hidden" name="key" value="{{.Current.Key}}">
+      <button class="btn sec" type="submit">导出 Word 试卷</button>
+    </form>
+    <a class="btn ghost" href="/lesson?key={{urlquery .Current.Key}}">课程详情</a>
+  </div>
+  <p class="muted" style="margin-top:10px">达标线 {{$.Pass}} 分：未达标会继续针对本课出题，达标后自动推进到下一课。</p>
+</div>
+{{else}}
+<div class="card">
+  <div class="notice">尚未识别到教材课程。请把课程 HTML 按规则放入 <code>primary-school/…</code> 目录后重启服务。</div>
+</div>
+{{end}}
+
+<div class="grid" style="margin-bottom:16px">
+  <div class="stat"><div class="num">{{.Total}}</div><div class="cap">累计自测次数</div></div>
+  <div class="stat"><div class="num">{{.Passed}}</div><div class="cap">达标次数</div></div>
+  <div class="stat"><div class="num">{{printf "%.0f" .Avg}}</div><div class="cap">平均得分</div></div>
+  <div class="stat"><div class="num">{{.Session.Name}}</div><div class="cap">{{.Session.Class}}</div></div>
+</div>
+
+{{if .Recent}}
+<div class="card">
+  <h2>最近自测</h2>
+  <table>
+    <tr><th>时间</th><th>课程</th><th>得分</th><th>结果</th></tr>
+    {{range .Recent}}
+    <tr>
+      <td>{{.CreatedAt}}</td>
+      <td>{{.Title}}</td>
+      <td>{{if lt .Score 0}}待批改{{else}}{{.Score}} 分{{end}}</td>
+      <td>{{if lt .Score 0}}<span class="badge new">纸质卷</span>{{else if .Passed}}<span class="badge ok">达标</span>{{else}}<span class="badge warn">未达标</span>{{end}}</td>
+    </tr>
+    {{end}}
+  </table>
+</div>
+{{end}}
+
+<div class="card">
+  <h2>教材导航</h2>
+  <p class="muted">按 学段 → 出版社 → 年级 → 册别 → 科目 → 单元 → 课 展开。点击课程即可切换并开始自测。</p>
+  {{range $g := .Tree.Grades}}
+  {{$curGrade := and (eq $g.No $.Session.Grade) (or (not $.Session.Stage) (eq $g.Stage $.Session.Stage))}}
+  <details {{if $curGrade}}open{{end}}>
+    <summary>{{$g.Label}}</summary>
+    <div class="tree-body">
+    {{range $v := $g.Volumes}}
+      <details {{if and $curGrade (eq $v.No $.Session.Volume)}}open{{end}}>
+        <summary>{{$v.Name}}</summary>
+        <div class="tree-body">
+        {{range $s := $v.Subjects}}
+          <details>
+            <summary>{{$s.Name}} · {{len $s.Lessons}} 课</summary>
+            <div class="tree-body">
+              {{range $s.Units}}
+              <div class="unitname">{{.Name}}</div>
+              <ul class="lessons">
+                {{range .Lessons}}
+                <li>
+                  <a href="/lesson?key={{urlquery .Key}}">{{.Title}}</a>
+                  {{$p := index $.Prog .Key}}
+                  {{if $p}}
+                    {{if eq $p.Status "passed"}}<span class="badge ok">已达标 {{$p.BestScore}}分</span>
+                    {{else}}<span class="badge warn">练习中 最高{{$p.BestScore}}分</span>{{end}}
+                  {{else}}<span class="badge new">未开始</span>{{end}}
+                  <form method="post" action="/study/current" class="inline">
+                    <input type="hidden" name="key" value="{{.Key}}">
+                    <button class="linkbtn" style="color:var(--brand)" type="submit">设为当前</button>
+                  </form>
+                </li>
+                {{end}}
+              </ul>
+              {{end}}
+            </div>
+          </details>
+        {{end}}
+        </div>
+      </details>
+    {{end}}
+    </div>
+  </details>
+  {{end}}
+</div>
+{{template "footer" .}}

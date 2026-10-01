@@ -1,0 +1,161 @@
+{{template "header" .}}
+<h1>用户管理 <span class="badge info">管理员</span></h1>
+
+<div class="card">
+  <h2>生成邀请码</h2>
+  <form method="post" action="/admin/invite/create" class="row">
+    <label style="margin:0; max-width:180px">数量
+      <input type="number" name="count" value="5" min="1" max="50">
+    </label>
+    <button class="btn primary" type="submit">生成</button>
+  </form>
+  <p class="muted">系统已有用户后，新用户注册必须提交有效未作废的邀请码；首位注册者无需邀请码且自动成为管理员。</p>
+</div>
+
+<div class="card">
+  <h2>邀请码（{{len .Invites}}）</h2>
+  {{if .Invites}}
+  <table>
+    <tr><th>邀请码</th><th>创建时间</th><th>状态</th><th>操作</th></tr>
+    {{range .Invites}}
+    <tr>
+      <td><code>{{.Code}}</code></td>
+      <td>{{.CreatedAt}}</td>
+      <td>
+        {{if .Revoked}}<span class="badge new">已作废</span>
+        {{else if gt .UsedBy 0}}<span class="badge warn">已使用（用户#{{.UsedBy}}）</span>
+        {{else}}<span class="badge ok">可用</span>{{end}}
+      </td>
+      <td>
+        {{if and (not .Revoked) (eq .UsedBy 0)}}
+        <form method="post" action="/admin/invite/revoke" class="inline">
+          <input type="hidden" name="code" value="{{.Code}}">
+          <button class="linkbtn" style="color:var(--bad)" type="submit">作废</button>
+        </form>
+        {{else}}—{{end}}
+      </td>
+    </tr>
+    {{end}}
+  </table>
+  {{else}}
+  <div class="notice">还没有邀请码，请在上方生成。</div>
+  {{end}}
+</div>
+
+<div class="card">
+  <h2>新建账号</h2>
+  <form method="post" action="/admin/user/create" class="grid" id="admin-create" data-stages="{{.StageJSON}}">
+    <label>学生姓名<input name="name" required placeholder="如：郭奕凡"></label>
+    <label>学段
+      <select name="stage" id="admin-stage">
+        {{range .Stages}}<option value="{{.Key}}">{{.Name}}</option>{{end}}
+      </select>
+    </label>
+    <label>年级
+      {{/* 默认渲染首个学段（小学）的年级；脚本会按所选学段重建。 */}}
+      <select name="grade" id="admin-grade">
+        {{range $i, $l := (index .Stages 0).Labels}}<option value="{{add1 $i}}">{{$l}}</option>{{end}}
+      </select>
+    </label>
+    <label>班级（选填）
+      <select name="class_no">
+        <option value="0">不填</option>
+        {{range seq .MaxClassNo}}<option value="{{.}}">{{classNoLabel .}}</option>{{end}}
+      </select>
+    </label>
+    <label>性别
+      <select name="gender">
+        <option value="male">男生</option>
+        <option value="female">女生</option>
+        <option value="">不设置</option>
+      </select>
+    </label>
+    <label>用户名<input name="username" required></label>
+    <label>密码<input name="password" required placeholder="至少 6 位"></label>
+    <label>册别
+      <select name="volume"><option value="1">上册</option><option value="2">下册</option></select>
+    </label>
+    <label>角色
+      <select name="role"><option value="user">普通用户</option><option value="admin">管理员</option></select>
+    </label>
+    <div style="align-self:end"><button class="btn primary" type="submit">创建</button></div>
+  </form>
+</div>
+
+<div class="card">
+  <h2>全部用户（{{len .Users}}）</h2>
+  <table>
+    <tr><th>ID</th><th>用户名</th><th>姓名</th><th>性别</th><th>班级</th><th>学段/年级/册别</th><th>角色</th><th>主题</th><th>注册时间</th><th>操作</th></tr>
+    {{range .Users}}
+    <tr>
+      <td>#{{.ID}}</td>
+      <td>{{.Username}}</td>
+      <td>{{.Name}}</td>
+      <td>
+        <form method="post" action="/admin/user/gender" class="inline">
+          <input type="hidden" name="id" value="{{.ID}}">
+          <select name="gender" class="mini-select" onchange="this.form.submit()" aria-label="设置性别">
+            <option value="male" {{if eq .Gender "male"}}selected{{end}}>男生</option>
+            <option value="female" {{if eq .Gender "female"}}selected{{end}}>女生</option>
+            <option value="" {{if not .Gender}}selected{{end}}>未设置</option>
+          </select>
+        </form>
+      </td>
+      <td>{{if .Class}}{{.Class}}{{else}}<span class="muted">未设置</span>{{end}}</td>
+      <td>
+        {{if .Stage}}<span class="badge info">{{stageName .Stage}}</span>{{end}}
+        {{if .Grade}}{{gradeLabel .Stage .Grade}}{{else}}<span class="muted">未设置年级</span>{{end}}
+        <span class="muted">{{if eq .Volume 1}}上册{{else}}下册{{end}}</span>
+      </td>
+      <td>{{if eq .Role "admin"}}<span class="badge info">管理员</span>{{else}}<span class="badge new">普通用户</span>{{end}}</td>
+      <td>{{if .Skin}}{{skinName .Skin}}{{else}}<span class="muted">按性别</span>{{end}}</td>
+      <td>{{.CreatedAt}}</td>
+      <td>
+        {{if ne .ID $.Session.UserID}}
+        <form method="post" action="/admin/user/role" class="inline">
+          <input type="hidden" name="id" value="{{.ID}}">
+          {{if eq .Role "admin"}}<input type="hidden" name="role" value="user"><button class="linkbtn" type="submit">降为普通</button>
+          {{else}}<input type="hidden" name="role" value="admin"><button class="linkbtn" type="submit">设为管理员</button>{{end}}
+        </form>
+        {{else}}—{{end}}
+      </td>
+    </tr>
+    {{end}}
+  </table>
+</div>
+
+<script>
+// 建号表单：学段决定可选的年级，切换学段时重建年级下拉。
+(function () {
+  var form = document.getElementById('admin-create');
+  if (!form) { return; }
+  var stages = {};
+  (function () {
+    var parsed;
+    try { parsed = JSON.parse(form.getAttribute('data-stages') || '{}'); } catch (e) { parsed = {}; }
+    if (Object.prototype.toString.call(parsed) === '[object Array]') {
+      for (var i = 0; i < parsed.length; i++) { if (parsed[i] && parsed[i].key) { stages[parsed[i].key] = parsed[i]; } }
+    } else if (parsed) {
+      stages = parsed;
+    }
+  })();
+  var stageSel = document.getElementById('admin-stage');
+  var gradeSel = document.getElementById('admin-grade');
+  function fill() {
+    var c = stages[stageSel.value] || {};
+    var labels = c.labels || [];
+    var keep = gradeSel.value;
+    gradeSel.innerHTML = '';
+    for (var i = 0; i < labels.length; i++) {
+      var o = document.createElement('option');
+      o.value = String(i + 1);
+      o.textContent = labels[i];
+      gradeSel.appendChild(o);
+    }
+    if (keep) { gradeSel.value = keep; }
+  }
+  stageSel.addEventListener('change', fill);
+  fill();
+})();
+</script>
+{{template "footer" .}}

@@ -1,0 +1,767 @@
+{{template "header_auth" .}}
+
+{{template "auth_bg" .}}
+
+<div class="auth-wrap">
+  <section class="auth-side">
+    <a class="auth-logo" href="/login">
+      <img src="/static/logo.svg" alt="StudyBuddy" class="auth-logo-img">
+      <span>StudyBuddy</span>
+    </a>
+
+    <div class="auth-slogan">
+      <h2>新同学，欢迎加入！<br>我们一起去闯关 🚀</h2>
+      <p>选好你的学段和年级，<br>就能按课自测，达标后自动解锁下一课。</p>
+    </div>
+
+    {{template "auth_scene" .}}
+
+    <div class="auth-side-foot">每个人的学习数据独立保存，互不干扰。</div>
+  </section>
+
+  <section class="auth-form auth-form-tall">
+    <div class="auth-card">
+      <div class="auth-mobile-brand">
+        <img src="/static/logo.svg" alt="StudyBuddy" class="auth-logo-img">
+        <span>StudyBuddy</span>
+      </div>
+
+      <div class="sparkle-icon">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2L13.5 9H10.5L12 2Z" fill="#2f6fd0"/>
+          <path d="M12 22L10.5 15H13.5L12 22Z" fill="#2f6fd0"/>
+          <path d="M2 12L9 10.5V13.5L2 12Z" fill="#2f6fd0"/>
+          <path d="M22 12L15 13.5V10.5L22 12Z" fill="#2f6fd0"/>
+        </svg>
+      </div>
+
+      <div class="form-header">
+        <h1>创建学习账号</h1>
+        <p>填写下面的信息，马上开始第一次自测</p>
+      </div>
+
+      {{if .NeedInvite}}
+        <div class="auth-notice">系统已有用户，注册需要<b>邀请码</b>。请联系管理员获取。</div>
+      {{else}}
+        <div class="auth-notice">当前系统还没有任何账号，<b>首位注册者将自动成为管理员</b>。</div>
+      {{end}}
+
+      {{if .Error}}<div class="auth-error" id="auth-error">{{.Error}}</div>{{end}}
+
+      <form method="post" action="/register" id="register-form"
+            data-stages="{{.StageJSON}}" data-max-class="{{.MaxClassNo}}">
+
+        <div class="fg fg-gender">
+          <label>我的性别
+            <span class="fg-hint">用来匹配默认主题，之后可随时更换</span>
+          </label>
+          <div class="gender-pick" id="gender-pick">
+            <label class="gender-opt gender-male">
+              <input type="radio" name="gender" value="male" required
+                     {{if eq .Gender "male"}}checked{{end}}>
+              <span class="g-title">我是男生</span>
+              <span class="g-sub">使用「男生主题」</span>
+              <span class="g-preview g-preview-male"></span>
+            </label>
+            <label class="gender-opt gender-female">
+              <input type="radio" name="gender" value="female"
+                     {{if eq .Gender "female"}}checked{{end}}>
+              <span class="g-title">我是女生</span>
+              <span class="g-sub">使用「女生主题」</span>
+              <span class="g-preview g-preview-female"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="fg">
+          <label for="name">学生姓名</label>
+          <div class="input-wrap">
+            <input id="name" name="name" value="{{.Name}}" required placeholder="如：郭奕凡">
+          </div>
+        </div>
+
+        <div class="fg fg-stage">
+          <label>学段
+            <span class="fg-hint">决定教材与题目范围</span>
+          </label>
+          <div class="seg" id="stage-seg">
+            {{range .Stages}}
+            <label class="seg-opt">
+              <input type="radio" name="stage" value="{{.Key}}"
+                     {{if eq .Key $.FormStage}}checked{{end}}{{if eq .Key "primary"}} required{{end}}>
+              <span>{{.Name}}</span>
+            </label>
+            {{end}}
+          </div>
+        </div>
+
+        <div class="fg fg-pick">
+          <label>年级
+            <span class="fg-hint">点击后在弹窗里上下滚动选择</span>
+          </label>
+          <button type="button" class="pickfield" id="grade-field" aria-haspopup="dialog">
+            <span class="pickfield-val" id="grade-text">{{gradeLabel .FormStage .FormGrade}}</span>
+            <span class="pickfield-ico" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </span>
+          </button>
+          <input type="hidden" name="grade" id="grade-value" value="{{.FormGrade}}">
+        </div>
+
+        <div class="fg fg-pick">
+          <label>班级
+            <span class="fg-hint">选填 · 选「不填」即可跳过</span>
+          </label>
+          <button type="button" class="pickfield" id="class-field" aria-haspopup="dialog">
+            <span class="pickfield-val{{if not .FormClass}} is-empty{{end}}" id="class-text">{{if .FormClass}}{{classNoLabel .FormClass}}{{else}}不填{{end}}</span>
+            <span class="pickfield-ico" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </span>
+          </button>
+          <input type="hidden" name="class_no" id="class-value" value="{{if .FormClass}}{{.FormClass}}{{end}}">
+        </div>
+
+        <div class="fg">
+          <label for="username">登录用户名（全局唯一）</label>
+          <div class="input-wrap">
+            <input id="username" name="username" value="{{.Username}}" required
+                   autocomplete="username" placeholder="字母或数字，登录后使用">
+          </div>
+        </div>
+
+        <div class="fg">
+          <label for="password">登录密码（至少 6 位）</label>
+          <div class="input-wrap">
+            <input type="password" id="password" name="password" required
+                   autocomplete="new-password" placeholder="至少 6 位">
+            <button type="button" class="toggle-password" id="toggle-password" aria-label="显示或隐藏密码">
+              <svg id="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+              <svg id="eye-off-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                <line x1="1" y1="1" x2="23" y2="23"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="fg-row">
+          <div class="fg">
+            <label for="volume">册别</label>
+            <select id="volume" name="volume">
+              <option value="1"{{if ne .FormVolume 2}} selected{{end}}>上册</option>
+              <option value="2"{{if eq .FormVolume 2}} selected{{end}}>下册</option>
+            </select>
+          </div>
+          {{if .NeedInvite}}
+          <div class="fg">
+            <label for="invite">邀请码</label>
+            <div class="input-wrap">
+              <input id="invite" name="invite" required placeholder="请输入邀请码">
+            </div>
+          </div>
+          {{end}}
+        </div>
+
+        <div class="fg wp-preview">
+          <label>背景壁纸
+            <span class="fg-hint">按「学段 + 年级 + 册别」自动匹配</span>
+          </label>
+          <div class="wp-card" id="wp-card">
+            <img class="wp-thumb" id="wp-thumb" alt="壁纸预览" hidden>
+            <div class="wp-info">
+              <b class="wp-state" id="wp-state">正在匹配…</b>
+              <span class="wp-tip" id="wp-tip">选好年级和册别后，这里会显示对应的壁纸</span>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-auth" id="btn-register">
+          <span class="btn-text">创建账号</span>
+          <span class="btn-hover-content">
+            <span>加入我们</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </span>
+        </button>
+      </form>
+
+      <p class="auth-alt">已有账号？<a href="/login">去登录</a></p>
+    </div>
+  </section>
+</div>
+
+<div class="sheetscrim" id="pick-scrim" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="pick-title">
+    <div class="sheet-head">
+      <button type="button" class="sheet-act" id="pick-cancel">取消</button>
+      <b class="sheet-title" id="pick-title">选择年级</b>
+      <button type="button" class="sheet-act is-primary" id="pick-ok">确定</button>
+    </div>
+    <div class="wheel-box">
+      <div class="wheel-band" aria-hidden="true"></div>
+      <div class="wheel" id="pick-wheel" tabindex="0" role="listbox" aria-label="上下滚动选择"></div>
+    </div>
+    <div class="sheet-foot">
+      <span class="sheet-hint" id="pick-hint">滚轮 / ↑↓ 逐行微调，也可直接输入数字</span>
+      <input class="sheet-num" type="text" id="pick-num" inputmode="numeric" autocomplete="off" aria-label="直接输入数字">
+    </div>
+  </div>
+</div>
+
+{{template "auth_js" .}}
+
+<script>
+// 性别 → 主题实时预览：点选「我是男生 / 我是女生」时，整页配色立刻切换成对应主题。
+(function () {
+  var root = document.documentElement;
+  var initial = root.getAttribute('data-skin');
+  var radios = document.querySelectorAll('#gender-pick input[name="gender"]');
+  function apply() {
+    var picked = null;
+    for (var i = 0; i < radios.length; i++) {
+      var opt = radios[i].closest('.gender-opt');
+      if (opt) { opt.classList.toggle('is-picked', radios[i].checked); }
+      if (radios[i].checked) { picked = radios[i].value; }
+    }
+    root.setAttribute('data-skin', picked ? (picked === 'female' ? 'girl' : 'boy') : (initial || 'default'));
+  }
+  for (var i = 0; i < radios.length; i++) {
+    radios[i].addEventListener('change', apply);
+  }
+  apply();
+})();
+</script>
+
+<script>
+// 年级 / 班级：点击字段弹出「滚轮」，可上下滚动选择（类似 iPhone 闹钟），
+// 也可以在弹窗底部直接输入数字。两处共用同一个弹窗。
+(function () {
+  var form = document.getElementById('register-form');
+  if (!form) { return; }
+
+  // 学段配置：正常是 { primary: {...} } 对象；万一退化成数组也在此归一。
+  var stages = {};
+  try {
+    var parsed = JSON.parse(form.getAttribute('data-stages') || '{}');
+    if (Object.prototype.toString.call(parsed) === '[object Array]') {
+      for (var i = 0; i < parsed.length; i++) {
+        if (parsed[i] && parsed[i].key) { stages[parsed[i].key] = parsed[i]; }
+      }
+    } else if (parsed) {
+      stages = parsed;
+    }
+  } catch (e) {
+    stages = {};
+  }
+
+  var FALLBACK = { grades: 6, labels: ['一年级', '二年级', '三年级', '四年级', '五年级', '六年级'] };
+  var CLASS_MAX = parseInt(form.getAttribute('data-max-class'), 10);
+  if (!(CLASS_MAX > 0)) { CLASS_MAX = 12; }
+
+  var ITEM = 44;          // 单行高度，与 CSS 里的 44px 保持一致
+  var SNAP_MS = 170;      // 停止滚动多久后视为已定格并吸附到整行
+  var STEP_PX = 60;       // 触摸板 / 高精度滚轮：累积这么多像素才走一行
+  var STEP_MAX = 6;       // 单次事件最多走几行，防止动量爆发时一冲到底
+  var KEY_GAP = 130;      // 长按方向键时两次换行的最小间隔
+
+  var stageRadios = form.querySelectorAll('input[name="stage"]');
+  var gradeValue = document.getElementById('grade-value');
+  var classValue = document.getElementById('class-value');
+  var gradeField = document.getElementById('grade-field');
+  var classField = document.getElementById('class-field');
+  var gradeText = document.getElementById('grade-text');
+  var classTextEl = document.getElementById('class-text');
+
+  var scrim = document.getElementById('pick-scrim');
+  var wheel = document.getElementById('pick-wheel');
+  var sheetTitle = document.getElementById('pick-title');
+  var sheetHint = document.getElementById('pick-hint');
+  var pickNum = document.getElementById('pick-num');
+  var btnCancel = document.getElementById('pick-cancel');
+  var btnOk = document.getElementById('pick-ok');
+  if (!scrim || !wheel || !gradeField || !classField) { return; }
+
+  var CN = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一', '十二'];
+
+  function currentStage() {
+    for (var i = 0; i < stageRadios.length; i++) {
+      if (stageRadios[i].checked) { return stageRadios[i].value; }
+    }
+    return '';
+  }
+  function cfg() { return stages[currentStage()] || FALLBACK; }
+
+  function gradeLabel(v) {
+    var c = cfg();
+    return c.labels[v - 1] || (v + '年级');
+  }
+  function classLabel(v) {
+    if (v <= 0) { return '不填'; }
+    if (v <= 12) { return CN[v - 1] + '班'; }
+    return v + '班';
+  }
+
+  // ---- 当前取值：年级恒 >= 1；班级 0 表示不填 ----
+  var gradeVal = parseInt(gradeValue.value, 10);
+  var classVal = parseInt(classValue.value, 10);
+  if (!(gradeVal >= 1)) { gradeVal = 1; }
+  if (!(classVal >= 0)) { classVal = 0; }
+  if (classVal > CLASS_MAX) { classVal = CLASS_MAX; }
+
+  function commit() {
+    if (gradeVal > cfg().grades) { gradeVal = cfg().grades; }
+    gradeValue.value = String(gradeVal);
+    classValue.value = classVal > 0 ? String(classVal) : '';
+    gradeText.textContent = gradeLabel(gradeVal);
+    classTextEl.textContent = classLabel(classVal);
+    classTextEl.className = classVal > 0 ? 'pickfield-val' : 'pickfield-val is-empty';
+    // 年级变了会影响「背景壁纸」的匹配结果，通知同页的壁纸预览重新查询。
+    if (typeof window.sbWallpaperRefresh === 'function') { window.sbWallpaperRefresh(); }
+  }
+
+  // ---- 弹窗状态 ----
+  var openKind = '';                 // 'grade' | 'class'
+  var openGrade = gradeVal, openClass = classVal;  // 打开时的快照，「取消」时回滚
+  var items = [];                    // [{ v: 1, label: '一年级' }, ...]
+  var idx = 0;                       // 当前定格到第几行
+  var animating = false;             // 程序化滚动中：此时的 scrollTop 由补间在写，绝不能回读
+  var scrollTimer = null;
+
+  function buildItems(kind) {
+    var out = [], i;
+    if (kind === 'grade') {
+      var c = cfg();
+      for (i = 1; i <= c.grades; i++) { out.push({ v: i, label: gradeLabel(i) }); }
+    } else {
+      for (i = 0; i <= CLASS_MAX; i++) { out.push({ v: i, label: classLabel(i) }); }
+    }
+    return out;
+  }
+
+  function renderWheel() {
+    var html = '<div class="wheel-pad"></div>';
+    for (var i = 0; i < items.length; i++) {
+      html += '<div class="wheel-item" data-i="' + i + '">' + items[i].label + '</div>';
+    }
+    html += '<div class="wheel-pad"></div>';
+    wheel.innerHTML = html;
+  }
+
+  function paintWheel() {
+    var nodes = wheel.children;
+    for (var i = 0; i < nodes.length; i++) {
+      var el = nodes[i];
+      if (el.nodeType !== 1 || (el.className || '').indexOf('wheel-item') !== 0) { continue; }
+      var k = parseInt(el.getAttribute('data-i'), 10);
+      var d = k - idx;
+      if (d < 0) { d = -d; }
+      el.className = 'wheel-item' + (d === 0 ? ' is-on' : (d === 1 ? ' is-near' : ' is-far'));
+    }
+  }
+
+  // ---- 位置落定：自己用 rAF 补间 ----
+  // 刻意不用 scrollTo({behavior:'smooth'})：在带 scroll-snap 的嵌套容器上浏览器可能
+  // 把平滑滚动直接忽略掉（探针实测：标记位在动、列表却停在原地），那样「一档一行」就
+  // 只剩高亮在动、位置不动。自己写补间每帧直接写 scrollTop，任何浏览器都稳；
+  // 补间期间临时关掉吸附，免得吸附把补间一帧一帧拽回去。
+  //
+  // 关键：补间期间用 animating 标志挡住 scroll 回读，而不是拿「现在几点」去猜。
+  // 早先按时间戳设锁（lockUntil）会漏 —— 补间还没落地、锁先过期，回读就会用旧的
+  // scrollTop 把选中行覆盖回去（现象：滚一格，高亮又跳回原来那一行）。
+  var ANIM_MS = 170;
+  var animToken = 0;
+
+  function raf(fn) {
+    if (window.requestAnimationFrame) { window.requestAnimationFrame(fn); return; }
+    setTimeout(function () { fn(Date.now()); }, 16);   // 老浏览器退回定时器
+  }
+
+  function stopAnim() {
+    animating = false;
+    wheel.classList.remove('is-anim');     // 恢复吸附：目标本来就是整行，吸附是空操作
+  }
+
+  function place(i, smooth) {
+    var target = i * ITEM;
+    animToken++;                           // 新目标作废掉上一次补间
+    var token = animToken;
+    var from = wheel.scrollTop, delta = target - from;
+    if (!smooth || Math.abs(delta) < 1) {
+      stopAnim();
+      wheel.scrollTop = target;
+      return;
+    }
+    animating = true;
+    wheel.classList.add('is-anim');
+    var t0 = 0;
+    // 确认落位：幂等，可以调多次。只有位置真的到位了才放开 scroll 回读。
+    function land() {
+      if (token !== animToken) { return; }
+      if (Math.abs(wheel.scrollTop - target) > 1) { wheel.scrollTop = target; }
+      animating = false;
+    }
+    function finish() {
+      if (token !== animToken) { return; }
+      wheel.scrollTop = target;
+      wheel.classList.remove('is-anim');
+      // 恢复吸附的那一瞬，浏览器可能按「旧位置」补一次吸附、把刚写好的位置顶回去
+      // （现象：位置回到原处，回读又把选中行带回原来那一行）。下一帧确认一次，
+      // 再用一个定时器兜底（rAF 被挂起时也能确认）。
+      raf(land);
+      setTimeout(land, 120);
+    }
+    function step(ts) {
+      if (token !== animToken) { return; }
+      if (!t0) { t0 = ts; }
+      var p = (ts - t0) / ANIM_MS;
+      if (p > 1) { p = 1; }
+      wheel.scrollTop = from + delta * (1 - Math.pow(1 - p, 3));   // ease-out
+      if (p < 1) { raf(step); } else { finish(); }
+    }
+    raf(step);
+    // 兜底：万一 rAF 被挂起（后台标签页等），到点也要落到正确位置
+    setTimeout(finish, ANIM_MS + 90);
+  }
+
+  // 定格到第 i 行：更新高亮、表单值、字段文案，必要时把滚轮滚过去。
+  function setIdx(i, smooth) {
+    if (i < 0) { i = 0; }
+    if (i > items.length - 1) { i = items.length - 1; }
+    idx = i;
+    paintWheel();
+    if (openKind === 'grade') { gradeVal = items[idx].v; } else { classVal = items[idx].v; }
+    commit();
+    if (document.activeElement !== pickNum) { pickNum.value = String(items[idx].v); }
+    if (smooth) { place(idx, true); }
+  }
+
+  // scroll 回读：只在用户自己滚动（或触摸惯性）时生效；补间在写位置时一律不回读。
+  function readWheel() {
+    if (animating || !openKind || !items.length) { return; }
+    var i = Math.round(wheel.scrollTop / ITEM);
+    if (!(i >= 0)) { i = 0; }
+    if (i > items.length - 1) { i = items.length - 1; }
+    if (i !== idx) { setIdx(i, false); }
+  }
+
+  function openPicker(kind) {
+    openKind = kind;
+    openGrade = gradeVal;
+    openClass = classVal;
+    var start;
+    if (kind === 'grade') {
+      items = buildItems('grade');
+      start = gradeVal - 1;
+      sheetTitle.textContent = '选择年级';
+      sheetHint.textContent = '滚轮 / ↑↓ 逐行微调，也可直接输入数字（1 ~ ' + cfg().grades + '）';
+      pickNum.value = String(gradeVal);
+    } else {
+      items = buildItems('class');
+      start = classVal;
+      sheetTitle.textContent = '选择班级';
+      sheetHint.textContent = '滚轮 / ↑↓ 逐行微调，0 = 不填，最大 ' + CLASS_MAX;
+      pickNum.value = String(classVal);
+    }
+    renderWheel();
+    idx = Math.max(0, Math.min(items.length - 1, start));
+    paintWheel();
+    acc = 0;                              // 每次打开都从「零累积 / 零冷却」开始
+    keyLock = 0;
+    scrim.hidden = false;
+    document.documentElement.classList.add('sheet-open');
+    place(idx, false);
+    if (window.requestAnimationFrame) {
+      // 等布局稳定后再定位一次，避免首次打开时停在错误行。
+      window.requestAnimationFrame(function () { place(idx, false); });
+    }
+  }
+
+  function closePicker(keep) {
+    if (!keep) {
+      if (openKind === 'grade') { gradeVal = openGrade; } else { classVal = openClass; }
+    }
+    scrim.hidden = true;
+    document.documentElement.classList.remove('sheet-open');
+    var back = openKind === 'grade' ? gradeField : classField;
+    openKind = '';
+    commit();
+    if (back && back.focus) { try { back.focus(); } catch (e) { /* 忽略 */ } }
+  }
+
+  // ---- 事件 ----
+  gradeField.addEventListener('click', function () { openPicker('grade'); });
+  classField.addEventListener('click', function () { openPicker('class'); });
+  btnCancel.addEventListener('click', function () { closePicker(false); });
+  btnOk.addEventListener('click', function () { closePicker(true); });
+  scrim.addEventListener('click', function (ev) {
+    if (ev.target === scrim) { closePicker(true); }   // 点遮罩 = 保留当前选择
+  });
+  document.addEventListener('keydown', function (ev) {
+    if (!openKind) { return; }
+    if (ev.key === 'Escape') { ev.preventDefault(); closePicker(false); return; }
+    if (ev.key === 'Enter') { ev.preventDefault(); closePicker(true); return; }
+    if (ev.target === pickNum || !items.length) { return; }   // 数字输入框里的方向键归它自己
+    if (ev.key === 'Home') { ev.preventDefault(); setIdx(0, true); return; }
+    if (ev.key === 'End') { ev.preventDefault(); setIdx(items.length - 1, true); return; }
+    var step = 0;
+    if (ev.key === 'ArrowDown') { step = 1; }
+    else if (ev.key === 'ArrowUp') { step = -1; }
+    else if (ev.key === 'PageDown') { step = 2; }
+    else if (ev.key === 'PageUp') { step = -2; }
+    if (!step) { return; }
+    ev.preventDefault();
+    var now = Date.now();
+    if (now < keyLock) { return; }        // 长按连发时别冲得太快
+    keyLock = now + KEY_GAP;
+    stepBy(step);
+  });
+
+  // ---- 滚轮输入：自己接管，保证「一格 = 一行」 ----
+  // 原来完全交给浏览器原生滚动，问题出在量纲上：一档滚轮的 deltaY 默认就是 100px，
+  // 而一行只有 44px，再叠上 scroll-snap 的吸附放大，实测一档直接跳 2~3 行 ——
+  // 这就是「滑得太快、停不准」的根源。接管之后：
+  //   · 鼠标滚轮一整档（|deltaY| ≥ 90）→ 整整走一行，转几档就走几行，可预期；
+  //   · 触摸板 / 高精度滚轮（像素模式）→ 每累积 60px 走一行，跟手且可控；
+  //   · 触摸屏不会触发 wheel，仍然交给原生惯性滚动 + snap（手感本来就最好）。
+  var acc = 0;        // 像素模式的累积量，不足一行时留着下次继续
+  var keyLock = 0;    // 方向键连发的冷却
+
+  function stepBy(n) {
+    if (!items.length || !n) { return; }
+    if (n > STEP_MAX) { n = STEP_MAX; }
+    if (n < -STEP_MAX) { n = -STEP_MAX; }
+    setIdx(idx + n, true);
+  }
+
+  wheel.addEventListener('wheel', function (ev) {
+    if (!openKind || !items.length || ev.ctrlKey) { return; }   // 双指缩放交回浏览器
+    var dy = ev.deltaY;
+    if (ev.deltaMode === 1) { dy *= 16; }     // Firefox：以「行」为单位
+    if (ev.deltaMode === 2) { dy *= 100; }    // 以「页」为单位
+    if (!dy) { return; }
+    ev.preventDefault();                      // 关键：不让浏览器自己滚，否则一档跳好几行
+    if (Math.abs(dy) >= 90) {                 // 鼠标滚轮一整档 → 一行
+      acc = 0;
+      stepBy(dy > 0 ? 1 : -1);
+      return;
+    }
+    acc += dy;                                // 触摸板：按手势距离等比例换行
+    var n = 0;
+    while (acc >= STEP_PX) { acc -= STEP_PX; n++; }
+    while (acc <= -STEP_PX) { acc += STEP_PX; n--; }
+    if (n) { stepBy(n); }
+  }, { passive: false });
+
+  // ---- 鼠标拖拽：按住列表上下拖，松手吸附到最近一行 ----
+  // 鼠标用户想「精准定位」时最自然的动作就是拖，比滚轮一格一格点更直观。
+  var dragging = false, dragMoved = false, dragStartY = 0, dragStartTop = 0;
+
+  wheel.addEventListener('pointerdown', function (ev) {
+    if (!openKind || ev.pointerType === 'touch' || ev.button !== 0) { return; }
+    dragging = true;
+    dragMoved = false;
+    dragStartY = ev.clientY;
+    dragStartTop = wheel.scrollTop;
+    acc = 0;
+    animToken++;                              // 掐掉正在进行中的补间，别跟手指抢位置
+    stopAnim();
+    wheel.classList.add('is-drag');           // 拖拽期间关掉 scroll-snap，跟手不打架
+    if (wheel.setPointerCapture) {
+      try { wheel.setPointerCapture(ev.pointerId); } catch (e) { /* 忽略 */ }
+    }
+  });
+  wheel.addEventListener('pointermove', function (ev) {
+    if (!dragging) { return; }
+    var dy = ev.clientY - dragStartY;
+    if (!dragMoved) {
+      if (Math.abs(dy) < 3) { return; }       // 手抖不算拖拽，保留「点一行选中」的手感
+      dragMoved = true;
+    }
+    wheel.scrollTop = dragStartTop - dy;
+  });
+  function endDrag() {
+    if (!dragging) { return; }
+    dragging = false;
+    wheel.classList.remove('is-drag');
+    if (!openKind || !items.length) { return; }
+    setIdx(Math.round(wheel.scrollTop / ITEM), true);   // 松手吸附到最近一行
+  }
+  wheel.addEventListener('pointerup', endDrag);
+  wheel.addEventListener('pointercancel', endDrag);
+  wheel.addEventListener('lostpointercapture', endDrag);
+
+  wheel.addEventListener('scroll', function () {
+    readWheel();
+    if (scrollTimer) { clearTimeout(scrollTimer); }
+    scrollTimer = setTimeout(settle, SNAP_MS);
+  });
+
+  // 停稳：先读回定格行，若没正好停在行上（个别浏览器对嵌套容器不执行 scroll-snap）
+  // 就补一次精确对齐，保证下一次 read 回的位置是准的。拖拽 / 补间中不做（会跟当前位置抢）。
+  function settle() {
+    readWheel();
+    if (dragging || animating || !openKind || !items.length) { return; }
+    if (Math.abs(wheel.scrollTop - idx * ITEM) > 1) { place(idx, true); }
+  }
+
+  // 直接点某一行 → 滚到那一行
+  wheel.addEventListener('click', function (ev) {
+    if (dragMoved) { dragMoved = false; return; }   // 刚拖完，别把松手当成点击
+    var el = ev.target;
+    while (el && el !== wheel && !(el.nodeType === 1 && (el.className || '').indexOf('wheel-item') === 0)) {
+      el = el.parentNode;
+    }
+    if (!el || el === wheel) { return; }
+    var k = parseInt(el.getAttribute('data-i'), 10);
+    if (!isNaN(k)) { setIdx(k, true); }
+  });
+
+  // 弹窗底部手动输入
+  pickNum.addEventListener('input', function () {
+    var raw = pickNum.value.replace(/[^0-9]/g, '');
+    if (raw !== pickNum.value) { pickNum.value = raw; }
+    if (raw === '' || !items.length) { return; }
+    var minV = items[0].v, maxV = items[items.length - 1].v;
+    var v = parseInt(raw, 10);
+    if (!(v >= minV)) { v = minV; }
+    if (v > maxV) { v = maxV; }
+    setIdx(v - minV, true);
+  });
+  pickNum.addEventListener('blur', function () {
+    if (items.length) { pickNum.value = String(items[idx].v); }
+  });
+
+  // 切换学段：年级范围变化，当前值夹进新范围。
+  for (var s = 0; s < stageRadios.length; s++) {
+    stageRadios[s].addEventListener('change', function () {
+      if (openKind) { closePicker(true); }
+      commit();
+    });
+  }
+
+  commit();
+})();
+</script>
+
+<script>
+// 背景壁纸预览：学段 / 年级 / 册别 任一变化就向后端查一次匹配结果。
+// 匹配到 → 显示缩略图；匹配不到 → 直接告诉用户该把图片命名成什么。
+(function () {
+  var form = document.getElementById('register-form');
+  var card = document.getElementById('wp-card');
+  var thumb = document.getElementById('wp-thumb');
+  var stateEl = document.getElementById('wp-state');
+  var tipEl = document.getElementById('wp-tip');
+  if (!form || !card || !thumb || !stateEl || !tipEl) { return; }
+
+  var gradeText = document.getElementById('grade-text');
+  var gradeValue = document.getElementById('grade-value');
+  var volumeSel = document.getElementById('volume');
+
+  var reqSeq = 0;
+  var lastKey = '';
+  var refreshTimer = null;
+
+  // 后端只按「学段 + 年级」查一次（首页壁纸同一年级上下册共用），命中就返回可直接放进 <img src> 的路径。
+  function fetchNow() {
+    var seq = ++reqSeq;
+    var q = '/api/wallpaper?stage=' + encodeURIComponent(stageKey()) +
+            '&grade=' + gradeNo() + '&volume=' + volumeNo();
+    fetch(q, { headers: { Accept: 'application/json' } })
+      .then(function (r) { return r.json(); })
+      .then(function (d) { if (seq === reqSeq) { render(d); } })
+      .catch(function () { if (seq === reqSeq) { render(null); } });
+  }
+
+  function stageInput() { return form.querySelector('input[name="stage"]:checked'); }
+  function stageKey() {
+    var r = stageInput();
+    return r ? r.value : 'primary';
+  }
+  function stageCN() {
+    var r = stageInput();
+    var box = r && r.closest ? r.closest('.seg-opt') : null;
+    var s = box ? box.querySelector('span') : null;
+    return s ? s.textContent : '';
+  }
+  function gradeNo() {
+    var v = parseInt(gradeValue ? gradeValue.value : '', 10);
+    return v > 0 ? v : 1;
+  }
+  function volumeNo() { return volumeSel && volumeSel.value === '2' ? 2 : 1; }
+
+  // 首页壁纸只到「年级」这一层，不再区分上下册，所以预览文案里也不带上册/下册。
+  function gradeComboText() {
+    var parts = [];
+    if (stageCN()) { parts.push(stageCN()); }
+    if (gradeText && gradeText.textContent) { parts.push(gradeText.textContent); }
+    return parts.join(' · ');
+  }
+  function suggest() {
+    // 目录结构与 content/ 同构：学段 / 出版社 / gradeN，图片统一叫 wallpaper.webp。
+    // 学习主页用「年级」这一层的图（同一年级上下册共用同一张）；
+    // 学科壁纸放到 volumeN 目录里，叫 g{年级}-v{册别}-{学科}.webp。
+    return stageKey() + '/pep/grade' + gradeNo() + '/wallpaper.webp';
+  }
+
+  function render(data) {
+    var combo = gradeComboText() || '该年级';
+    if (data && data.url) {
+      thumb.src = data.url;
+      thumb.hidden = false;
+      card.classList.add('is-on');
+      stateEl.textContent = '已匹配到壁纸：' + data.name;
+      tipEl.textContent = combo + ' · 登录后自动作为学习主页的背景（上下册共用同一张）';
+    } else {
+      thumb.hidden = true;
+      thumb.removeAttribute('src');
+      card.classList.remove('is-on');
+      stateEl.textContent = '还没有' + combo + '的壁纸';
+      tipEl.textContent = '把图片命名为 ' + ((data && data.want) || suggest()) +
+        '，放进项目的 wallpapers/ 目录即可';
+    }
+  }
+
+  function refresh(immediate) {
+    var key = stageKey() + '|' + gradeNo() + '|' + volumeNo();
+    if (key === lastKey && immediate !== true) { return; }
+    lastKey = key;
+    if (!window.fetch) {
+      stateEl.textContent = '当前浏览器不支持自动预览';
+      tipEl.textContent = '把图片命名为 ' + suggest() + '，放进项目的 wallpapers/ 目录即可';
+      return;
+    }
+    if (refreshTimer) { clearTimeout(refreshTimer); refreshTimer = null; }
+    refreshTimer = setTimeout(function () {
+      refreshTimer = null;
+      if (key === lastKey) { fetchNow(); }   // 期间又变了就丢弃这次，等最后一次
+    }, immediate === true ? 0 : 180);
+  }
+
+  form.addEventListener('change', function (ev) {
+    var t = ev.target;
+    if (!t) { return; }
+    if (t.name === 'stage' || t.id === 'volume' || t.name === 'volume') { refresh(); }
+  });
+
+  // 年级是弹窗滚轮选的，不会触发 change，由滚轮脚本通过这个钩子回调。
+  window.sbWallpaperRefresh = refresh;
+  refresh(true);   // 首屏只查一次，不延迟
+})();
+</script>
+
+{{template "footer_auth" .}}

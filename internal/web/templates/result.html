@@ -1,0 +1,45 @@
+{{template "header" .}}
+<h1>自测结果</h1>
+
+<div class="card">
+  <h2>{{.Exam.Title}}</h2>
+  <p class="muted">{{.Exam.CreatedAt}} · 共 {{.Exam.Total}} 题</p>
+  <p style="font-size:20px; margin:10px 0">
+    得分：<b style="color:{{if .Exam.Passed}}var(--ok){{else}}var(--warn){{end}}">{{.Exam.Score}}</b> / {{.Full}} 分
+    {{if .Exam.Passed}}<span class="badge ok">达标 ✓</span>{{else}}<span class="badge warn">未达标（达标线 {{.Pass}} 分）</span>{{end}}
+  </p>
+  {{if .Exam.Passed}}
+    {{if .Next}}
+      <div class="notice">已达标，下一课：<b>{{.Next.SubjectCN}} {{.Next.Title}}</b></div>
+      <div class="row">
+        <a class="btn primary" href="/quiz?key={{urlquery .Next.Key}}">继续下一课</a>
+        <a class="btn ghost" href="/study">返回学习主页</a>
+      </div>
+    {{else}}
+      <div class="notice">已达标，且本册已全部学完 🎉</div>
+      <a class="btn primary" href="/study">返回学习主页</a>
+    {{end}}
+  {{else}}
+    <div class="notice">未达标，下次仍会针对本课出题，加油！</div>
+    <div class="row">
+      <a class="btn primary" href="/quiz?key={{urlquery .Exam.LessonKey}}">再做一套</a>
+      <a class="btn ghost" href="/study">返回学习主页</a>
+      <a class="btn ghost" href="/archive">查看归档</a>
+    </div>
+  {{end}}
+</div>
+
+<div class="card">
+  <h2>逐题解析</h2>
+  {{range .Ans}}
+  <div class="result-item {{if .Right}}right{{else}}wrong{{end}}">
+    <div><b>第 {{.QIndex | add1}} 题</b>（{{if eq .QType "m"}}多选{{else}}单选{{end}}） {{.Stem}}</div>
+    <div class="ansline">
+      {{if .Right}}✓ 回答正确{{else}}✗ 回答错误{{end}}
+      {{if .Picked}}　你的答案：{{join .Picked "、"}}{{else}}　未作答{{end}}
+      　正确答案：{{join .Correct "、"}}
+    </div>
+  </div>
+  {{end}}
+</div>
+{{template "footer" .}}

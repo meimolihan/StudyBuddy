@@ -1,0 +1,500 @@
+{{define "header"}}<!DOCTYPE html>
+<html lang="zh-CN" data-skin="{{.Skin}}"{{if .Wallpaper}} data-wallpaper="{{.WallpaperName}}"{{end}}>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<title>{{.Title}} · StudyBuddy</title>
+<link rel="stylesheet" href="/static/style.css">
+{{if .Wallpaper}}<link rel="preload" as="image" href="{{.Wallpaper}}">{{end}}
+<script>
+/* 开屏入场动画开关：本次浏览器会话首次进入 或 用户手动刷新时播放；
+   页面间跳转（navigate）不重复播放。命中时给 <html> 加 .sb-anim，
+   页脚脚本据此给目标元素挂 data-sal 并初始化 Sal.js（无动画目标时不产生任何影响）。
+   prefers-reduced-motion（减弱动态效果/低性能设备）一律跳过。 */
+(function () { try {
+  if (sessionStorage.getItem('sb-intro-skip') === '1') { // 程序性刷新（如删除后刷新列表）不重播
+    sessionStorage.removeItem('sb-intro-skip');
+    return;
+  }
+  var played = sessionStorage.getItem('sb-intro-played');
+  var nav = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
+  var isReload = nav ? nav.type === 'reload'
+                     : !!(window.performance.navigation && performance.navigation.type === 1);
+  if ((played !== '1' || isReload) &&
+      !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) {
+    document.documentElement.classList.add('sb-anim');
+  }
+} catch (e) {} })();
+</script>
+</head>
+<body>
+{{if .Wallpaper}}<img class="wp-layer" src="{{.Wallpaper}}" alt="" aria-hidden="true" decoding="async" fetchpriority="low">
+<div class="wp-veil" aria-hidden="true"></div>
+{{end}}<header class="topbar">
+  <a class="brand" href="/study">
+    <span class="brandmark"><img src="/static/logo.svg" alt="" class="logo"></span>
+    <span class="brandtxt">StudyBuddy</span>
+  </a>
+  <nav>
+    {{if .Session}}
+      <a class="tnav{{if eq .Nav "study"}} is-on{{end}}" href="/study"><span class="tnav-ico">📖</span>学习主页</a>
+      <a class="tnav{{if eq .Nav "archive"}} is-on{{end}}" href="/archive"><span class="tnav-ico">🗂</span>试卷归档</a>
+      <span class="who"><span class="avatar">{{initial .Session.Name}}</span><span class="whotxt">{{.Session.Name}}{{if .Session.IsAdmin}}<span class="tag">管理员</span>{{end}}</span></span>
+      {{template "settings_menu" .}}
+    {{else}}
+      <a class="tnav" href="/login">登录</a>
+      <a class="tnav" href="/register">注册</a>
+    {{end}}
+  </nav>
+</header>
+<main>
+{{end}}
+
+{{/* 顶栏「设置」：把主题、背景壁纸、账号相关的入口集中到一处。
+     用原生 details 实现，无需 JS 就能展开；data-menu 供页脚脚本做「点外面关闭 / Esc 关闭」。 */}}
+{{define "settings_menu"}}
+<details class="setpick" id="setpick" data-menu>
+  <summary aria-label="打开设置">
+    <span class="setico">⚙️</span><span class="settxt">设置</span><span class="setchev">▾</span>
+  </summary>
+  <div class="setpanel">
+    <div class="setpanel-h">
+      <span class="setpanel-t">设置</span>
+      <span class="setpanel-s">{{.Session.Name}} · 个性化</span>
+    </div>
+
+    <div class="setsec">
+      <div class="setsec-h">🎨 外观主题</div>
+      <div class="skingrid">
+        {{range .Skins}}
+        <a class="skinchip{{if eq .Key $.Skin}} is-on{{end}}"
+           href="/theme?skin={{.Key}}&amp;back={{urlquery $.Path}}" title="{{.Name}} · {{.Desc}}">
+          <span class="skinsw" style="background:linear-gradient(135deg,{{.C1}},{{.C2}})">{{if eq .Key $.Skin}}<span class="skinsw-ck">✓</span>{{end}}</span>
+          <span class="skinlb">{{.Name}}</span>
+        </a>
+        {{end}}
+        <a class="skinchip{{if not .SkinSaved}} is-on{{end}}"
+           href="/theme?skin=auto&amp;back={{urlquery .Path}}" title="按性别自动：男生主题 / 女生主题">
+          <span class="skinsw skinsw-auto">{{if not .SkinSaved}}<span class="skinsw-ck">✓</span>{{end}}</span>
+          <span class="skinlb">按性别自动</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="setsec">
+      <div class="setsec-h">🖼 背景壁纸</div>
+      {{/* 开关行的显示条件是「有没有匹配到图」（WallpaperName），不是「当前显示不显示」（Wallpaper）：
+           关掉后 Wallpaper 本来就是空的，若据此隐藏整行，开关就再也点不回来了。 */}}
+      {{if .WallpaperName}}
+      {{/* 这一行只留「已开启 / 已关闭」，不再显示命中目录那行副标题（面板更清爽）；
+           命中信息没丢，挪到整行的 title 里，鼠标悬停即可看到「语文 · primary/pep/grade4/volume1」这类说明。 */}}
+      <a class="setrow" href="/wallpaper/toggle?on={{if .WallpaperOff}}1{{else}}0{{end}}&amp;back={{urlquery .Path}}"
+         title="{{if .WallpaperOff}}点击开启背景壁纸{{else}}点击关闭背景壁纸{{end}}{{if .WallpaperLabel}} · {{.WallpaperLabel}}{{end}}">
+        <span class="setrow-main">
+          <span class="setrow-t">背景壁纸{{if .WallpaperOff}}已关闭{{else}}已开启{{end}}</span>
+        </span>
+        <span class="sw{{if not .WallpaperOff}} is-on{{end}}"><span class="sw-k"></span></span>
+      </a>
+      {{else}}
+      <div class="setrow is-static" title="建议放置：wallpapers/{{.WallpaperWant}}">
+        <span class="setrow-main">
+          <span class="setrow-t">背景壁纸未匹配</span>
+          <span class="setrow-d">按年级（首页）/ 学科（自测页）自动匹配，放好图刷新即可</span>
+        </span>
+        <span class="sw"><span class="sw-k"></span></span>
+      </div>
+      {{end}}
+    </div>
+
+    <div class="setsec">
+      <div class="setsec-h">👤 账号</div>
+      {{if .Session.IsAdmin}}
+      <a class="setrow{{if eq .Nav "admin"}} is-on{{end}}" href="/admin">
+        <span class="setrow-main">
+          <span class="setrow-t">用户管理</span>
+          <span class="setrow-d">邀请码、账号与角色</span>
+        </span>
+        <span class="setrow-go">›</span>
+      </a>
+      {{end}}
+      <form method="post" action="/logout" class="setform">
+        <button class="setrow setrow-btn" type="submit">
+          <span class="setrow-main">
+            <span class="setrow-t">退出登录</span>
+            <span class="setrow-d">下次再回来继续刷题</span>
+          </span>
+          <span class="setrow-go">›</span>
+        </button>
+      </form>
+    </div>
+  </div>
+</details>
+{{end}}
+
+{{define "footer"}}</main>
+<footer class="foot">StudyBuddy · 每个学生独立数据库，学习数据完全隔离</footer>
+<script src="/static/vendor/sal.js"></script>
+<script>
+/* 开屏入场动画（Sal.js）：给学习主页 / 试卷归档的卡片、列表项依次挂上
+   data-sal="slide-up"（带阶梯延迟），进入视口即淡入上浮。
+   仅在 <html> 带 .sb-anim（首次进入或刷新）时执行；其它页面零影响。 */
+(function () {
+  var root = document.documentElement;
+  if (!root.classList.contains('sb-anim')) { return; }
+  if (typeof window.sal !== 'function') { // 库加载失败直接放行，内容不隐藏
+    root.classList.remove('sb-anim');
+    return;
+  }
+  var p = location.pathname;
+  if (p !== '/study' && p.indexOf('/archive') !== 0) { return; }
+  if (typeof Array.prototype.forEach !== 'function') { root.classList.remove('sb-anim'); return; }
+
+  var els = [].slice.call(document.querySelectorAll('main > .card, main .grid .stat'));
+  if (p.indexOf('/archive') === 0) {
+    // 试卷归档：列表行跟随开屏一起入场（跳过表头行）
+    var rows = [].slice.call(document.querySelectorAll('#sb-examtable tr'));
+    els = els.concat(rows.slice(1));
+  } else {
+    // 学习主页：教材导航的列表项依次入场（延迟封顶，避免长列表拖沓）
+    els = els.concat([].slice.call(document.querySelectorAll('ul.lessons li')));
+  }
+  if (!els.length) { root.classList.remove('sb-anim'); return; }
+
+  els.forEach(function (el, i) {
+    el.setAttribute('data-sal', 'slide-up');
+    el.style.setProperty('--sb-d', Math.min(i * 30, 420) + 'ms'); // 阶梯延迟，封顶 420ms
+  });
+  try { sal({ once: true, threshold: 0.1 }); } catch (e) { root.classList.remove('sb-anim'); return; }
+  try { sessionStorage.setItem('sb-intro-played', '1'); } catch (e) {}
+})();
+</script>
+<script>
+/* 顶栏下拉（设置面板）：点面板外面或按 Esc 关闭，同时最多只留一个展开。
+   用原生 details，所以没有 JS 时也能正常展开收起，只是少了「点外面关闭」。 */
+(function () {
+  var menus = document.querySelectorAll('details[data-menu]');
+  if (!menus.length) { return; }
+  function closeAll(except) {
+    for (var i = 0; i < menus.length; i++) {
+      if (menus[i] !== except) { menus[i].open = false; }
+    }
+  }
+  Array.prototype.forEach.call(menus, function (m) {
+    m.addEventListener('toggle', function () { if (m.open) { closeAll(m); } });
+  });
+  document.addEventListener('click', function (e) {
+    Array.prototype.forEach.call(menus, function (m) {
+      if (m.open && !m.contains(e.target)) { m.open = false; }
+    });
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' || e.keyCode === 27) { closeAll(null); }
+  });
+})();
+</script>
+</body>
+</html>
+{{end}}
+
+{{define "header_auth"}}<!DOCTYPE html>
+<html lang="zh-CN" data-skin="{{.Skin}}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<title>{{.Title}} · StudyBuddy</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="auth-page">
+{{end}}
+
+{{define "footer_auth"}}
+</body>
+</html>
+{{end}}
+
+{{define "auth_bg"}}
+<div class="auth-bg" aria-hidden="true">
+  <span class="orb orb-1"></span>
+  <span class="orb orb-2"></span>
+  <span class="orb orb-3"></span>
+  <span class="floaty f1">✏️</span>
+  <span class="floaty f2">📚</span>
+  <span class="floaty f3">⭐</span>
+  <span class="floaty f4">🔢</span>
+  <span class="floaty f5">🎒</span>
+  <span class="floaty f6">🧮</span>
+</div>
+{{end}}
+
+{{define "auth_scene"}}
+<div class="characters-wrapper">
+      <div class="characters-scene" id="characters-scene">
+        <div class="character char-blue" id="char-blue">
+          <div class="eyes" id="blue-eyes" style="left:45px; top:40px; gap:28px">
+            <div class="eyeball" id="blue-eye-l" style="width:18px; height:18px">
+              <div class="pupil" id="blue-pupil-l" style="width:7px; height:7px"></div>
+            </div>
+            <div class="eyeball" id="blue-eye-r" style="width:18px; height:18px">
+              <div class="pupil" id="blue-pupil-r" style="width:7px; height:7px"></div>
+            </div>
+          </div>
+        </div>
+        <div class="character char-ink" id="char-ink">
+          <div class="eyes" id="ink-eyes" style="left:26px; top:32px; gap:20px">
+            <div class="eyeball" id="ink-eye-l" style="width:16px; height:16px">
+              <div class="pupil" id="ink-pupil-l" style="width:6px; height:6px"></div>
+            </div>
+            <div class="eyeball" id="ink-eye-r" style="width:16px; height:16px">
+              <div class="pupil" id="ink-pupil-r" style="width:6px; height:6px"></div>
+            </div>
+          </div>
+        </div>
+        <div class="character char-orange" id="char-orange">
+          <div class="eyes" id="orange-eyes" style="left:82px; top:90px; gap:28px">
+            <div class="bare-pupil" id="orange-pupil-l"></div>
+            <div class="bare-pupil" id="orange-pupil-r"></div>
+          </div>
+          <div class="orange-mouth" id="orange-mouth" style="left:90px; top:120px"></div>
+        </div>
+        <div class="character char-yellow" id="char-yellow">
+          <div class="eyes" id="yellow-eyes" style="left:52px; top:40px; gap:20px">
+            <div class="bare-pupil" id="yellow-pupil-l"></div>
+            <div class="bare-pupil" id="yellow-pupil-r"></div>
+          </div>
+          <div class="yellow-mouth" id="yellow-mouth" style="left:40px; top:88px"></div>
+        </div>
+      </div>
+    </div>
+{{end}}
+
+{{define "auth_js"}}
+<script>
+(function () {
+  var user = document.getElementById('username');
+  var pwd = document.getElementById('password');
+  var toggle = document.getElementById('toggle-password');
+  var eye = document.getElementById('eye-icon');
+  var eyeOff = document.getElementById('eye-off-icon');
+  var errBox = document.getElementById('auth-error');
+  var scene = document.getElementById('characters-scene');
+  if (!scene) { return; }
+
+  var showPassword = false;
+  var isLoginError = !!errBox;
+  var isTyping = false;
+  var isLookingAtEachOther = false;
+  var isPwdFocused = false;
+  var isBlueBlinking = false;
+  var isInkBlinking = false;
+  var isBluePeeking = false;
+  var typingTimer = null;
+  var mouseX = window.innerWidth * 0.25;
+  var mouseY = window.innerHeight * 0.45;
+
+  function el(id) { return document.getElementById(id); }
+  function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+
+  function faceOf(id) {
+    var r = el(id).getBoundingClientRect();
+    var dx = mouseX - (r.left + r.width / 2);
+    var dy = mouseY - (r.top + r.height / 3);
+    return {
+      x: clamp(dx / 20, -15, 15),
+      y: clamp(dy / 30, -10, 10),
+      skew: clamp(-dx / 120, -6, 6)
+    };
+  }
+
+  function pupilOf(id, maxDist) {
+    var r = el(id).getBoundingClientRect();
+    var dx = mouseX - (r.left + r.width / 2);
+    var dy = mouseY - (r.top + r.height / 2);
+    var d = Math.min(Math.sqrt(dx * dx + dy * dy), maxDist);
+    var a = Math.atan2(dy, dx);
+    return { x: Math.cos(a) * d, y: Math.sin(a) * d };
+  }
+
+  function mv(id, x, y) {
+    var n = el(id);
+    if (n) { n.style.transform = 'translate(' + x + 'px,' + y + 'px)'; }
+  }
+
+  function eyeballChar(prefix, fx, fy, fixedX, fixedY, blink) {
+    mv(prefix + '-eyes', fx, fy);
+    var sides = ['l', 'r'];
+    for (var i = 0; i < sides.length; i++) {
+      var s = sides[i];
+      var ball = el(prefix + '-eye-' + s);
+      if (ball) { ball.style.height = blink ? '2px' : ''; }
+      var p = (fixedX === undefined) ? pupilOf(prefix + '-eye-' + s, 5) : { x: fixedX, y: fixedY };
+      mv(prefix + '-pupil-' + s, p.x, p.y);
+    }
+  }
+
+  function bareChar(prefix, fx, fy) {
+    var sides = ['l', 'r'];
+    for (var i = 0; i < sides.length; i++) {
+      var s = sides[i];
+      var p = (fx === undefined) ? pupilOf(prefix + '-pupil-' + s, 8) : { x: fx, y: fy };
+      mv(prefix + '-pupil-' + s, p.x, p.y);
+    }
+  }
+
+  function body(id, skew, dx, h) {
+    var n = el(id);
+    if (!n) { return; }
+    n.style.transform = 'skewX(' + skew + 'deg)' + (dx ? ' translateX(' + dx + 'px)' : '');
+    if (h) { n.style.height = h; }
+  }
+
+  function sceneClass(name, on) {
+    if (on) { scene.classList.add(name); } else { scene.classList.remove(name); }
+  }
+
+  function update() {
+    var pwdLen = pwd.value.length;
+    var showing = pwdLen > 0 && showPassword;
+    var away = isPwdFocused && !showPassword;
+
+    var bf = faceOf('char-blue'), nf = faceOf('char-ink');
+    var of = faceOf('char-orange'), yf = faceOf('char-yellow');
+
+    if (isLoginError) {
+      body('char-blue', 0, 0, '370px');
+      body('char-ink', 0, 0, '');
+      mv('blue-eyes', 30, 55); mv('ink-eyes', 15, 40);
+      mv('orange-eyes', 60, 95); mv('yellow-eyes', 35, 45);
+      eyeballChar('blue', 30, 55, -3, 4, false);
+      eyeballChar('ink', 15, 40, -3, 4, false);
+      bareChar('orange', -3, 4);
+      bareChar('yellow', -3, 4);
+      var ym = el('yellow-mouth');
+      if (ym) { ym.style.transform = 'translate(35px,53px) rotate(-8deg)'; }
+      return;
+    }
+
+    // 身体姿态
+    if (showing) {
+      body('char-blue', 0, 0, '370px');
+      body('char-ink', 0, 0, '');
+    } else if (away) {
+      body('char-blue', -14, -20, '410px');
+      body('char-ink', 12, -10, '');
+    } else if (isTyping) {
+      body('char-blue', bf.skew - 12, 40, '410px');
+      body('char-ink', nf.skew + 10, 20, '');
+    } else {
+      body('char-blue', bf.skew, 0, '370px');
+      body('char-ink', nf.skew, 0, '');
+    }
+
+    // 眼睛
+    if (showing) {
+      var bx = isBluePeeking ? 4 : -4;
+      var by = isBluePeeking ? 5 : -4;
+      eyeballChar('blue', -4, 0, bx, by, isBlueBlinking);
+      eyeballChar('ink', -4, 0, -4, -4, isInkBlinking);
+      bareChar('orange', -4, -4);
+      bareChar('yellow', -4, -4);
+      mv('yellow-mouth', -4, 0);
+    } else if (away) {
+      eyeballChar('blue', -5, -5, -5, -5, isBlueBlinking);
+      eyeballChar('ink', -5, -5, -4, -5, isInkBlinking);
+      bareChar('orange', -5, -5);
+      bareChar('yellow', -5, -5);
+      mv('yellow-mouth', -5, 0);
+    } else if (isLookingAtEachOther) {
+      // 输入用户名：小伙伴互相对视
+      eyeballChar('blue', 8, 18, 4, 6, isBlueBlinking);
+      eyeballChar('ink', -6, -6, -4, -4, isInkBlinking);
+      bareChar('orange', 2, 4);
+      bareChar('yellow', -3, 3);
+      mv('yellow-mouth', -3, 6);
+    } else {
+      eyeballChar('blue', bf.x, bf.y, undefined, undefined, isBlueBlinking);
+      eyeballChar('ink', nf.x, nf.y, undefined, undefined, isInkBlinking);
+      bareChar('orange', of.x, of.y);
+      bareChar('yellow', yf.x, yf.y);
+      mv('yellow-mouth', yf.x, yf.y);
+    }
+  }
+
+  function blinkLoop(prefix, flagSetter) {
+    setTimeout(function () {
+      flagSetter(true); update();
+      setTimeout(function () {
+        flagSetter(false); update();
+        blinkLoop(prefix, flagSetter);
+      }, 150);
+    }, Math.random() * 4000 + 3000);
+  }
+  blinkLoop('blue', function (v) { isBlueBlinking = v; });
+  blinkLoop('ink', function (v) { isInkBlinking = v; });
+
+  function peekLoop() {
+    if (pwd.value.length > 0 && showPassword) {
+      setTimeout(function () {
+        if (pwd.value.length > 0 && showPassword) {
+          isBluePeeking = true; update();
+          setTimeout(function () {
+            isBluePeeking = false; update();
+            peekLoop();
+          }, 800);
+        }
+      }, Math.random() * 3000 + 2000);
+    }
+  }
+
+  function setTyping(t) {
+    isTyping = t;
+    if (t) {
+      isLookingAtEachOther = true;
+      clearTimeout(typingTimer);
+      typingTimer = setTimeout(function () {
+        isLookingAtEachOther = false; update();
+      }, 800);
+    } else {
+      isLookingAtEachOther = false;
+    }
+    update();
+  }
+
+  document.addEventListener('mousemove', function (e) {
+    mouseX = e.clientX; mouseY = e.clientY;
+    if (!isTyping && !isLoginError) { update(); }
+  });
+
+  user.addEventListener('focus', function () { setTyping(true); });
+  user.addEventListener('blur', function () { setTyping(false); });
+  user.addEventListener('input', update);
+
+  pwd.addEventListener('focus', function () { isPwdFocused = true; update(); });
+  pwd.addEventListener('blur', function () { isPwdFocused = false; update(); });
+  pwd.addEventListener('input', update);
+
+  toggle.addEventListener('click', function () {
+    showPassword = !showPassword;
+    pwd.type = showPassword ? 'text' : 'password';
+    eye.style.display = showPassword ? 'none' : 'block';
+    eyeOff.style.display = showPassword ? 'block' : 'none';
+    if (showPassword) { peekLoop(); }
+    update();
+  });
+
+  if (isLoginError) {
+    sceneClass('is-error', true);
+    update();
+    setTimeout(function () {
+      isLoginError = false;
+      sceneClass('is-error', false);
+      if (!isPwdFocused) { isPwdFocused = false; }
+      update();
+    }, 2500);
+  } else {
+    update();
+  }
+})();
+</script>
+{{end}}

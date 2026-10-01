@@ -1,0 +1,25 @@
+# 运行时数据（学生私有库 / 全局库 / 归档试卷）
+data/
+archive/
+
+# 编译产物
+dist/
+studybuddy.exe
+studybuddy
+
+# 自检临时文件
+smoke-test.docx
+
+# Python 缓存（scripts/ 与技能脚本被 import 时生成）
+__pycache__/
+*.pyc
+
+# 无头浏览器自检留下的 scratch 目录（脚本已用 --user-data-dir 指到临时目录，这里兜底）
+verify-scratch/
+
+# 教材内容 content/ 属于项目资产，默认入库（如需私有可取消下一行注释）
+# content/
+
+# 技能自测产物（直接运行引擎时输出到技能目录下的 out/）
+.workbuddy/skills/interactive-quiz-html/out/
+.workbuddy/skills/interactive-quiz-html/scripts/__pycache__/

@@ -1,0 +1,191 @@
+{{template "header" .}}
+<h1>试卷归档</h1>
+<p class="muted">归档目录：<code>archive/{{.Session.UserID}}/</code>　·　仅可查看本人试卷</p>
+
+<div class="card">
+{{if .Exams}}
+<div class="sb-toolbar">
+  <label class="sb-check">
+    <input type="checkbox" id="sb-check-all" aria-label="全选本页试卷">
+    <span>全选</span>
+  </label>
+  <span class="muted" id="sb-selcount" aria-live="polite">已选 0 项</span>
+  <button type="button" class="btn danger sb-batch-del" id="sb-batch-del" disabled
+          aria-label="批量删除已选试卷">批量删除</button>
+</div>
+<table id="sb-examtable">
+  <tr>
+    <th class="sb-col-check"><span class="sr-only">选择</span></th>
+    <th>编号</th><th>时间</th><th>课程</th><th>题数</th><th>得分</th><th>结果</th><th>操作</th>
+  </tr>
+  {{range .Exams}}
+  <tr>
+    <td class="sb-col-check">
+      <label class="sb-check">
+        <input type="checkbox" class="sb-row-check" value="{{.ID}}" aria-label="选择试卷 #{{.ID}}">
+      </label>
+    </td>
+    <td>#{{.ID}}</td>
+    <td>{{.CreatedAt}}</td>
+    <td>{{.Title}}</td>
+    <td>{{.Total}}</td>
+    <td>{{if lt .Score 0}}待批改{{else}}{{.Score}} 分{{end}}</td>
+    <td>
+      {{if lt .Score 0}}<span class="badge new">纸质卷</span>
+      {{else if .Passed}}<span class="badge ok">达标</span>
+      {{else}}<span class="badge warn">未达标</span>{{end}}
+    </td>
+    <td>
+      {{if ne .Source "docx"}}<a href="/archive/view?id={{.ID}}">查看详情</a>{{else}}—{{end}}
+      {{if .Docx}}　<a href="/archive/docx?id={{.ID}}">下载 Word</a>{{end}}
+      <button type="button" class="sb-del-btn" data-id="{{.ID}}"
+              aria-label="删除试卷 #{{.ID}} {{.Title}}">删除</button>
+    </td>
+  </tr>
+  {{end}}
+</table>
+{{else}}
+<div class="notice">还没有自测记录。去<a href="/study">学习主页</a>开始第一次自测吧。</div>
+{{end}}
+</div>
+
+{{/* 删除确认弹窗：单删 / 批量删除共用一套，样式走全站 CSS 变量（自动适配深浅色） */}}
+<div class="sb-modal-mask" id="sb-modal" hidden>
+  <div class="sb-modal" role="dialog" aria-modal="true"
+       aria-labelledby="sb-modal-title" aria-describedby="sb-modal-msg">
+    <h3 id="sb-modal-title">删除确认</h3>
+    <p id="sb-modal-msg">确认删除该试卷？删除后数据无法恢复。</p>
+    <div class="sb-modal-actions">
+      <button type="button" class="btn sec" id="sb-modal-cancel">取消</button>
+      <button type="button" class="btn danger" id="sb-modal-ok">确认删除</button>
+    </div>
+  </div>
+</div>
+<div class="sb-toast" id="sb-toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+/* 试卷归档：单行删除 / 批量删除 / 确认弹窗 / Toast。
+   不改动原有展示逻辑，只在新增控件上叠加交互。 */
+(function () {
+  var table = document.getElementById('sb-examtable');
+  if (!table) { return; }
+
+  var checkAll = document.getElementById('sb-check-all');
+  var rows = [].slice.call(table.querySelectorAll('.sb-row-check'));
+  var countEl = document.getElementById('sb-selcount');
+  var batchBtn = document.getElementById('sb-batch-del');
+  var modal = document.getElementById('sb-modal');
+  var modalMsg = document.getElementById('sb-modal-msg');
+  var okBtn = document.getElementById('sb-modal-ok');
+  var cancelBtn = document.getElementById('sb-modal-cancel');
+  var toast = document.getElementById('sb-toast');
+  var pendingIds = [];   // 待确认删除的 id 列表
+  var lastFocus = null;
+  var toastTimer = null;
+
+  function selected() {
+    return rows.filter(function (cb) { return cb.checked; })
+               .map(function (cb) { return cb.value; });
+  }
+
+  function refresh() {
+    var sel = selected();
+    checkAll.checked = sel.length === rows.length;
+    checkAll.indeterminate = sel.length > 0 && sel.length < rows.length;
+    countEl.textContent = '已选 ' + sel.length + ' 项';
+    batchBtn.disabled = sel.length === 0; // 未勾选时置灰不可点
+  }
+
+  checkAll.addEventListener('change', function () {
+    rows.forEach(function (cb) { cb.checked = checkAll.checked; });
+    refresh();
+  });
+  rows.forEach(function (cb) { cb.addEventListener('change', refresh); });
+
+  /* ---- Toast ---- */
+  function showToast(msg, isErr) {
+    toast.textContent = msg;
+    toast.className = 'sb-toast' + (isErr ? ' is-err' : '');
+    toast.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toast.hidden = true; }, 2600);
+  }
+
+  /* ---- 确认弹窗（Esc 可关） ---- */
+  function openModal(msg, onOk) {
+    modalMsg.textContent = msg;
+    lastFocus = document.activeElement;
+    modal.hidden = false;
+    okBtn.disabled = false;
+    okBtn.classList.remove('is-loading');
+    okBtn.textContent = '确认删除';
+    okBtn.focus();
+    okHandler = onOk;
+  }
+  var okHandler = null;
+  function closeModal() {
+    modal.hidden = true;
+    if (lastFocus && lastFocus.focus) { lastFocus.focus(); }
+    okHandler = null;
+  }
+  cancelBtn.addEventListener('click', closeModal);
+  modal.addEventListener('click', function (e) { if (e.target === modal) { closeModal(); } });
+  document.addEventListener('keydown', function (e) {
+    if ((e.key === 'Escape' || e.keyCode === 27) && !modal.hidden) { closeModal(); }
+  });
+
+  /* ---- 删除请求（带 loading 状态） ---- */
+  function doDelete(ids) {
+    okBtn.disabled = true;
+    okBtn.classList.add('is-loading');
+    okBtn.textContent = '删除中…';
+    var body = ids.map(function (id) { return 'ids=' + encodeURIComponent(id); }).join('&');
+    fetch('/archive/delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: body
+    }).then(function (r) { return r.json().catch(function () { return { ok: false, error: '服务异常' }; }); })
+      .then(function (res) {
+        if (res.ok) {
+          closeModal();
+          // 程序性刷新不重放开屏动画：先打上跳过标记
+          try { sessionStorage.setItem('sb-intro-skip', '1'); } catch (e) {}
+          showToast(res.deleted > 0 ? '已删除 ' + res.deleted + ' 份试卷' : '试卷已删除', false);
+          setTimeout(function () { location.reload(); }, 600);
+        } else {
+          okBtn.disabled = false;
+          okBtn.classList.remove('is-loading');
+          okBtn.textContent = '确认删除';
+          showToast(res.error || '删除失败，请重试', true);
+        }
+      })
+      .catch(function () {
+        okBtn.disabled = false;
+        okBtn.classList.remove('is-loading');
+        okBtn.textContent = '确认删除';
+        showToast('网络异常，删除失败', true);
+      });
+  }
+
+  /* ---- 单行删除 ---- */
+  table.addEventListener('click', function (e) {
+    var btn = e.target.closest ? e.target.closest('.sb-del-btn') : null;
+    if (!btn) { return; }
+    pendingIds = [btn.getAttribute('data-id')];
+    openModal('确认删除该试卷？删除后数据无法恢复。', function () { doDelete(pendingIds); });
+  });
+
+  /* ---- 批量删除 ---- */
+  batchBtn.addEventListener('click', function () {
+    var sel = selected();
+    if (sel.length === 0) { return; }
+    openModal('确认删除已选中的 ' + sel.length + ' 份试卷？删除后数据无法恢复。',
+      function () { doDelete(sel); });
+  });
+
+  okBtn.addEventListener('click', function () { if (okHandler) { okHandler(); } });
+
+  refresh();
+})();
+</script>
+{{template "footer" .}}

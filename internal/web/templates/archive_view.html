@@ -1,0 +1,28 @@
+{{template "header" .}}
+<h1>试卷详情 #{{.Exam.ID}}</h1>
+
+<div class="card">
+  <h2>{{.Exam.Title}}</h2>
+  <p class="muted">{{.Exam.CreatedAt}} · 共 {{.Exam.Total}} 题 · 满分 {{.Full}} 分</p>
+  <p style="font-size:19px; margin:10px 0">
+    得分：<b>{{.Exam.Score}}</b> / {{.Full}}
+    {{if .Exam.Passed}}<span class="badge ok">达标</span>{{else}}<span class="badge warn">未达标</span>{{end}}
+  </p>
+  {{if .Exam.Docx}}<a class="btn ghost sm" href="/archive/docx?id={{.Exam.ID}}">下载 Word 试卷</a>{{end}}
+</div>
+
+<div class="card">
+  <h2>作答明细</h2>
+  {{range .Ans}}
+  <div class="result-item {{if .Right}}right{{else}}wrong{{end}}">
+    <div><b>第 {{.QIndex | add1}} 题</b>（{{if eq .QType "m"}}多选{{else}}单选{{end}}） {{.Stem}}</div>
+    <div class="ansline">
+      {{if .Right}}✓ 正确{{else}}✗ 错误{{end}}
+      {{if .Picked}}　你的答案：{{join .Picked "、"}}{{else}}　未作答{{end}}
+      　正确答案：{{join .Correct "、"}}
+    </div>
+  </div>
+  {{end}}
+</div>
+<p><a href="/archive">← 返回归档列表</a></p>
+{{template "footer" .}}

@@ -1,0 +1,24 @@
+services:
+  studybuddy:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: studybuddy:latest
+    container_name: studybuddy
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      TZ: Asia/Shanghai
+      STUDYBUDDY_PORT: "8080"
+      STUDYBUDDY_CONTENT: /app/content
+      STUDYBUDDY_DATA: /app/data
+      STUDYBUDDY_ARCHIVE: /app/archive
+      STUDYBUDDY_PASS: "80"
+    volumes:
+      # 教材目录（只读挂载，替换教材无需重建镜像）
+      - ./content:/app/content:ro
+      # 全局库与学生私有库
+      - ./data:/app/data
+      # 归档试卷
+      - ./archive:/app/archive

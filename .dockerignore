@@ -1,0 +1,10 @@
+.git
+.github
+dist/
+data/
+archive/
+*.exe
+*.db
+smoke-test.docx
+README.md
+.workbuddy
