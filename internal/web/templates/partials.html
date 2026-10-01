@@ -53,7 +53,9 @@
     {{if .Session}}
       <a class="tnav{{if eq .Nav "study"}} is-on{{end}}" href="/study"><span class="tnav-ico">{{template "ico_book"}}</span>学习主页</a>
       <a class="tnav{{if eq .Nav "archive"}} is-on{{end}}" href="/archive"><span class="tnav-ico">{{template "ico_archive"}}</span>试卷归档</a>
-      <span class="who"><span class="avatar">{{initial .Session.Name}}</span><span class="whotxt">{{.Session.Name}}{{if .Session.IsAdmin}}<span class="tag">管理员</span>{{end}}</span></span>
+      <button type="button" class="who" id="who-btn" aria-haspopup="dialog" title="点击查看个人信息与头像">
+        <span class="avatar">{{initial .Session.Name}}<img class="avatar-pic" src="/avatar/me" alt="" onerror="this.remove()"></span><span class="whotxt">{{.Session.Name}}{{if .Session.IsAdmin}}<span class="tag">管理员</span>{{end}}</span>
+      </button>
       {{template "settings_menu" .}}
     {{else}}
       <a class="tnav" href="/login">登录</a>
@@ -61,6 +63,7 @@
     {{end}}
   </nav>
 </header>
+{{if .Session}}{{template "profile_modal" .}}{{end}}
 <main>
 {{end}}
 
@@ -145,6 +148,172 @@
 </details>
 {{end}}
 
+{{/* 个人信息弹窗：点顶栏用户名弹出。展示基本资料 + 头像上传（前端裁剪：
+     滚轮缩放、拖动取景，确认后导出 256×256 PNG 上传）。 */}}
+{{define "profile_modal"}}
+<div class="sb-modal-mask" id="pm-mask" hidden>
+  <div class="sb-modal profile-modal" role="dialog" aria-modal="true" aria-labelledby="pm-title">
+    <h3 id="pm-title">个人信息</h3>
+    <div class="pm-grid">
+      <div class="pm-side">
+        <span class="avatar pm-avatar">
+          {{initial .Session.Name}}
+          <img class="avatar-pic" id="pm-avatar-img" src="/avatar/me" alt="" onerror="this.remove()">
+        </span>
+        <input type="file" id="pm-file" accept="image/png,image/jpeg,image/webp" hidden>
+        <button type="button" class="btn sec sm" id="pm-pick">选择头像图片</button>
+        <p class="pm-hint muted">圆形区域内滚轮缩放 · 拖动取景</p>
+      </div>
+      <div class="pm-info">
+        <div class="pm-row"><span class="pm-k">用户名</span><b>{{.Session.Username}}</b></div>
+        <div class="pm-row"><span class="pm-k">姓名</span><b>{{.Session.Name}}</b></div>
+        <div class="pm-row"><span class="pm-k">角色</span><b>{{if .Session.IsAdmin}}管理员{{else}}学生{{end}}</b></div>
+        <div class="pm-row"><span class="pm-k">性别</span><b>{{genderCN .Session.Gender}}</b></div>
+        <div class="pm-row"><span class="pm-k">学段</span><b>{{stageName .Session.Stage}}</b></div>
+        <div class="pm-row"><span class="pm-k">年级</span><b>{{gradeLabel .Session.Stage .Session.Grade}}</b></div>
+        <div class="pm-row"><span class="pm-k">册别</span><b>{{if eq .Session.Volume 2}}下册{{else if eq .Session.Volume 1}}上册{{else}}未设置{{end}}</b></div>
+        <div class="pm-row"><span class="pm-k">班级</span><b>{{if .Session.Class}}{{.Session.Class}}{{else}}未设置{{end}}</b></div>
+      </div>
+    </div>
+    <div class="pm-crop" id="pm-crop" hidden>
+      <div class="pm-stage" id="pm-stage">
+        <canvas id="pm-canvas" width="280" height="280"></canvas>
+        <span class="pm-ring" aria-hidden="true"></span>
+      </div>
+      <div class="pm-crop-actions">
+        <button type="button" class="btn ghost sm" id="pm-cancel-crop">重新选图</button>
+        <button type="button" class="btn primary sm" id="pm-upload">确认并上传</button>
+      </div>
+    </div>
+    <p class="pm-msg muted" id="pm-msg" hidden></p>
+    <div class="sb-modal-actions">
+      <button type="button" class="btn sec" id="pm-close">关闭</button>
+    </div>
+  </div>
+</div>
+{{end}}
+
+{{define "profile_js"}}
+<script>
+(function () {
+  var mask = document.getElementById('pm-mask');
+  if (!mask) { return; }
+  var $ = function (id) { return document.getElementById(id); };
+  var fileInput = $('pm-file'), cropBox = $('pm-crop'), stage = $('pm-stage'),
+      canvas = $('pm-canvas'), msg = $('pm-msg'), avatarImg = $('pm-avatar-img');
+  var ctx = canvas.getContext('2d');
+  var img = null, zoom = 1, ox = 0, oy = 0, dragging = false, lx = 0, ly = 0;
+  var SIZE = 280, DIA = 220;              // 画布边长 / 裁剪圆直径
+  var OUT = 256;                          // 导出边长
+
+  function showMsg(t, ok) {
+    if (!t) { msg.hidden = true; return; }
+    msg.textContent = t; msg.hidden = false;
+    msg.style.color = ok ? 'var(--ok, #2f9e6b)' : 'var(--bad, #d64545)';
+  }
+
+  function open() { mask.hidden = false; showMsg(''); }
+  function close() { mask.hidden = true; }
+  $('who-btn').addEventListener('click', open);
+  $('pm-close').addEventListener('click', close);
+  mask.addEventListener('click', function (e) { if (e.target === mask) { close(); } });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !mask.hidden) { close(); }
+  });
+
+  /* ---- 裁剪器 ---- */
+  function cover() { return img ? Math.max(SIZE / img.width, SIZE / img.height) : 1; }
+  function clampOffsets() {
+    if (!img) { return; }
+    var w = img.width * cover() * zoom, h = img.height * cover() * zoom;
+    var mx = Math.max(0, (w - DIA) / 2), my = Math.max(0, (h - DIA) / 2);
+    if (ox > mx) { ox = mx; } if (ox < -mx) { ox = -mx; }
+    if (oy > my) { oy = my; } if (oy < -my) { oy = -my; }
+  }
+  function draw() {
+    if (!img) { return; }
+    ctx.clearRect(0, 0, SIZE, SIZE);
+    var s = cover() * zoom, w = img.width * s, h = img.height * s;
+    ctx.drawImage(img, (SIZE - w) / 2 + ox, (SIZE - h) / 2 + oy, w, h);
+  }
+  function reset(imgObj) {
+    img = imgObj; zoom = 1; ox = 0; oy = 0;
+    cropBox.hidden = false; clampOffsets(); draw();
+  }
+  $('pm-pick').addEventListener('click', function () { fileInput.click(); });
+  fileInput.addEventListener('change', function () {
+    var f = fileInput.files && fileInput.files[0];
+    if (!f) { return; }
+    var rd = new FileReader();
+    rd.onload = function () {
+      var im = new Image();
+      im.onload = function () { reset(im); showMsg(''); };
+      im.onerror = function () { showMsg('图片读取失败，请换一张', false); };
+      im.src = rd.result;
+    };
+    rd.readAsDataURL(f);
+    fileInput.value = '';
+  });
+  stage.addEventListener('wheel', function (e) {
+    e.preventDefault();
+    if (!img) { return; }
+    zoom = Math.min(8, Math.max(1, zoom * Math.exp(-e.deltaY * 0.0012)));
+    clampOffsets(); draw();
+  }, { passive: false });
+  stage.addEventListener('pointerdown', function (e) {
+    if (!img) { return; }
+    dragging = true; lx = e.clientX; ly = e.clientY;
+    stage.setPointerCapture(e.pointerId);
+  });
+  stage.addEventListener('pointermove', function (e) {
+    if (!dragging) { return; }
+    ox += e.clientX - lx; oy += e.clientY - ly;
+    lx = e.clientX; ly = e.clientY;
+    clampOffsets(); draw();
+  });
+  stage.addEventListener('pointerup', function () { dragging = false; });
+  stage.addEventListener('pointercancel', function () { dragging = false; });
+
+  /* ---- 上传：按裁剪圆导出 256×256 PNG ---- */
+  $('pm-cancel-crop').addEventListener('click', function () { cropBox.hidden = true; img = null; });
+  $('pm-upload').addEventListener('click', function () {
+    if (!img) { return; }
+    var out = document.createElement('canvas');
+    out.width = OUT; out.height = OUT;
+    var k = OUT / DIA;                       // 舞台坐标 → 导出坐标
+    var oc = out.getContext('2d');
+    var s = cover() * zoom * k, w = img.width * s, h = img.height * s;
+    oc.fillStyle = '#fff'; oc.fillRect(0, 0, OUT, OUT);
+    oc.drawImage(img, (OUT - w) / 2 + ox * k, (OUT - h) / 2 + oy * k, w, h);
+    var data = out.toDataURL('image/png');
+    var btn = this; btn.disabled = true;
+    fetch('/profile/avatar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ image: data })
+    }).then(function (r) { return r.json(); }).then(function (res) {
+      btn.disabled = false;
+      if (!res.ok) { showMsg(res.error || '上传失败', false); return; }
+      showMsg('头像已更新', true);
+      cropBox.hidden = true; img = null;
+      // 顶栏与弹窗头像立即换新（no-store，无需刷新页面）
+      var url = '/avatar/me?t=' + Date.now();
+      document.querySelectorAll('.avatar-pic').forEach(function (el) { el.src = url; });
+      if (!avatarImg) {
+        // 首次上传：原 <img> 可能已因 404 被 remove，重新插入
+        var m = document.createElement('img');
+        m.className = 'avatar-pic'; m.alt = ''; m.src = url;
+        document.querySelector('.pm-avatar').appendChild(m);
+        avatarImg = m;
+      }
+      var top = document.querySelector('.topbar .avatar');
+      if (top && !top.querySelector('.avatar-pic')) { top.insertAdjacentHTML('beforeend', '<img class="avatar-pic" alt="" src="' + url + '">'); }
+    }).catch(function () { btn.disabled = false; showMsg('网络异常，请重试', false); });
+  });
+})();
+</script>
+{{end}}
+
 {{/* 悬浮操作球：左下 = 明暗模式一键切换，右下 = 一键返回顶部。
      两者同处 .fab-dock 一行容器，永远保持同一水平线，固定不随滚动消失。
      图标用线性 SVG，浅色显示月亮（点了进深色）、深色显示太阳（点了回浅色）。 */}}
@@ -197,10 +366,13 @@
     if (!btn) { return; }
     var p = pref(), eff = effective();
     var name = p === 'auto' ? '跟随系统' : (p === 'dark' ? '深色' : '浅色');
-    var nextName = p === 'auto' ? '深色' : (p === 'dark' ? '浅色' : '跟随系统');
+    /* 从「自动」点击时直接跳到当前实际外观的反面，避免系统暗色下
+       第一次点击 auto→深色 看不出变化（要点两次才到浅色）。 */
+    var next = p === 'auto' ? (eff === 'dark' ? '浅色' : '深色')
+             : (p === 'dark' ? '浅色' : '跟随系统');
     var label = '明暗模式：' + name +
       (p === 'auto' ? '（当前' + (eff === 'dark' ? '深色' : '浅色') + '）' : '') +
-      '，点击切换为' + nextName;
+      '，点击切换为' + next;
     btn.setAttribute('aria-label', label);
     btn.setAttribute('title', label);
     btn.setAttribute('data-mode', p);
@@ -209,7 +381,9 @@
   if (btn) {
     btn.addEventListener('click', function () {
       var p = pref();
-      apply(p === 'auto' ? 'dark' : (p === 'dark' ? 'light' : 'auto'));
+      apply(p === 'auto'
+        ? (effective() === 'dark' ? 'light' : 'dark')
+        : (p === 'dark' ? 'light' : 'auto'));
     });
   }
 
@@ -243,11 +417,19 @@
 </script>
 {{end}}
 
-{{/* 教材导航当前课定位：开屏后把 .current-lesson 滚到视口中央。
-     仅学习主页引入（study.html）；无当前课时模板不会输出本脚本。 */}}
+{{/* 教材导航脚本：① 进入一律从页面顶部开始（禁用浏览器滚动恢复并回顶，
+     不再自动定位到当前课 —— 当前课只保留高亮，不滚动）；
+     ② 手风琴：点开一个科目自动收起其他科目。
+     仅学习主页引入（study.html）。 */}}
 {{define "study_nav_js"}}
 <script>
 (function () {
+  /* 进入即页面顶部：关掉浏览器的滚动位置恢复，再显式回一次顶。
+     只 scrollTo 不改 restoration 没用 —— 刷新时浏览器会在 load 后把旧偏移又写回来；
+     关掉后刷新 / 前进 / 后退回到本页都从顶部开始。 */
+  try { if ('scrollRestoration' in history) { history.scrollRestoration = 'manual'; } } catch (e) {}
+  window.scrollTo(0, 0);
+
   /* 手风琴：导航卡内点开一个科目，自动收起其他已展开科目，避免长树越叠越长 */
   var card = document.querySelector('.nav-card');
   function toTop(node) {
@@ -273,15 +455,6 @@
       }
     });
   }
-
-  var el = document.querySelector('.current-lesson');
-  if (!el) { return; }
-  function go() {
-    try { el.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
-    catch (e) { try { el.scrollIntoView(); } catch (e2) {} }
-  }
-  /* 等开屏入场动画（sal.js，延迟封顶 420ms）结束再滚动，定位才准 */
-  setTimeout(go, 480);
 })();
 </script>
 {{end}}
@@ -349,6 +522,7 @@
 })();
 </script>
 {{template "fab_js"}}
+{{if .Session}}{{template "profile_js" .}}{{end}}
 </body>
 </html>
 {{end}}

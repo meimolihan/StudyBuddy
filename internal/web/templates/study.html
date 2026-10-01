@@ -105,7 +105,7 @@
   {{range $s := $.NavView.V.Subjects}}
   {{$cnt := $s.CountOf $.QT}}
   {{if $cnt}}
-  <details {{if and $.Current (eq $s.Key $.Current.Subject)}}open{{end}}>
+  <details>
     <summary>{{$s.Name}} · {{$cnt}} 课</summary>
     <div class="tree-body">
       {{range $s.UnitsOf $.QT}}

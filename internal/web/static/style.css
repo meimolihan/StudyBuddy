@@ -6,6 +6,8 @@
   --ok:#2e9e5b; --ok-soft:#e7f6ec; --warn:#e08b00; --warn-soft:#fdf3e2;
   --bad:#d64545; --bad-soft:#fdecec; --line:#e3e9f1;
   --radius:14px; --shadow:0 2px 10px rgba(31,41,55,.07);
+  --shadow-nest:0 1px 3px rgba(31,41,55,.07), 0 8px 22px rgba(31,41,55,.12);
+  --shadow-nest-lg:0 2px 5px rgba(31,41,55,.07), 0 16px 34px rgba(31,41,55,.18);
 }
 *{box-sizing:border-box}
 body{
@@ -48,7 +50,7 @@ a:hover{text-decoration:underline}
    正文之下，不会糊到页面内容上。
    ========================================================= */
 .topbar{
-  position:relative; isolation:isolate;
+  position:relative; isolation:isolate; z-index:70;
   display:flex; align-items:center; justify-content:space-between; gap:16px;
   padding:10px 22px; background:linear-gradient(100deg,#2f6fd0,#7b5cd6);
   color:#fff; box-shadow:0 2px 12px rgba(20,36,66,.18);
@@ -70,7 +72,7 @@ a:hover{text-decoration:underline}
 .topbar .brandmark{
   display:inline-flex; align-items:center; justify-content:center; flex:none;
   width:36px; height:36px; border-radius:11px;
-  background:rgba(255,255,255,.2); border:1px solid rgba(255,255,255,.3);
+  background:rgba(255,255,255,.2); border:none;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.35);
 }
 .topbar .logo{width:22px; height:22px; display:block}
@@ -83,17 +85,16 @@ a:hover{text-decoration:underline}
 .topbar nav .tnav{
   display:inline-flex; align-items:center; gap:6px;
   min-height:34px; padding:5px 13px; border-radius:999px; font-size:14px; opacity:1;
-  background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.16);
-  transition:background-color .22s ease, border-color .22s ease,
-             transform .18s ease, box-shadow .22s ease;
+  background:rgba(255,255,255,.1); border:none;
+  transition:background-color .22s ease, transform .22s ease, box-shadow .22s ease;
 }
 .topbar nav .tnav:hover{
   text-decoration:none; background:rgba(255,255,255,.2);
-  border-color:rgba(255,255,255,.34); transform:translateY(-1px);
+  transform:translateY(-2px);
   box-shadow:0 6px 16px rgba(9,20,40,.2);
 }
 .topbar nav .tnav.is-on{
-  font-weight:600; background:rgba(255,255,255,.28); border-color:rgba(255,255,255,.46);
+  font-weight:600; background:rgba(255,255,255,.28);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.4), 0 4px 12px rgba(9,20,40,.14);
 }
 .tnav-ico{font-size:13px; line-height:1}
@@ -102,7 +103,7 @@ a:hover{text-decoration:underline}
 .topbar nav .who{
   display:inline-flex; align-items:center; gap:8px;
   min-height:34px; padding:3px 12px 3px 4px; border-radius:999px;
-  background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.16);
+  background:rgba(255,255,255,.1); border:none;
   font-size:13px; opacity:1;
 }
 .avatar{
@@ -259,6 +260,8 @@ code{background:#f1f5f9; padding:1px 6px; border-radius:5px; font-size:13px}
     --ok:#5fbf6a; --ok-soft:#13291c; --warn:#ffb454; --warn-soft:#33240f;
     --bad:#ff7b7b; --bad-soft:#3a1a1a; --line:#263449;
     --shadow:0 1px 6px rgba(0,0,0,.32);
+    --shadow-nest:0 1px 3px rgba(0,0,0,.35), 0 8px 22px rgba(0,0,0,.4);
+    --shadow-nest-lg:0 2px 5px rgba(0,0,0,.35), 0 16px 34px rgba(0,0,0,.5);
     background:var(--bg);
   }
   html:not([data-theme="light"]) body{background:var(--bg); color:var(--ink)}
@@ -347,6 +350,8 @@ html[data-theme="dark"]{
   --ok:#5fbf6a; --ok-soft:#13291c; --warn:#ffb454; --warn-soft:#33240f;
   --bad:#ff7b7b; --bad-soft:#3a1a1a; --line:#263449;
   --shadow:0 1px 6px rgba(0,0,0,.32);
+  --shadow-nest:0 1px 3px rgba(0,0,0,.35), 0 8px 22px rgba(0,0,0,.4);
+  --shadow-nest-lg:0 2px 5px rgba(0,0,0,.35), 0 16px 34px rgba(0,0,0,.5);
   background:var(--bg);
 }
 html[data-theme="dark"] body{background:var(--bg); color:var(--ink)}
@@ -868,12 +873,14 @@ html[data-skin="starry"] .fg select:focus{border-color:var(--brand)}
   position:relative; margin:0; padding:0; background:none; border:0;
   border-radius:0; overflow:visible; box-shadow:none;
 }
-.setpick>summary{
+/* 带上 .topbar 前缀：details summary 的通用规则（含暗色 background:transparent
+   与 hover brand-soft）优先级更高，会把下面 .18/.1 的白玻璃底盖掉，必须同权重压回。 */
+.topbar .setpick>summary{
   list-style:none; cursor:pointer; display:inline-flex; align-items:center; gap:6px;
   min-height:34px; padding:5px 12px; border-radius:999px; font-size:14px;
-  background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.26);
+  background:rgba(255,255,255,.1); border:none;
   color:#fff; white-space:nowrap;
-  transition:background-color .22s ease, border-color .22s ease, box-shadow .22s ease;
+  transition:background-color .22s ease, transform .22s ease, box-shadow .22s ease;
 }
 /* details[open] summary::before 的优先级高于 .setpick>summary::before，
    展开时仍会多出一个「▾」，所以两条都写。 */
@@ -881,11 +888,12 @@ html[data-skin="starry"] .fg select:focus{border-color:var(--brand)}
 .setpick[open]>summary::before{content:none}
 .setpick>summary::-webkit-details-marker{display:none}
 .setpick>summary::marker{content:""}
-.setpick>summary:hover{background:rgba(255,255,255,.26); border-color:rgba(255,255,255,.4)}
-.setpick[open]>summary,
-.setpick>summary:focus-visible{
-  background:rgba(255,255,255,.32); border-color:rgba(255,255,255,.5); outline:none;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.4), 0 6px 16px rgba(9,20,40,.2);
+.topbar .setpick>summary:hover{background:rgba(255,255,255,.2); transform:translateY(-2px);
+  box-shadow:0 6px 16px rgba(9,20,40,.2)}
+.topbar .setpick[open]>summary,
+.topbar .setpick>summary:focus-visible{
+  background:rgba(255,255,255,.28); outline:none;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.4), 0 4px 12px rgba(9,20,40,.14);
 }
 .setchev{font-size:10px; opacity:.85; transition:transform .22s ease}
 .setpick[open] .setchev{transform:rotate(180deg)}
@@ -926,8 +934,9 @@ html[data-skin="starry"] .fg select:focus{border-color:var(--brand)}
   background:transparent; border:1.5px solid transparent;
   transition:background-color .2s ease, border-color .2s ease, transform .18s ease;
 }
-.skinchip:hover{text-decoration:none; background:var(--brand-soft); transform:translateY(-1px)}
-.skinchip.is-on{background:var(--brand-soft); border-color:var(--brand)}
+.skinchip:hover{text-decoration:none; background:var(--brand-soft); transform:translateY(-2px);
+  box-shadow:var(--shadow-lg)}
+.skinchip.is-on{background:var(--brand-soft); border-color:transparent; box-shadow:var(--shadow-lg)}
 .skinsw{
   display:flex; align-items:center; justify-content:center;
   width:100%; height:28px; border-radius:9px;
@@ -945,10 +954,10 @@ html[data-skin="starry"] .fg select:focus{border-color:var(--brand)}
   background:transparent; border:1px solid transparent;
   transition:background-color .2s ease, border-color .2s ease;
 }
-.setrow:hover{text-decoration:none; background:var(--brand-soft); border-color:var(--line)}
+.setrow:hover{text-decoration:none; background:var(--brand-soft); border-color:transparent}
 .setrow.is-static{cursor:default}
 .setrow.is-static:hover{background:transparent; border-color:transparent}
-.setrow.is-on{background:var(--brand-soft); border-color:var(--line)}
+.setrow.is-on{background:var(--brand-soft); border-color:transparent}
 .setrow-main{display:flex; flex-direction:column; gap:2px; min-width:0; flex:1}
 .setrow-t{font-size:13.5px; font-weight:600}
 .setrow-d{font-size:11.5px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
@@ -1552,20 +1561,23 @@ input,select,label input,label select{border-radius:var(--r-sm); border:1px soli
 
 /* ---- 5) hover：0.25s ease，仅精确指针设备 ---- */
 @media (hover:hover){
-  /* 内容卡片统一悬停：浅品牌底色 + 阴影加深 + 上浮 2px */
-  .stat,.q,.result-item,.opts label,ul.lessons li,.subj-tile{
+  /* 内容卡片统一悬停：浅品牌底色 + 阴影加深 + 上浮 2px
+     （.q 题干主卡片不在此列：悬停不铺底色，只保留阴影+上浮，见下一条） */
+  .stat,.result-item,.opts label,ul.lessons li,.subj-tile{
     transition:background-color .25s ease, box-shadow .25s ease, transform .25s ease}
-  .stat:hover,.q:hover,.result-item:hover,.opts label:hover,ul.lessons li:hover,.subj-tile:hover{
+  .stat:hover,.result-item:hover,.opts label:hover,ul.lessons li:hover,.subj-tile:hover{
     background:var(--brand-soft); box-shadow:var(--shadow-lg); transform:translateY(-2px)}
+  /* 自测题主卡片：悬停仅阴影加深 + 上浮，背景色保持不变；
+     浅品牌底色只出现在选项卡片（.opts label:hover）上 */
+  .q{transition:box-shadow .25s ease, transform .25s ease}
+  .q:hover{box-shadow:var(--shadow-lg); transform:translateY(-2px)}
   /* 暗色模式的静态背景规则带 html 前缀（优先级更高），悬停底色需同权重压回，
      否则暗色下 hover 只剩阴影和上浮、没有浅品牌底色（明色不受影响）。 */
   html[data-theme="dark"] .stat:hover,
-  html[data-theme="dark"] .q:hover,
   html[data-theme="dark"] .result-item:hover,
   html[data-theme="dark"] ul.lessons li:hover,
   html[data-theme="dark"] details summary:hover,
   html:not([data-theme="light"]) .stat:hover,
-  html:not([data-theme="light"]) .q:hover,
   html:not([data-theme="light"]) .result-item:hover,
   html:not([data-theme="light"]) ul.lessons li:hover,
   html:not([data-theme="light"]) details summary:hover{background:var(--brand-soft)}
@@ -1738,7 +1750,7 @@ html[data-theme="light"] .btn.ghost:hover{background:var(--brand-dark); color:#f
   display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between;
   gap:4px 8px; margin:0; padding:8px 10px;
   background:transparent; border:none; border-radius:10px;
-  box-shadow:var(--shadow);
+  box-shadow:var(--shadow-nest);
 }
 .nav-card ul.lessons li > a{
   flex:0 0 100%; max-width:100%;
@@ -1761,7 +1773,7 @@ html[data-theme="light"] .btn.ghost:hover{background:var(--brand-dark); color:#f
 .nav-card ul.lessons li.current-lesson::before{content:none}
 @media (hover:hover){
   .nav-card ul.lessons li{transition:background-color .2s ease, box-shadow .2s ease, transform .2s ease}
-  .nav-card ul.lessons li:hover{background:var(--brand-soft); box-shadow:var(--shadow-lg); transform:translateY(-2px)}
+  .nav-card ul.lessons li:hover{background:var(--brand-soft); box-shadow:var(--shadow-nest-lg); transform:translateY(-2px)}
 }
 @media (max-width:640px){
   .nav-card ul.lessons{grid-template-columns:1fr}
@@ -1793,3 +1805,83 @@ html[data-theme="light"] .btn.ghost:hover{background:var(--brand-dark); color:#f
   .subj-tile:hover{background:var(--brand-soft); box-shadow:var(--shadow-lg); transform:translateY(-2px)}
   .subj-tile[data-status="done"]:hover{transform:none}
 }
+
+/* =========================================================
+   个人信息弹窗 + 头像裁剪（纯追加）
+   顶栏用户名胶囊改为可点按钮，样式与其余玻璃胶囊一致；
+   弹窗复用 .sb-modal-mask/.sb-modal，头像为圆形取景 + 滚轮缩放 + 拖动。
+   ========================================================= */
+.topbar nav .who{
+  cursor:pointer; font:inherit; color:#fff;
+  transition:background-color .22s ease, transform .22s ease, box-shadow .22s ease;
+}
+.topbar nav .who:hover{
+  background:rgba(255,255,255,.2); transform:translateY(-2px);
+  box-shadow:0 6px 16px rgba(9,20,40,.2);
+}
+.avatar{position:relative}
+.avatar-pic{
+  position:absolute; inset:0; width:100%; height:100%;
+  border-radius:50%; object-fit:cover; display:block;
+}
+.profile-modal{max-width:440px}
+.pm-grid{display:flex; gap:18px; align-items:flex-start; margin:14px 0 4px}
+.pm-side{display:flex; flex-direction:column; align-items:center; gap:10px; flex:none}
+.pm-avatar{
+  width:76px; height:76px; font-size:26px; overflow:hidden;
+}
+.pm-hint{font-size:11.5px; margin:0; text-align:center; line-height:1.5}
+.pm-info{flex:1; min-width:0; display:flex; flex-direction:column; gap:7px}
+.pm-row{display:flex; align-items:baseline; gap:10px; font-size:13.5px}
+.pm-row .pm-k{flex:none; width:44px; color:var(--muted); font-size:12.5px}
+.pm-row b{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.pm-crop{margin:12px 0 4px}
+.pm-stage{
+  position:relative; width:280px; height:280px; max-width:100%;
+  margin:0 auto; border-radius:12px; overflow:hidden;
+  background:var(--bg); touch-action:none; cursor:grab;
+}
+.pm-stage:active{cursor:grabbing}
+.pm-stage canvas{display:block; width:100%; height:100%}
+.pm-ring{
+  position:absolute; left:50%; top:50%; width:220px; height:220px;
+  transform:translate(-50%,-50%); border-radius:50%;
+  box-shadow:0 0 0 9999px rgba(10,18,32,.55), inset 0 0 0 2px rgba(255,255,255,.75);
+  pointer-events:none;
+}
+.pm-crop-actions{display:flex; justify-content:flex-end; gap:10px; margin-top:10px}
+.pm-msg{margin:8px 0 0; font-size:13px}
+
+/* =========================================================
+   教材导航 · 学科标题行卡片化（终版：与「当前进度」同构）
+   按需求去掉托盘底色：主卡保持白底（var(--card)），学科卡面同为
+   var(--card) + 与进度子卡完全相同的 var(--shadow)，下方不留任何背景色；
+   悬停 = 浅品牌底色 + 阴影加深(--shadow-lg) + 上浮 2px，与进度卡一致。
+   暗色经变量自动跟随（主卡/卡面同为 #182231，靠阴影分层，同进度卡）。
+   ========================================================= */
+.nav-card > details{
+  margin-bottom:10px;
+  /* 关键修复：全站 details{overflow:hidden} 会把子元素 summary 的
+     box-shadow 沿四条直边整圈裁掉，只有四个圆角弧形空隙能透出阴影
+     ——这正是「四角可见、整体没效果」的物理原因。details 本身
+     背景透明，放开裁剪无任何副作用（切换年级菜单早已同款处理）。 */
+  overflow:visible;
+}
+.card.nav-card > details > summary{
+  border-radius:var(--radius); background:var(--card); padding:13px 16px;
+  box-shadow:var(--shadow);
+  transition:background-color .25s ease, box-shadow .22s ease,
+             transform .22s ease, color .15s ease;
+}
+.card.nav-card > details > summary:hover{
+  background:var(--brand-soft); box-shadow:var(--shadow-lg);
+  transform:translateY(-2px);
+}
+.card.nav-card > details[open] > summary{box-shadow:var(--shadow-lg); margin-bottom:8px}
+.card.nav-card > details[open] > summary:hover{color:var(--brand-dark)}
+/* 暗色（跟随系统 + 手动切换）同权重兜底：卡面保持不透明底色 */
+html[data-theme="dark"] .card.nav-card > details > summary{background:var(--card)}
+html[data-theme="dark"] .card.nav-card > details > summary:hover{background:var(--brand-soft)}
+html:not([data-theme="light"]) .card.nav-card > details > summary{background:var(--card)}
+html:not([data-theme="light"]) .card.nav-card > details > summary:hover{background:var(--brand-soft)}
+@media (max-width:640px){.nav-card > details{margin-bottom:8px}}

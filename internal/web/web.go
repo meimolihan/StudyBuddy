@@ -115,9 +115,14 @@ func (a *App) Routes() *gin.Engine {
 	r.Use(gin.Logger(), gin.Recovery())
 	r.Use(auth.Mount(a.Sess))
 
-	// 静态资源（内嵌，单文件可直接运行）
+	// 静态资源（内嵌，单文件可直接运行）。
+	// Cache-Control: no-cache —— 样式/脚本改动后浏览器立即取新版（本地单机应用，代价可忽略）。
 	sub, _ := fs.Sub(a.assets, "static")
-	r.StaticFS("/static", http.FS(sub))
+	staticFS := http.StripPrefix("/static/", http.FileServer(http.FS(sub)))
+	r.GET("/static/*filepath", func(c *gin.Context) {
+		c.Header("Cache-Control", "no-cache")
+		staticFS.ServeHTTP(c.Writer, c.Request)
+	})
 	r.GET("/favicon.svg", func(c *gin.Context) {
 		b, err := fs.ReadFile(a.assets, "static/favicon.svg")
 		if err != nil {
@@ -163,6 +168,8 @@ func (a *App) Routes() *gin.Engine {
 		auth2.POST("/study/current", a.setCurrent)
 		auth2.GET("/theme", a.setTheme)
 		auth2.GET("/wallpaper/toggle", a.setWallpaperOnOff) // 开关要落库到 users.wallpaper，必须登录
+		auth2.GET("/avatar/me", a.avatarMe)                 // 当前用户头像（未上传 404，前端回退首字徽标）
+		auth2.POST("/profile/avatar", a.avatarUpload)       // 上传裁剪后的头像
 	}
 
 	admin := r.Group("/admin", auth.RequireAdmin())
