@@ -152,7 +152,7 @@ jobs:
           VER="${{ env.RELEASE_TAG }}"
           VER_NO_V="${VER#v}"
           TAGS="${{ env.DOCKERHUB_IMAGE }}:${VER},${{ env.DOCKERHUB_IMAGE }}:latest"
-          TAGS="${TAGS},${{ env.GHCR_IMAGE }}:${VER},${{ env.GHCR_IMAGE }}:${VER_NO_V}"
+          TAGS="${TAGS},${{ env.GHCR_IMAGE }}:${VER},${{ env.GHCR_IMAGE }}:${VER_NO_V},${{ env.GHCR_IMAGE }}:latest"
           echo "tags=${TAGS}" >> "$GITHUB_OUTPUT"
 
       - name: Build and push Docker images
