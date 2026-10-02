@@ -6,6 +6,7 @@ services:
     image: mobufan/studybuddy:latest
     container_name: studybuddy
     restart: unless-stopped
+    user: 0:0
     ports:
       - 8658:8080
     environment:
