@@ -123,9 +123,9 @@
       {{end}}
     </div>
 
+    {{if .Session.IsAdmin}}
     <div class="setsec">
       <div class="setsec-h">👤 账号</div>
-      {{if .Session.IsAdmin}}
       <a class="setrow{{if eq .Nav "admin"}} is-on{{end}}" href="/admin">
         <span class="setrow-main">
           <span class="setrow-t">用户管理</span>
@@ -133,7 +133,10 @@
         </span>
         <span class="setrow-go">›</span>
       </a>
-      {{end}}
+    </div>
+    {{end}}
+
+    <div class="setsec">
       <form method="post" action="/logout" class="setform">
         <button class="setrow setrow-btn" type="submit">
           <span class="setrow-main">

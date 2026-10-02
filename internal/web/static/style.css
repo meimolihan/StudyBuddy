@@ -2007,3 +2007,6 @@ html:not([data-theme="light"]) .card.nav-card > details > summary:hover{backgrou
 .qt-toast.is-in{opacity:1; transform:translateX(-50%) translateY(0)}
 .qt-toast .qt-check{color:var(--brand); font-weight:700; font-size:15px}
 @media (max-width:640px){.qt-toast{top:84px; padding:9px 18px}}
+
+/* ==== 登录/注册页侧栏脚注右移 60px（用户要求：先 30px 再 +30px，2026-10-02） ==== */
+.auth-side-foot{left:60px}
