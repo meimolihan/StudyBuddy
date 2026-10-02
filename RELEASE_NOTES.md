@@ -1,17 +1,17 @@
-第一个测试版
+第二个测试版
 
 ```bash
 docker pull mobufan/studybuddy:latest
 ```
 ```bash
-docker pull mobufan/studybuddy:v0.0.1
+docker pull mobufan/studybuddy:v0.0.2
 ```
 
 ```bash
 docker pull ghcr.io/meimolihan/studybuddy:latest
 ```
 ```bash
-docker pull ghcr.io/meimolihan/studybuddy:v0.0.1
+docker pull ghcr.io/meimolihan/studybuddy:v0.0.2
 ```
 
 ## 二进制安装
