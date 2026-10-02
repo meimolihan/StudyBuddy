@@ -5,10 +5,10 @@ archive/
 # 改造前全量备份（体积大，不入库；发布产物与运行数据同理）
 backup/
 
-# 编译产物
+# 编译产物（仅忽略仓库根与 dist/ 下的二进制，勿用裸名以免误伤 cmd/studybuddy/ 源码目录）
 dist/
-studybuddy.exe
-studybuddy
+/studybuddy.exe
+/studybuddy
 
 # 自检临时文件
 smoke-test.docx
