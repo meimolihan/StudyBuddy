@@ -3,6 +3,8 @@
 dist/
 data/
 archive/
+backup/
+reports/
 *.exe
 *.db
 smoke-test.docx

@@ -48,7 +48,7 @@ StudyBuddy/
 │       ├── volume1/         g4-v1-chinese.webp + g4-v1-math.webp（学科图）
 │       └── volume2/         g4-v2-chinese.webp + g4-v2-math.webp
 ├── deploy/                 容器化：Dockerfile、docker-compose.yml、.dockerignore
-├── scripts/                start.bat 一键启动、migrate_content.py 内容规范化、_check_wallpaper.sh 壁纸自检、_shot_topbar.sh 顶栏版式自检、_check_picker.sh 年级/班级滚轮自检
+├── scripts/                工程脚本与内容工具：build-and-push.sh 一键发布推送、install.sh / uninstall.sh 一键装卸（systemd）、studybuddy_backup.sh / studybuddy_recover.sh 备份还原、start.bat 一键启动、migrate_content.py 内容规范化、_check_wallpaper.sh 壁纸自检、_shot_topbar.sh 顶栏版式自检、_check_picker.sh 年级/班级滚轮自检
 ├── tools/                  自检：smoke 模块级 / e2e 端到端 / bankcheck 题库与内容命名核对
 ├── .workbuddy/skills/      ★ 交互自测网页生成技能 interactive-quiz-html（加新题库用，见「教材目录命名规则」末节）
 ├── docs/                   文档：CONTENT_LAYOUT.md 教材目录规范
@@ -249,7 +249,21 @@ make dist       # Windows / Linux / macOS × amd64 / arm64
 
 ---
 
-## 五、Docker 部署
+## 五、Docker 镜像与部署
+
+镜像随发布流水线自动构建（amd64 + arm64 双架构），同时发布到 **Docker Hub** 与 **GHCR**：
+
+```shell
+# Docker Hub
+docker pull mobufan/studybuddy:latest
+docker pull mobufan/studybuddy:v0.0.1
+
+# GHCR
+docker pull ghcr.io/meimolihan/studybuddy:latest
+docker pull ghcr.io/meimolihan/studybuddy:v0.0.1
+```
+
+本地构建与运行：
 
 ```bash
 # 单架构
@@ -328,3 +342,140 @@ go run ./tools/bankcheck -content content -min 10   # -min 调整「题量偏少
   会自动用单选题补足 10 题，不会出现缺题。
 - **密码安全**：bcrypt 加密存储，无明文；Session 校验，未登录无法访问任何业务页面。
 - **数据隔离**：学生只能通过自己的会话访问自己的私有库与归档目录，无法访问他人数据。
+
+---
+
+## 十、一键脚本部署（systemd）
+
+适用于直接部署在 Linux 服务器（非 Docker）。脚本默认**优先下载 GitHub Releases 预编译二进制**（无需 Go/git），
+自动部署教材内容树与壁纸、注册 systemd 服务、开放防火墙端口，并安装内置命令 `studybuddy`。
+安装目录固定约定为 **`/var/lib/StudyBuddy`**（教材、数据、归档均在其下）。
+
+```shell
+# 默认端口 8080，安装目录 /var/lib/StudyBuddy
+bash scripts/install.sh
+
+# 自定义端口与安装目录，免交互（标准安装命令）
+bash scripts/install.sh -p 8080 -d /var/lib/StudyBuddy -y
+
+# 远程一键安装（国内网络自动走加速镜像）
+bash -c "$(curl -sSL https://raw.githubusercontent.com/meimolihan/StudyBuddy/main/scripts/install.sh)" -p 8080 -d /var/lib/StudyBuddy
+```
+
+说明：
+
+- 可重复执行，**升级等同于重新安装**（覆盖程序与教材并重启服务，`data/`、`archive/` 自动保留）。
+- 源码编译方式：本地存在源码仓库或用 `-s` 指定时按源码编译安装（要求 Go >= 1.21）。
+- 安装记录写入 `/etc/studybuddy.conf`，备份 / 还原 / 卸载脚本会自动读取。
+- 首次使用打开访问地址**注册账号即可：首位注册者自动成为管理员**；后续注册需管理员生成邀请码。
+
+### 内置 CLI 管理命令
+
+安装后可直接使用 `studybuddy` 命令管理服务：
+
+| 命令 | 说明 |
+|------|------|
+| `studybuddy status` | 查看 systemd 服务状态与访问地址 |
+| `studybuddy start` / `stop` / `restart` | 启动 / 停止 / 重启 systemd 服务 |
+| `studybuddy version` | 查看版本号（发布流水线经 `-ldflags` 注入） |
+| `studybuddy help` | 显示帮助（CLI 用法与环境变量一览） |
+| `studybuddy uninstall [-y] [--purge\|--keep-data]` | 停止并移除服务/进程，删除程序与安装记录，可选删除数据目录 |
+
+```shell
+# 查看服务状态（含访问地址）
+studybuddy status
+
+# 重启服务
+sudo studybuddy restart
+
+# 免确认卸载，保留数据目录
+sudo studybuddy uninstall -y
+
+# 免确认卸载，并删除数据目录
+sudo studybuddy uninstall -y --purge
+```
+
+### 备份与还原
+
+systemd 安装方式自带备份/还原脚本，脚本会自动读取 `/etc/studybuddy.conf` 中的 `APP_DIR` / `BACKUP_DIR`，
+默认备份目录为 `${APP_DIR}/backup`。本仓库同名脚本位于 `scripts/` 目录，安装后在应用安装目录下亦有副本。
+
+```shell
+# 备份（在线打包、不停服，包含 data/ 与 archive/，默认保留最近 6 份）
+bash scripts/studybuddy_backup.sh
+
+# 指定备份目录与保留份数（两种传参顺序均可）
+bash scripts/studybuddy_backup.sh /data/bak 8
+bash scripts/studybuddy_backup.sh 8 /data/bak
+```
+
+```shell
+# 还原（默认取备份目录中最新一份；还原过程中服务会短暂停止并自动重启）
+bash scripts/studybuddy_recover.sh
+
+# 指定备份目录与还原文件（文件名需形如 StudyBuddy-*.tar.gz）
+bash scripts/studybuddy_recover.sh /data/bak StudyBuddy-2026-10-02_15-30-00.tar.gz
+```
+
+说明：
+
+- 备份产物为 `StudyBuddy-YYYY-MM-DD_HH-MM-SS.tar.gz`，包含数据目录（`data/`，账号库 + 学生私有库）
+  与归档目录（`archive/`，历史试卷）；教材 `content/` 属于仓库资产，不参与备份。
+- 还原前请确认备份文件仍在对应 `BACKUP_DIR` 内，且安装目录路径与当前服务一致。
+- 上述命令需要在运行该系统的服务器上以 root 权限执行。
+
+### 卸载
+
+```shell
+# 免确认卸载，保留数据目录（可再次安装恢复）
+sudo bash scripts/uninstall.sh -y
+
+# 免确认卸载，并删除数据目录（含账号数据库、归档试卷与教材）
+sudo bash scripts/uninstall.sh -y --purge
+```
+
+---
+
+## 十一、自动发布流水线（GitHub Actions）
+
+版本发布完全自动化：**本地不编译任何产物**，只负责更新版本号、推送代码、打 `v` 开头 tag；
+推送后由 `.github/workflows/release.yml` 链式完成编译、发布与镜像构建。
+
+### 发布命令
+
+```shell
+bash scripts/build-and-push.sh v0.0.1 --yes -m "第一个测试版"
+```
+
+脚本会依次：校验 tag 格式（`v0.0.1`）→ 清理同名 Release 与 tag → 更新 `VERSION` 版本文件 →
+生成 `RELEASE_NOTES.md` 发版备注 → 提交推送 → 打 tag 触发流水线 → 打印流水线运行信息（需 gh CLI）。
+
+### 流水线四阶段
+
+| 阶段 | Job | 内容 |
+|------|-----|------|
+| 1 | `build-binaries` | Go 交叉编译 linux amd64 / arm64 **静态单文件**（CGO_ENABLED=0），版本号经 `-ldflags "-X main.version=..."` 注入 |
+| 2 | `publish-release` | 创建 GitHub Release，附带 `studybuddy_linux_amd64` / `studybuddy_linux_arm64` 两个产物，正文取 `RELEASE_NOTES.md` |
+| 3 | `build-docker` | 基于 `deploy/Dockerfile` 构建双架构镜像，推送 **Docker Hub**（`mobufan/studybuddy`）与 **GHCR**（`ghcr.io/meimolihan/studybuddy`），标签 `vX.Y.Z` / `latest` |
+| 4 | `sync-cnb` | 同步仓库到 CNB 镜像仓库（未配置 `CNB_ACCESS_TOKEN` 时自动跳过） |
+
+### 前置配置（仓库 Settings → Secrets and variables → Actions）
+
+| Secret | 用途 |
+|--------|------|
+| `DOCKERHUB_USERNAME` | Docker Hub 用户名（镜像推送） |
+| `DOCKERHUB_TOKEN` | Docker Hub 访问令牌 |
+| `CNB_ACCESS_TOKEN` | 可选；CNB 仓库同步令牌 |
+
+### 触发方式
+
+- **push tag**：`git push origin vX.Y.Z`（build-and-push.sh 自动完成）；
+- **手动触发**：Actions 页面选择 Release Pipeline → Run workflow，输入 tag（如 `v0.0.1`）。
+
+### 本地开发常用命令
+
+```shell
+make build          # 当前平台编译 → dist/studybuddy
+make run            # 编译并直接运行
+go run ./tools/e2e  # 端到端自检
+```

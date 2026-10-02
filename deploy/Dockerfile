@@ -21,6 +21,7 @@ RUN apk add --no-cache ca-certificates tzdata && \
 WORKDIR /app
 COPY --from=builder /out/studybuddy /app/studybuddy
 COPY --from=builder /src/content /app/content
+COPY --from=builder /src/wallpapers /app/wallpapers
 
 # 数据与教材均声明为卷，便于持久化与替换教材
 VOLUME ["/app/data", "/app/archive", "/app/content"]

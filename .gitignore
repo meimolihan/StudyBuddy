@@ -2,6 +2,9 @@
 data/
 archive/
 
+# 改造前全量备份（体积大，不入库；发布产物与运行数据同理）
+backup/
+
 # 编译产物
 dist/
 studybuddy.exe

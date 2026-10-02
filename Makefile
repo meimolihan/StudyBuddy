@@ -54,7 +54,7 @@ docker-buildx:
 	docker buildx build --platform linux/amd64,linux/arm64 -t mobufan/studybuddy:latest --load .
 
 docker-run:
-	docker compose up -d
+	docker compose -f deploy/docker-compose.yml up -d
 
 clean:
 	rm -rf $(DIST)
