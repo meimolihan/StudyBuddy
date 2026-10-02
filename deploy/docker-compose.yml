@@ -3,11 +3,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: studybuddy:latest
+    image: mobufan/studybuddy:latest
     container_name: studybuddy
     restart: unless-stopped
     ports:
-      - "8080:8080"
+      - 8658:8080
     environment:
       TZ: Asia/Shanghai
       STUDYBUDDY_PORT: "8080"

@@ -127,27 +127,27 @@
 </div>
 
 <script>
-const ALL = [ {t:"s",q:"Amy 的书可以说（　）。",o:["The book is she.", "The book is hers.", "The book is his.", "The book is her."],a:["B"]},
- {t:"s",q:"John 的球可以说（　）。",o:["The ball is he.", "The ball is hers.", "The ball is his.", "The ball is hims."],a:["C"]},
- {t:"s",q:"你和同伴共有的教室可以说（　）。",o:["The classroom is us.", "The classroom is our.", "The classroom is theirs.", "The classroom is ours."],a:["D"]},
- {t:"s",q:"对方的钢笔可以说（　）。",o:["The pen is yours.", "The pen is you.", "The pen is mine.", "The pen is your."],a:["A"]},
- {t:"s",q:"选择正确的问答搭配（　）。",o:["Is it yours? — It's a dog.", "What is the dog doing? — It's mine.", "Whose dog is it? — It's his.", "Whose dog is it? — It's playing."],a:["C"]},
- {t:"s",q:"“What is the dog doing?”的合适回答是（　）。",o:["It's mine.", "Yes, it is.", "It's sleeping.", "It's a dog."],a:["C"]},
- {t:"s",q:"“The monkey is climbing.”的意思是（　）。",o:["猴子正在攀爬。", "猴子会攀爬。", "猴子喜欢树。", "猴子正在跳。"],a:["A"]},
- {t:"s",q:"“The rabbit is jumping.”的意思是（　）。",o:["兔子正在跳。", "兔子正在睡。", "兔子是我的。", "兔子正在吃。"],a:["A"]},
- {t:"s",q:"“The dog is eating.”中的 eating 表示（　）。",o:["正在爬", "正在玩", "正在吃", "正在喝"],a:["C"]},
- {t:"s",q:"“They're playing with each other.”的意思是（　）。",o:["它们属于彼此。", "它们正在睡觉。", "它们正在吃东西。", "它们正在互相玩耍。"],a:["D"]},
- {t:"m",q:"名词性物主代词后不必再接名词的有（　）。",o:["ours", "mine", "my", "hers"],a:["A", "B", "D"]},
- {t:"m",q:"表示正在进行动作的词有（　）。",o:["mine", "eating", "jumping", "climbing"],a:["B", "C", "D"]},
- {t:"s",q:"把“This is my picture.”换成同义表达，应为（　）。",o:["This picture is mine.", "This picture is my.", "Mine is this my picture.", "This is mine picture."],a:["A"]},
- {t:"s",q:"把“These are their books.”换成同义表达，应为（　）。",o:["These books are their.", "Their books is theirs.", "These books are theirs.", "These are theirs books."],a:["C"]},
- {t:"s",q:"选择语序正确的句子（　）。",o:["These carrots whose?", "Whose carrots are these?", "Whose are these carrots are?", "Who carrots are these?"],a:["B"]},
- {t:"s",q:"“Is he drinking water?”的肯定回答是（　）。",o:["Yes, it is.", "Yes, he can.", "Yes, he is.", "Yes, he does."],a:["C"]},
- {t:"s",q:"“Are these all ours?”的意思是（　）。",o:["这些都是他们的吗？", "这些在我们旁边吗？", "这些全都是我们的吗？", "这是我们的吗？"],a:["C"]},
- {t:"s",q:"发现不确定归属的物品时，应该（　）。",o:["随意丢弃", "先询问主人再处理", "藏起来", "直接拿走"],a:["B"]},
- {t:"s",q:"“each other”表示（　）。",o:["互相", "其他地方", "每一个物品", "所有人的"],a:["A"]},
- {t:"s",q:"下列哪句同时包含动物和正在进行的动作？（　）",o:["Whose elephant is it?", "The elephant is drinking water.", "The elephant is mine.", "I like elephants."],a:["B"]},
- {t:"s",q:"本单元主要学会了（　）。",o:["谈论季节原因", "询问活动日期", "介绍每日作息", "询问物品归属并描述正在发生的动作"],a:["D"]}];
+const ALL = [ {t:"s",q:"Amy 的书可以说（　）。",o:["The book is she.", "The book is hers.", "The book is his.", "The book is her."],a:["B"],e:"解析：本题正确答案为 B：The book is hers.。"},
+ {t:"s",q:"John 的球可以说（　）。",o:["The ball is he.", "The ball is hers.", "The ball is his.", "The ball is hims."],a:["C"],e:"解析：本题正确答案为 C：The ball is his.。"},
+ {t:"s",q:"你和同伴共有的教室可以说（　）。",o:["The classroom is us.", "The classroom is our.", "The classroom is theirs.", "The classroom is ours."],a:["D"],e:"解析：本题正确答案为 D：The classroom is ours.。"},
+ {t:"s",q:"对方的钢笔可以说（　）。",o:["The pen is yours.", "The pen is you.", "The pen is mine.", "The pen is your."],a:["A"],e:"解析：本题正确答案为 A：The pen is yours.。"},
+ {t:"s",q:"选择正确的问答搭配（　）。",o:["Is it yours? — It's a dog.", "What is the dog doing? — It's mine.", "Whose dog is it? — It's his.", "Whose dog is it? — It's playing."],a:["C"],e:"解析：本题正确答案为 C：Whose dog is it? — It's his.。"},
+ {t:"s",q:"“What is the dog doing?”的合适回答是（　）。",o:["It's mine.", "Yes, it is.", "It's sleeping.", "It's a dog."],a:["C"],e:"解析：本题正确答案为 C：It's sleeping.。"},
+ {t:"s",q:"“The monkey is climbing.”的意思是（　）。",o:["猴子正在攀爬。", "猴子会攀爬。", "猴子喜欢树。", "猴子正在跳。"],a:["A"],e:"解析：本题正确答案为 A：猴子正在攀爬。。"},
+ {t:"s",q:"“The rabbit is jumping.”的意思是（　）。",o:["兔子正在跳。", "兔子正在睡。", "兔子是我的。", "兔子正在吃。"],a:["A"],e:"解析：本题正确答案为 A：兔子正在跳。。"},
+ {t:"s",q:"“The dog is eating.”中的 eating 表示（　）。",o:["正在爬", "正在玩", "正在吃", "正在喝"],a:["C"],e:"解析：本题正确答案为 C：正在吃。"},
+ {t:"s",q:"“They're playing with each other.”的意思是（　）。",o:["它们属于彼此。", "它们正在睡觉。", "它们正在吃东西。", "它们正在互相玩耍。"],a:["D"],e:"解析：本题正确答案为 D：它们正在互相玩耍。。"},
+ {t:"m",q:"名词性物主代词后不必再接名词的有（　）。",o:["ours", "mine", "my", "hers"],a:["A", "B", "D"],e:"解析：本题正确答案为 A、B、D：ours；mine；hers。"},
+ {t:"m",q:"表示正在进行动作的词有（　）。",o:["mine", "eating", "jumping", "climbing"],a:["B", "C", "D"],e:"解析：本题正确答案为 B、C、D：eating；jumping；climbing。"},
+ {t:"s",q:"把“This is my picture.”换成同义表达，应为（　）。",o:["This picture is mine.", "This picture is my.", "Mine is this my picture.", "This is mine picture."],a:["A"],e:"解析：本题正确答案为 A：This picture is mine.。"},
+ {t:"s",q:"把“These are their books.”换成同义表达，应为（　）。",o:["These books are their.", "Their books is theirs.", "These books are theirs.", "These are theirs books."],a:["C"],e:"解析：本题正确答案为 C：These books are theirs.。"},
+ {t:"s",q:"选择语序正确的句子（　）。",o:["These carrots whose?", "Whose carrots are these?", "Whose are these carrots are?", "Who carrots are these?"],a:["B"],e:"解析：本题正确答案为 B：Whose carrots are these?。"},
+ {t:"s",q:"“Is he drinking water?”的肯定回答是（　）。",o:["Yes, it is.", "Yes, he can.", "Yes, he is.", "Yes, he does."],a:["C"],e:"解析：本题正确答案为 C：Yes, he is.。"},
+ {t:"s",q:"“Are these all ours?”的意思是（　）。",o:["这些都是他们的吗？", "这些在我们旁边吗？", "这些全都是我们的吗？", "这是我们的吗？"],a:["C"],e:"解析：本题正确答案为 C：这些全都是我们的吗？。"},
+ {t:"s",q:"发现不确定归属的物品时，应该（　）。",o:["随意丢弃", "先询问主人再处理", "藏起来", "直接拿走"],a:["B"],e:"解析：本题正确答案为 B：先询问主人再处理。"},
+ {t:"s",q:"“each other”表示（　）。",o:["互相", "其他地方", "每一个物品", "所有人的"],a:["A"],e:"解析：本题正确答案为 A：互相。"},
+ {t:"s",q:"下列哪句同时包含动物和正在进行的动作？（　）",o:["Whose elephant is it?", "The elephant is drinking water.", "The elephant is mine.", "I like elephants."],a:["B"],e:"解析：本题正确答案为 B：The elephant is drinking water.。"},
+ {t:"s",q:"本单元主要学会了（　）。",o:["谈论季节原因", "询问活动日期", "介绍每日作息", "询问物品归属并描述正在发生的动作"],a:["D"],e:"解析：本题正确答案为 D：询问物品归属并描述正在发生的动作。"}];
 const PER_ROUND = 10;
 const quiz = document.getElementById("quiz");
 let Q = [];

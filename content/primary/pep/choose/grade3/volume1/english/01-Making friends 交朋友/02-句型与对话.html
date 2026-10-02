@@ -127,27 +127,27 @@
 </div>
 
 <script>
-const ALL = [ {t:"s",q:"「你好！」用英语说是（　）。",o:["Thank you!", "Hello!", "Goodbye!", "Sorry!"],a:["B"]},
- {t:"s",q:"介绍自己的名字，应该说（　）。",o:["I'm Sarah.", "This is Sarah.", "Bye, Sarah.", "You are Sarah."],a:["A"]},
- {t:"s",q:"询问对方的名字，应该说（　）。",o:["What's this?", "How are you?", "Who are you?", "What's your name?"],a:["D"]},
- {t:"s",q:"「My name is Bill.」的意思是（　）。",o:["他是比尔。", "我的名字叫比尔。", "再见，比尔。", "你是比尔吗？"],a:["B"]},
- {t:"s",q:"初次见面表示很高兴，说（　）。",o:["Excuse me!", "Good night!", "See you!", "Nice to meet you!"],a:["D"]},
- {t:"s",q:"回答 Nice to meet you! 应该说（　）。",o:["No, thanks.", "You're wrong.", "I'm fine.", "Nice to meet you, too."],a:["D"]},
- {t:"s",q:"和朋友告别时说（　）。",o:["Hello!", "Nice to meet you!", "What's your name?", "Goodbye!"],a:["D"]},
- {t:"s",q:"「I am a student.」的意思是（　）。",o:["你是一名学生。", "我们是朋友。", "我是一名学生。", "他是老师。"],a:["C"]},
- {t:"s",q:"早上见到老师问好，说（　）。",o:["Goodbye!", "Good morning!", "Good evening!", "Good night!"],a:["B"]},
- {t:"s",q:"「This is my friend.」的意思是（　）。",o:["我在找朋友。", "朋友再见。", "这是我的朋友。", "那是你的朋友。"],a:["C"]},
- {t:"m",q:"见面问候语有（　）。",o:["Hello!", "Goodbye!", "Good morning!", "Hi!"],a:["A", "C", "D"]},
- {t:"m",q:"表示礼貌的用语有（　）。",o:["Please.", "Sorry.", "Thank you.", "Shut up!"],a:["A", "B", "C"]},
- {t:"s",q:"别人帮助了你，应该说（　）。",o:["I'm sorry.", "Thank you!", "You're welcome.", "Goodbye!"],a:["B"]},
- {t:"s",q:"「Nice to meet you!」中文意思是（　）。",o:["很高兴见到你！", "你好吗？", "你叫什么？", "再见！"],a:["A"]},
- {t:"s",q:"下课时和老师说（　）。",o:["I'm fine.", "What's your name?", "Goodbye, Miss Li.", "Hello, Miss Li."],a:["C"]},
- {t:"s",q:"你想知道新同学的名字，应该问（　）。",o:["What's your name?", "Where is it?", "What colour?", "How old are you?"],a:["A"]},
- {t:"s",q:"自我介绍时先说（　）。",o:["Goodbye!", "Hello! I'm …", "Sorry!", "Thanks!"],a:["B"]},
- {t:"m",q:"做自我介绍时可以介绍自己的（　）。",o:["以上全都不行", "年龄", "名字", "喜欢的事物"],a:["B", "C", "D"]},
- {t:"s",q:"听到「Hi!」可以回应（　）。",o:["Hi!", "No!", "Bye!", "Sorry!"],a:["A"]},
- {t:"s",q:"「What's your name?」的正确回答是（　）。",o:["It's a cat.", "My name is Mike.", "Yes, it is.", "I'm nine."],a:["B"]},
- {t:"s",q:"和朋友相处要（　）。",o:["骂人", "不理人", "友好、互相帮助", "打架"],a:["C"]}];
+const ALL = [ {t:"s",q:"「你好！」用英语说是（　）。",o:["Thank you!", "Hello!", "Goodbye!", "Sorry!"],a:["B"],e:"解析：本题正确答案为 B：Hello!。"},
+ {t:"s",q:"介绍自己的名字，应该说（　）。",o:["I'm Sarah.", "This is Sarah.", "Bye, Sarah.", "You are Sarah."],a:["A"],e:"解析：本题正确答案为 A：I'm Sarah.。"},
+ {t:"s",q:"询问对方的名字，应该说（　）。",o:["What's this?", "How are you?", "Who are you?", "What's your name?"],a:["D"],e:"解析：本题正确答案为 D：What's your name?。"},
+ {t:"s",q:"「My name is Bill.」的意思是（　）。",o:["他是比尔。", "我的名字叫比尔。", "再见，比尔。", "你是比尔吗？"],a:["B"],e:"解析：本题正确答案为 B：我的名字叫比尔。。"},
+ {t:"s",q:"初次见面表示很高兴，说（　）。",o:["Excuse me!", "Good night!", "See you!", "Nice to meet you!"],a:["D"],e:"解析：本题正确答案为 D：Nice to meet you!。"},
+ {t:"s",q:"回答 Nice to meet you! 应该说（　）。",o:["No, thanks.", "You're wrong.", "I'm fine.", "Nice to meet you, too."],a:["D"],e:"解析：本题正确答案为 D：Nice to meet you, too.。"},
+ {t:"s",q:"和朋友告别时说（　）。",o:["Hello!", "Nice to meet you!", "What's your name?", "Goodbye!"],a:["D"],e:"解析：本题正确答案为 D：Goodbye!。"},
+ {t:"s",q:"「I am a student.」的意思是（　）。",o:["你是一名学生。", "我们是朋友。", "我是一名学生。", "他是老师。"],a:["C"],e:"解析：本题正确答案为 C：我是一名学生。。"},
+ {t:"s",q:"早上见到老师问好，说（　）。",o:["Goodbye!", "Good morning!", "Good evening!", "Good night!"],a:["B"],e:"解析：本题正确答案为 B：Good morning!。"},
+ {t:"s",q:"「This is my friend.」的意思是（　）。",o:["我在找朋友。", "朋友再见。", "这是我的朋友。", "那是你的朋友。"],a:["C"],e:"解析：本题正确答案为 C：这是我的朋友。。"},
+ {t:"m",q:"见面问候语有（　）。",o:["Hello!", "Goodbye!", "Good morning!", "Hi!"],a:["A", "C", "D"],e:"解析：本题正确答案为 A、C、D：Hello!；Good morning!；Hi!。"},
+ {t:"m",q:"表示礼貌的用语有（　）。",o:["Please.", "Sorry.", "Thank you.", "Shut up!"],a:["A", "B", "C"],e:"解析：本题正确答案为 A、B、C：Please.；Sorry.；Thank you.。"},
+ {t:"s",q:"别人帮助了你，应该说（　）。",o:["I'm sorry.", "Thank you!", "You're welcome.", "Goodbye!"],a:["B"],e:"解析：本题正确答案为 B：Thank you!。"},
+ {t:"s",q:"「Nice to meet you!」中文意思是（　）。",o:["很高兴见到你！", "你好吗？", "你叫什么？", "再见！"],a:["A"],e:"解析：本题正确答案为 A：很高兴见到你！。"},
+ {t:"s",q:"下课时和老师说（　）。",o:["I'm fine.", "What's your name?", "Goodbye, Miss Li.", "Hello, Miss Li."],a:["C"],e:"解析：本题正确答案为 C：Goodbye, Miss Li.。"},
+ {t:"s",q:"你想知道新同学的名字，应该问（　）。",o:["What's your name?", "Where is it?", "What colour?", "How old are you?"],a:["A"],e:"解析：本题正确答案为 A：What's your name?。"},
+ {t:"s",q:"自我介绍时先说（　）。",o:["Goodbye!", "Hello! I'm …", "Sorry!", "Thanks!"],a:["B"],e:"解析：本题正确答案为 B：Hello! I'm …。"},
+ {t:"m",q:"做自我介绍时可以介绍自己的（　）。",o:["以上全都不行", "年龄", "名字", "喜欢的事物"],a:["B", "C", "D"],e:"解析：本题正确答案为 B、C、D：年龄；名字；喜欢的事物。"},
+ {t:"s",q:"听到「Hi!」可以回应（　）。",o:["Hi!", "No!", "Bye!", "Sorry!"],a:["A"],e:"解析：本题正确答案为 A：Hi!。"},
+ {t:"s",q:"「What's your name?」的正确回答是（　）。",o:["It's a cat.", "My name is Mike.", "Yes, it is.", "I'm nine."],a:["B"],e:"解析：本题正确答案为 B：My name is Mike.。"},
+ {t:"s",q:"和朋友相处要（　）。",o:["骂人", "不理人", "友好、互相帮助", "打架"],a:["C"],e:"解析：本题正确答案为 C：友好、互相帮助。"}];
 const PER_ROUND = 10;
 const quiz = document.getElementById("quiz");
 let Q = [];

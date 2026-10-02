@@ -127,27 +127,27 @@
 </div>
 
 <script>
-const ALL = [ {t:"s",q:"询问“你的爱好是什么？”应该说（　）。",o:["What's your hobby?", "What do you have?", "Where is your hobby?", "Who is your hobby?"],a:["A"]},
- {t:"s",q:"回答“What's your hobby?”可以说（　）。",o:["I have a hobby.", "I like reading stories.", "It's a story.", "Yes, I like."],a:["B"]},
- {t:"s",q:"“I like playing football.”的意思是（　）。",o:["我有足球。", "我喜欢踢足球。", "我正在踢足球。", "足球是我的。"],a:["B"]},
- {t:"s",q:"like 后面常接（　）。",o:["序数词", "动词-ing 形式", "介词短语", "动词过去式"],a:["B"]},
- {t:"s",q:"询问“他住在上海吗？”应该说（　）。",o:["Do he live in Shanghai?", "Is he live in Shanghai?", "Does he lives in Shanghai?", "Does he live in Shanghai?"],a:["D"]},
- {t:"s",q:"“Does he live in Shanghai?”的肯定回答是（　）。",o:["Yes, he does.", "Yes, he do.", "Yes, he live.", "Yes, he is."],a:["A"]},
- {t:"s",q:"“Does she teach English?”的否定回答是（　）。",o:["No, she not.", "No, she isn't.", "No, she doesn't.", "No, she don't."],a:["C"]},
- {t:"s",q:"动词 study 的第三人称单数形式是（　）。",o:["studies", "studys", "studied", "study"],a:["A"]},
- {t:"s",q:"动词 go 的第三人称单数形式是（　）。",o:["gos", "going", "goes", "goed"],a:["C"]},
- {t:"s",q:"动词 do 的第三人称单数形式是（　）。",o:["dos", "doing", "doed", "does"],a:["D"]},
- {t:"s",q:"dancing 的原形是（　）。",o:["danced", "dancing more", "dance", "dances"],a:["C"]},
- {t:"s",q:"pen pal 的意思是（　）。",o:["钢笔", "表兄弟", "网友的城市", "笔友"],a:["D"]},
- {t:"s",q:"hobby 的复数形式是（　）。",o:["hobbys", "hobbies", "hobbyes", "hobby"],a:["B"]},
- {t:"s",q:"给外国笔友写信时，可能会提到（　）。",o:["my hobbies and my city", "my health record", "my bank card", "my taxi number"],a:["A"]},
- {t:"m",q:"可以回答“What's your hobby?”的有（　）。",o:["I like doing kung fu.", "I like reading stories.", "I like singing.", "I am ten years old."],a:["A", "B", "C"]},
- {t:"m",q:"第三人称单数形式正确的有（　）。",o:["does", "study", "studies", "goes"],a:["A", "C", "D"]},
- {t:"s",q:"补全对话：— What's your hobby? —（　）",o:["It's a football.", "Yes, I do.", "I like playing football.", "I play football yesterday."],a:["C"]},
- {t:"s",q:"补全句子：He（　）in Beijing.",o:["lived in", "lives", "living", "live"],a:["B"]},
- {t:"s",q:"了解他人爱好时，应该（　）。",o:["只谈自己的爱好", "认真倾听并互相尊重", "强迫别人改变", "嘲笑不同的爱好"],a:["B"]},
- {t:"s",q:"“I like writing emails to my pen pal.”的意思是（　）。",o:["笔友给我打电话。", "我在学写汉字。", "我喜欢收到明信片。", "我喜欢给笔友写电子邮件。"],a:["D"]},
- {t:"s",q:"介绍爱好，正确的句子是（　）。",o:["My hobby is read stories.", "My hobby is reading stories.", "My hobby are reading stories.", "My hobby reading stories."],a:["B"]}];
+const ALL = [ {t:"s",q:"询问“你的爱好是什么？”应该说（　）。",o:["What's your hobby?", "What do you have?", "Where is your hobby?", "Who is your hobby?"],a:["A"],e:"解析：本题正确答案为 A：What's your hobby?。"},
+ {t:"s",q:"回答“What's your hobby?”可以说（　）。",o:["I have a hobby.", "I like reading stories.", "It's a story.", "Yes, I like."],a:["B"],e:"解析：本题正确答案为 B：I like reading stories.。"},
+ {t:"s",q:"“I like playing football.”的意思是（　）。",o:["我有足球。", "我喜欢踢足球。", "我正在踢足球。", "足球是我的。"],a:["B"],e:"解析：本题正确答案为 B：我喜欢踢足球。。"},
+ {t:"s",q:"like 后面常接（　）。",o:["序数词", "动词-ing 形式", "介词短语", "动词过去式"],a:["B"],e:"解析：本题正确答案为 B：动词-ing 形式。"},
+ {t:"s",q:"询问“他住在上海吗？”应该说（　）。",o:["Do he live in Shanghai?", "Is he live in Shanghai?", "Does he lives in Shanghai?", "Does he live in Shanghai?"],a:["D"],e:"解析：本题正确答案为 D：Does he live in Shanghai?。"},
+ {t:"s",q:"“Does he live in Shanghai?”的肯定回答是（　）。",o:["Yes, he does.", "Yes, he do.", "Yes, he live.", "Yes, he is."],a:["A"],e:"解析：本题正确答案为 A：Yes, he does.。"},
+ {t:"s",q:"“Does she teach English?”的否定回答是（　）。",o:["No, she not.", "No, she isn't.", "No, she doesn't.", "No, she don't."],a:["C"],e:"解析：本题正确答案为 C：No, she doesn't.。"},
+ {t:"s",q:"动词 study 的第三人称单数形式是（　）。",o:["studies", "studys", "studied", "study"],a:["A"],e:"解析：本题正确答案为 A：studies。"},
+ {t:"s",q:"动词 go 的第三人称单数形式是（　）。",o:["gos", "going", "goes", "goed"],a:["C"],e:"解析：本题正确答案为 C：goes。"},
+ {t:"s",q:"动词 do 的第三人称单数形式是（　）。",o:["dos", "doing", "doed", "does"],a:["D"],e:"解析：本题正确答案为 D：does。"},
+ {t:"s",q:"dancing 的原形是（　）。",o:["danced", "dancing more", "dance", "dances"],a:["C"],e:"解析：本题正确答案为 C：dance。"},
+ {t:"s",q:"pen pal 的意思是（　）。",o:["钢笔", "表兄弟", "网友的城市", "笔友"],a:["D"],e:"解析：本题正确答案为 D：笔友。"},
+ {t:"s",q:"hobby 的复数形式是（　）。",o:["hobbys", "hobbies", "hobbyes", "hobby"],a:["B"],e:"解析：本题正确答案为 B：hobbies。"},
+ {t:"s",q:"给外国笔友写信时，可能会提到（　）。",o:["my hobbies and my city", "my health record", "my bank card", "my taxi number"],a:["A"],e:"解析：本题正确答案为 A：my hobbies and my city。"},
+ {t:"m",q:"可以回答“What's your hobby?”的有（　）。",o:["I like doing kung fu.", "I like reading stories.", "I like singing.", "I am ten years old."],a:["A", "B", "C"],e:"解析：本题正确答案为 A、B、C：I like doing kung fu.；I like reading stories.；I like singing.。"},
+ {t:"m",q:"第三人称单数形式正确的有（　）。",o:["does", "study", "studies", "goes"],a:["A", "C", "D"],e:"解析：本题正确答案为 A、C、D：does；studies；goes。"},
+ {t:"s",q:"补全对话：— What's your hobby? —（　）",o:["It's a football.", "Yes, I do.", "I like playing football.", "I play football yesterday."],a:["C"],e:"解析：本题正确答案为 C：I like playing football.。"},
+ {t:"s",q:"补全句子：He（　）in Beijing.",o:["lived in", "lives", "living", "live"],a:["B"],e:"解析：本题正确答案为 B：lives。"},
+ {t:"s",q:"了解他人爱好时，应该（　）。",o:["只谈自己的爱好", "认真倾听并互相尊重", "强迫别人改变", "嘲笑不同的爱好"],a:["B"],e:"解析：本题正确答案为 B：认真倾听并互相尊重。"},
+ {t:"s",q:"“I like writing emails to my pen pal.”的意思是（　）。",o:["笔友给我打电话。", "我在学写汉字。", "我喜欢收到明信片。", "我喜欢给笔友写电子邮件。"],a:["D"],e:"解析：本题正确答案为 D：我喜欢给笔友写电子邮件。。"},
+ {t:"s",q:"介绍爱好，正确的句子是（　）。",o:["My hobby is read stories.", "My hobby is reading stories.", "My hobby are reading stories.", "My hobby reading stories."],a:["B"],e:"解析：本题正确答案为 B：My hobby is reading stories.。"}];
 const PER_ROUND = 10;
 const quiz = document.getElementById("quiz");
 let Q = [];

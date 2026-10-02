@@ -48,10 +48,10 @@ dist: windows linux darwin arm
 
 ## 容器
 docker:
-	docker build -t studybuddy:latest .
+	docker build -t mobufan/studybuddy:latest .
 
 docker-buildx:
-	docker buildx build --platform linux/amd64,linux/arm64 -t studybuddy:latest --load .
+	docker buildx build --platform linux/amd64,linux/arm64 -t mobufan/studybuddy:latest --load .
 
 docker-run:
 	docker compose up -d

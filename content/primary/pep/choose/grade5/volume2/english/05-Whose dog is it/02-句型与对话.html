@@ -127,27 +127,27 @@
 </div>
 
 <script>
-const ALL = [ {t:"s",q:"询问“这是谁的狗？”应该说（　）。",o:["Whose dog is it?", "Who is the dog?", "Where is the dog?", "What is the dog doing?"],a:["A"]},
- {t:"s",q:"回答“Whose book is it?”可以说（　）。",o:["It's me.", "It's mine.", "I am book.", "It's my."],a:["B"]},
- {t:"s",q:"“The yellow picture is mine.”的意思是（　）。",o:["我喜欢黄色的画。", "这幅画是黄色的。", "那幅黄色的画是我的。", "那幅黄色的画是你的。"],a:["C"]},
- {t:"s",q:"“It's hers.”的意思是（　）。",o:["它是你的。", "它是她的。", "它是我们的。", "它是他的。"],a:["B"]},
- {t:"s",q:"“The dog is his.”的意思是（　）。",o:["狗在他旁边。", "这只狗是他的。", "这只狗是她的。", "他是一只狗。"],a:["B"]},
- {t:"s",q:"“These books are ours.”的意思是（　）。",o:["这是我的书。", "这些书是我们的。", "我们有一本书。", "这些书是他们的。"],a:["B"]},
- {t:"s",q:"“Those bags are theirs.”的意思是（　）。",o:["那个包是她的。", "那些包是我们的。", "那些包是他们的。", "他们在包里。"],a:["C"]},
- {t:"s",q:"my 对应的名词性物主代词是（　）。",o:["me", "mine", "I", "my"],a:["B"]},
- {t:"s",q:"your 对应的名词性物主代词是（　）。",o:["you", "your", "yours", "ours"],a:["C"]},
- {t:"s",q:"her 对应的名词性物主代词是（　）。",o:["his", "she", "her", "hers"],a:["D"]},
- {t:"s",q:"our 对应的名词性物主代词是（　）。",o:["ours", "us", "theirs", "our"],a:["A"]},
- {t:"s",q:"their 对应的名词性物主代词是（　）。",o:["their", "theirs", "yours", "them"],a:["B"]},
- {t:"m",q:"名词性物主代词有（　）。",o:["mine", "hers", "my", "yours"],a:["A", "B", "D"]},
- {t:"m",q:"正确的所属表达有（　）。",o:["It's mine.", "It's my.", "These are theirs.", "The pen is yours."],a:["A", "C", "D"]},
- {t:"s",q:"补全对话：— Whose storybook is this? — It's（　）。",o:["her", "hers book", "she", "hers"],a:["D"]},
- {t:"s",q:"补全句子：The blue bike is（　）bike.",o:["my", "me", "mine", "I"],a:["A"]},
- {t:"s",q:"“Whose”用于询问（　）。",o:["人物身份", "时间", "所属关系", "地点"],a:["C"]},
- {t:"s",q:"mine 后面通常（　）。",o:["不再接名词", "接动词-ing", "必须接名词", "接月份"],a:["A"]},
- {t:"s",q:"my 后面通常接（　）。",o:["序数词", "介词", "名词", "完整句子"],a:["C"]},
- {t:"s",q:"想确认物品是不是对方的，可以问（　）。",o:["Does it yours?", "Are it you?", "Is it yours?", "Is it your?"],a:["C"]},
- {t:"s",q:"说明物品归属，正确的句子是（　）。",o:["This English book is my.", "This English book mine is.", "This is mine English book.", "This English book is mine."],a:["D"]}];
+const ALL = [ {t:"s",q:"询问“这是谁的狗？”应该说（　）。",o:["Whose dog is it?", "Who is the dog?", "Where is the dog?", "What is the dog doing?"],a:["A"],e:"解析：本题正确答案为 A：Whose dog is it?。"},
+ {t:"s",q:"回答“Whose book is it?”可以说（　）。",o:["It's me.", "It's mine.", "I am book.", "It's my."],a:["B"],e:"解析：本题正确答案为 B：It's mine.。"},
+ {t:"s",q:"“The yellow picture is mine.”的意思是（　）。",o:["我喜欢黄色的画。", "这幅画是黄色的。", "那幅黄色的画是我的。", "那幅黄色的画是你的。"],a:["C"],e:"解析：本题正确答案为 C：那幅黄色的画是我的。。"},
+ {t:"s",q:"“It's hers.”的意思是（　）。",o:["它是你的。", "它是她的。", "它是我们的。", "它是他的。"],a:["B"],e:"解析：本题正确答案为 B：它是她的。。"},
+ {t:"s",q:"“The dog is his.”的意思是（　）。",o:["狗在他旁边。", "这只狗是他的。", "这只狗是她的。", "他是一只狗。"],a:["B"],e:"解析：本题正确答案为 B：这只狗是他的。。"},
+ {t:"s",q:"“These books are ours.”的意思是（　）。",o:["这是我的书。", "这些书是我们的。", "我们有一本书。", "这些书是他们的。"],a:["B"],e:"解析：本题正确答案为 B：这些书是我们的。。"},
+ {t:"s",q:"“Those bags are theirs.”的意思是（　）。",o:["那个包是她的。", "那些包是我们的。", "那些包是他们的。", "他们在包里。"],a:["C"],e:"解析：本题正确答案为 C：那些包是他们的。。"},
+ {t:"s",q:"my 对应的名词性物主代词是（　）。",o:["me", "mine", "I", "my"],a:["B"],e:"解析：本题正确答案为 B：mine。"},
+ {t:"s",q:"your 对应的名词性物主代词是（　）。",o:["you", "your", "yours", "ours"],a:["C"],e:"解析：本题正确答案为 C：yours。"},
+ {t:"s",q:"her 对应的名词性物主代词是（　）。",o:["his", "she", "her", "hers"],a:["D"],e:"解析：本题正确答案为 D：hers。"},
+ {t:"s",q:"our 对应的名词性物主代词是（　）。",o:["ours", "us", "theirs", "our"],a:["A"],e:"解析：本题正确答案为 A：ours。"},
+ {t:"s",q:"their 对应的名词性物主代词是（　）。",o:["their", "theirs", "yours", "them"],a:["B"],e:"解析：本题正确答案为 B：theirs。"},
+ {t:"m",q:"名词性物主代词有（　）。",o:["mine", "hers", "my", "yours"],a:["A", "B", "D"],e:"解析：本题正确答案为 A、B、D：mine；hers；yours。"},
+ {t:"m",q:"正确的所属表达有（　）。",o:["It's mine.", "It's my.", "These are theirs.", "The pen is yours."],a:["A", "C", "D"],e:"解析：本题正确答案为 A、C、D：It's mine.；These are theirs.；The pen is yours.。"},
+ {t:"s",q:"补全对话：— Whose storybook is this? — It's（　）。",o:["her", "hers book", "she", "hers"],a:["D"],e:"解析：本题正确答案为 D：hers。"},
+ {t:"s",q:"补全句子：The blue bike is（　）bike.",o:["my", "me", "mine", "I"],a:["A"],e:"解析：本题正确答案为 A：my。"},
+ {t:"s",q:"“Whose”用于询问（　）。",o:["人物身份", "时间", "所属关系", "地点"],a:["C"],e:"解析：本题正确答案为 C：所属关系。"},
+ {t:"s",q:"mine 后面通常（　）。",o:["不再接名词", "接动词-ing", "必须接名词", "接月份"],a:["A"],e:"解析：本题正确答案为 A：不再接名词。"},
+ {t:"s",q:"my 后面通常接（　）。",o:["序数词", "介词", "名词", "完整句子"],a:["C"],e:"解析：本题正确答案为 C：名词。"},
+ {t:"s",q:"想确认物品是不是对方的，可以问（　）。",o:["Does it yours?", "Are it you?", "Is it yours?", "Is it your?"],a:["C"],e:"解析：本题正确答案为 C：Is it yours?。"},
+ {t:"s",q:"说明物品归属，正确的句子是（　）。",o:["This English book is my.", "This English book mine is.", "This is mine English book.", "This English book is mine."],a:["D"],e:"解析：本题正确答案为 D：This English book is mine.。"}];
 const PER_ROUND = 10;
 const quiz = document.getElementById("quiz");
 let Q = [];

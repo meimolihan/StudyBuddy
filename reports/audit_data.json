@@ -1,0 +1,5757 @@
+{
+ "stats": {
+  "files_choose": 2398,
+  "files_judge": 2398,
+  "mirror_pairs": 2398,
+  "mirror_unpaired": 0,
+  "questions_total_scanned": 0,
+  "questions_choose": 56902,
+  "questions_judge": 95716,
+  "cross_dup_groups": 1517
+ },
+ "issues": {
+  "naming_dup_lesson": [
+   {
+    "path": "choose/primary/grade1/chinese",
+    "detail": "语文册内课序号重复: ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13'] -> ['choose/primary/grade1/volume1/chinese/01-我上学了/01-我上学了.html', 'choose/primary/grade1/volume1/chinese/01-识字（一）/01-天地人.html', 'choose/primary/grade1/volume1/chinese/01-识字（一）/02-金木水火土.html', 'choose/primary/grade1/volume1/chinese/01-识字（一）/03-口耳目.html', 'choose/primary/grade1/volume1/chinese/01-识字（一）/04-日月水火.html', 'choose/primary/grade1/volume1/chinese/01-识字（一）/05-对韵歌.html', 'choose/primary/grade1/volume1/chinese/02-汉语拼音（一）/01-a o e.html', 'choose/primary/grade1/volume1/chinese/02-汉语拼音（一）/02-i u ü y w.html', 'choose/primary/grade1/volume1/chinese/02-汉语拼音（一）/03-b p m f.html', 'choose/primary/grade1/volume1/chinese/02-汉语拼音（一）/04-d t n l.html', 'choose/primary/grade1/volume1/chinese/02-汉语拼音（一）/05-g k h.html', 'choose/primary/grade1/volume1/chinese/02-汉语拼音（一）/06-j q x.html']"
+   },
+   {
+    "path": "choose/primary/grade1/chinese",
+    "detail": "语文册内课序号重复: ['01', '02', '03', '04', '05', '06', '07', '08'] -> ['choose/primary/grade1/volume2/chinese/01-识字（一）/01-春夏秋冬.html', 'choose/primary/grade1/volume2/chinese/01-识字（一）/02-姓氏歌.html', 'choose/primary/grade1/volume2/chinese/01-识字（一）/03-小青蛙.html', 'choose/primary/grade1/volume2/chinese/01-识字（一）/04-猜字谜.html', 'choose/primary/grade1/volume2/chinese/02-课文（一）/01-吃水不忘挖井人.html', 'choose/primary/grade1/volume2/chinese/02-课文（一）/02-我多想去看看.html', 'choose/primary/grade1/volume2/chinese/02-课文（一）/03-一个接一个.html', 'choose/primary/grade1/volume2/chinese/02-课文（一）/04-四个太阳.html', 'choose/primary/grade1/volume2/chinese/03-课文（二）/05-小公鸡和小鸭子.html', 'choose/primary/grade1/volume2/chinese/03-课文（二）/06-树和喜鹊.html', 'choose/primary/grade1/volume2/chinese/03-课文（二）/07-怎么都快乐.html', 'choose/primary/grade1/volume2/chinese/04-课文（三）/08-静夜思.html']"
+   },
+   {
+    "path": "choose/primary/grade2/chinese",
+    "detail": "语文册内课序号重复: ['01', '02', '03', '04'] -> ['choose/primary/grade2/volume1/chinese/01-阅读/01-小蝌蚪找妈妈.html', 'choose/primary/grade2/volume1/chinese/01-阅读/02-我是什么.html', 'choose/primary/grade2/volume1/chinese/01-阅读/03-植物妈妈有办法.html', 'choose/primary/grade2/volume1/chinese/02-识字/01-场景歌.html', 'choose/primary/grade2/volume1/chinese/02-识字/02-树之歌.html', 'choose/primary/grade2/volume1/chinese/02-识字/03-拍手歌.html', 'choose/primary/grade2/volume1/chinese/02-识字/04-田家四季歌.html', 'choose/primary/grade2/volume1/chinese/03-阅读/04-彩虹.html']"
+   },
+   {
+    "path": "choose/primary/grade2/chinese",
+    "detail": "语文册内课序号重复: ['01', '02', '03', '04'] -> ['choose/primary/grade2/volume2/chinese/01-阅读/01-古诗二首.html', 'choose/primary/grade2/volume2/chinese/01-阅读/02-找春天.html', 'choose/primary/grade2/volume2/chinese/01-阅读/03-开满鲜花的小路.html', 'choose/primary/grade2/volume2/chinese/01-阅读/04-邓小平爷爷植树.html', 'choose/primary/grade2/volume2/chinese/03-识字/01-神州谣.html', 'choose/primary/grade2/volume2/chinese/03-识字/02-传统节日.html', 'choose/primary/grade2/volume2/chinese/03-识字/03-“贝”的故事.html', 'choose/primary/grade2/volume2/chinese/03-识字/04-中国美食.html']"
+   },
+   {
+    "path": "judge/primary/grade1/chinese",
+    "detail": "语文册内课序号重复: ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13'] -> ['judge/primary/grade1/volume1/chinese/01-我上学了/01-我上学了.html', 'judge/primary/grade1/volume1/chinese/01-识字（一）/01-天地人.html', 'judge/primary/grade1/volume1/chinese/01-识字（一）/02-金木水火土.html', 'judge/primary/grade1/volume1/chinese/01-识字（一）/03-口耳目.html', 'judge/primary/grade1/volume1/chinese/01-识字（一）/04-日月水火.html', 'judge/primary/grade1/volume1/chinese/01-识字（一）/05-对韵歌.html', 'judge/primary/grade1/volume1/chinese/02-汉语拼音（一）/01-a o e.html', 'judge/primary/grade1/volume1/chinese/02-汉语拼音（一）/02-i u ü y w.html', 'judge/primary/grade1/volume1/chinese/02-汉语拼音（一）/03-b p m f.html', 'judge/primary/grade1/volume1/chinese/02-汉语拼音（一）/04-d t n l.html', 'judge/primary/grade1/volume1/chinese/02-汉语拼音（一）/05-g k h.html', 'judge/primary/grade1/volume1/chinese/02-汉语拼音（一）/06-j q x.html']"
+   },
+   {
+    "path": "judge/primary/grade1/chinese",
+    "detail": "语文册内课序号重复: ['01', '02', '03', '04', '05', '06', '07', '08'] -> ['judge/primary/grade1/volume2/chinese/01-识字（一）/01-春夏秋冬.html', 'judge/primary/grade1/volume2/chinese/01-识字（一）/02-姓氏歌.html', 'judge/primary/grade1/volume2/chinese/01-识字（一）/03-小青蛙.html', 'judge/primary/grade1/volume2/chinese/01-识字（一）/04-猜字谜.html', 'judge/primary/grade1/volume2/chinese/02-课文（一）/01-吃水不忘挖井人.html', 'judge/primary/grade1/volume2/chinese/02-课文（一）/02-我多想去看看.html', 'judge/primary/grade1/volume2/chinese/02-课文（一）/03-一个接一个.html', 'judge/primary/grade1/volume2/chinese/02-课文（一）/04-四个太阳.html', 'judge/primary/grade1/volume2/chinese/03-课文（二）/05-小公鸡和小鸭子.html', 'judge/primary/grade1/volume2/chinese/03-课文（二）/06-树和喜鹊.html', 'judge/primary/grade1/volume2/chinese/03-课文（二）/07-怎么都快乐.html', 'judge/primary/grade1/volume2/chinese/04-课文（三）/08-静夜思.html']"
+   },
+   {
+    "path": "judge/primary/grade2/chinese",
+    "detail": "语文册内课序号重复: ['01', '02', '03', '04'] -> ['judge/primary/grade2/volume1/chinese/01-阅读/01-小蝌蚪找妈妈.html', 'judge/primary/grade2/volume1/chinese/01-阅读/02-我是什么.html', 'judge/primary/grade2/volume1/chinese/01-阅读/03-植物妈妈有办法.html', 'judge/primary/grade2/volume1/chinese/02-识字/01-场景歌.html', 'judge/primary/grade2/volume1/chinese/02-识字/02-树之歌.html', 'judge/primary/grade2/volume1/chinese/02-识字/03-拍手歌.html', 'judge/primary/grade2/volume1/chinese/02-识字/04-田家四季歌.html', 'judge/primary/grade2/volume1/chinese/03-阅读/04-彩虹.html']"
+   },
+   {
+    "path": "judge/primary/grade2/chinese",
+    "detail": "语文册内课序号重复: ['01', '02', '03', '04'] -> ['judge/primary/grade2/volume2/chinese/01-阅读/01-古诗二首.html', 'judge/primary/grade2/volume2/chinese/01-阅读/02-找春天.html', 'judge/primary/grade2/volume2/chinese/01-阅读/03-开满鲜花的小路.html', 'judge/primary/grade2/volume2/chinese/01-阅读/04-邓小平爷爷植树.html', 'judge/primary/grade2/volume2/chinese/03-识字/01-神州谣.html', 'judge/primary/grade2/volume2/chinese/03-识字/02-传统节日.html', 'judge/primary/grade2/volume2/chinese/03-识字/03-“贝”的故事.html', 'judge/primary/grade2/volume2/chinese/03-识字/04-中国美食.html']"
+   }
+  ],
+  "unit_thin": [
+   {
+    "path": "choose/primary/grade1/volume1/chinese/01-我上学了",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/primary/grade1/volume1/math/03-认识立体图形",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/primary/grade1/volume1/math/06-复习与关联",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/primary/grade1/volume2/math/08-复习与关联",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/primary/grade2/volume1/math/06-身体上的尺子（综合实践）",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/primary/grade2/volume2/math/01-时间在哪里（综合实践）",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/primary/grade2/volume2/math/06-数学连环画（综合实践）",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/primary/grade3/volume2/math/05-数据的收集与整理",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/primary/grade4/volume1/math/07-条形统计图",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/primary/grade4/volume2/math/02-观察物体（二）",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/primary/grade4/volume2/math/09-数学广角——鸡兔同笼",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/primary/grade5/volume1/math/02-位置",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/primary/grade5/volume1/math/07-数学广角——植树问题",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/primary/grade5/volume1/math/08-总复习",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/primary/grade5/volume2/math/01-观察物体（三）",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/primary/grade5/volume2/math/08-数学广角——找次品",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/primary/grade5/volume2/math/09-总复习",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/primary/grade6/volume1/math/07-扇形统计图",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/primary/grade6/volume1/math/08-数学广角——数与形",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/primary/grade6/volume2/math/05-数学广角——鸽巢问题",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/middle/grade1/volume1/geography/06-发展与合作",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/middle/grade1/volume2/geography/10-极地地区",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/middle/grade2/volume1/english/01-Happy Holiday",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/middle/grade2/volume1/english/02-Home Sweet Home",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/middle/grade2/volume1/english/03-Same or Different？",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/middle/grade2/volume1/english/04-Amazing Plants and Animals",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/middle/grade2/volume1/english/05-What a Delicious Meal!",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/middle/grade2/volume1/english/06-Plan for Yourself",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/middle/grade2/volume1/english/07-When Tomorrow Comes",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/middle/grade2/volume1/english/08-Let's Communicate!",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/middle/grade2/volume2/english/01-Time to Relax",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/middle/grade2/volume2/english/02-Stay Healthy",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/middle/grade2/volume2/english/03-Growing Up",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/middle/grade2/volume2/english/04-The Wonders of Nature",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/middle/grade2/volume2/english/05-Nature's Temper",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/middle/grade2/volume2/english/06-Crossing Cultures",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/middle/grade2/volume2/english/07-A Good Read",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/middle/grade2/volume2/english/08-Making a Difference",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/middle/grade2/volume2/geography/01-中国的地理差异",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/middle/grade2/volume2/geography/06-奋进中的中国",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/middle/grade3/volume1/chemistry/01-绪论单元",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/middle/grade3/volume1/english/01-How can we become good learners？",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/middle/grade3/volume1/english/02-I think that mooncakes are delicious!",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/middle/grade3/volume1/english/03-Could you please tell me where the restrooms are？",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/middle/grade3/volume1/english/04-I used to be afraid of the dark",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/middle/grade3/volume1/english/05-What are the shirts made of？",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/middle/grade3/volume1/english/06-When was it invented？",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/middle/grade3/volume1/english/07-Teenagers should be allowed to choose their own clothes",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/middle/grade3/volume1/english/08-It must belong to Carla",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/middle/grade3/volume1/english/09-I like music that I can dance to",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/middle/grade3/volume1/english/10-You're supposed to shake hands",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/middle/grade3/volume2/english/10-I remember meeting all of you in Grade 7",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/middle/grade3/volume2/english/10-Life is full of the unexpected",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/middle/grade3/volume2/english/10-Sad movies make me cry",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/middle/grade3/volume2/english/10-We're trying to save the earth!",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/high/grade1/volume1/english/01-Welcome Unit",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/high/grade1/volume1/english/02-Unit 1 Teenage Life",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/high/grade1/volume1/english/03-Unit 2 Travelling Around",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/high/grade1/volume1/english/04-Unit 3 Sports and Fitness",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/high/grade1/volume1/english/05-Unit 4 Natural Disasters",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/high/grade1/volume1/english/06-Unit 5 Languages Around the World",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/high/grade1/volume2/english/01-Unit 1 Cultural Heritage",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/high/grade1/volume2/english/02-Unit 2 Wildlife Protection",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/high/grade1/volume2/english/03-Unit 3 The Internet",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/high/grade1/volume2/english/04-Unit 4 History and Traditions",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/high/grade1/volume2/english/05-Unit 5 Music",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/high/grade2/volume1/english/01-Unit 1 People of Achievement",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/high/grade2/volume1/english/02-Unit 2 Looking into the Future",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/high/grade2/volume1/english/03-Unit 3 Fascinating Parks",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/high/grade2/volume1/english/04-Unit 4 Body Language",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/high/grade2/volume1/english/05-Unit 5 Working the Land",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/high/grade2/volume2/english/01-Unit 1 Science and Scientists",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/high/grade2/volume2/english/02-Unit 2 Bridging Cultures",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/high/grade2/volume2/english/03-Unit 3 Food and Culture",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/high/grade2/volume2/english/04-Unit 4 Journey Across a Vast Land",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/high/grade2/volume2/english/05-Unit 5 First Aid",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/high/grade3/volume1/english/01-Unit 1 Art",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/high/grade3/volume1/english/02-Unit 2 Healthy Lifestyle",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/high/grade3/volume1/english/03-Unit 3 Environmental Protection",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/high/grade3/volume1/english/04-Unit 4 Adversity and Courage",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "choose/high/grade3/volume1/english/05-Unit 5 Poems",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/primary/grade1/volume1/chinese/01-我上学了",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/primary/grade1/volume1/math/03-认识立体图形",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/primary/grade1/volume1/math/06-复习与关联",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/primary/grade1/volume2/math/08-复习与关联",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/primary/grade2/volume1/math/06-身体上的尺子（综合实践）",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/primary/grade2/volume2/math/01-时间在哪里（综合实践）",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/primary/grade2/volume2/math/06-数学连环画（综合实践）",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/primary/grade3/volume2/math/05-数据的收集与整理",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/primary/grade4/volume1/math/07-条形统计图",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/primary/grade4/volume2/math/02-观察物体（二）",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/primary/grade4/volume2/math/09-数学广角——鸡兔同笼",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/primary/grade5/volume1/math/02-位置",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/primary/grade5/volume1/math/07-数学广角——植树问题",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/primary/grade5/volume1/math/08-总复习",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/primary/grade5/volume2/math/01-观察物体（三）",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/primary/grade5/volume2/math/08-数学广角——找次品",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/primary/grade5/volume2/math/09-总复习",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/primary/grade6/volume1/math/07-扇形统计图",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/primary/grade6/volume1/math/08-数学广角——数与形",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/primary/grade6/volume2/math/05-数学广角——鸽巢问题",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/middle/grade1/volume1/geography/06-发展与合作",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/middle/grade1/volume2/geography/10-极地地区",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/middle/grade2/volume1/english/01-Happy Holiday",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/middle/grade2/volume1/english/02-Home Sweet Home",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/middle/grade2/volume1/english/03-Same or Different？",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/middle/grade2/volume1/english/04-Amazing Plants and Animals",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/middle/grade2/volume1/english/05-What a Delicious Meal!",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/middle/grade2/volume1/english/06-Plan for Yourself",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/middle/grade2/volume1/english/07-When Tomorrow Comes",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/middle/grade2/volume1/english/08-Let's Communicate!",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/middle/grade2/volume2/english/01-Time to Relax",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/middle/grade2/volume2/english/02-Stay Healthy",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/middle/grade2/volume2/english/03-Growing Up",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/middle/grade2/volume2/english/04-The Wonders of Nature",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/middle/grade2/volume2/english/05-Nature's Temper",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/middle/grade2/volume2/english/06-Crossing Cultures",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/middle/grade2/volume2/english/07-A Good Read",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/middle/grade2/volume2/english/08-Making a Difference",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/middle/grade2/volume2/geography/01-中国的地理差异",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/middle/grade2/volume2/geography/06-奋进中的中国",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/middle/grade3/volume1/chemistry/01-绪论单元",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/middle/grade3/volume1/english/01-How can we become good learners？",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/middle/grade3/volume1/english/02-I think that mooncakes are delicious!",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/middle/grade3/volume1/english/03-Could you please tell me where the restrooms are？",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/middle/grade3/volume1/english/04-I used to be afraid of the dark",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/middle/grade3/volume1/english/05-What are the shirts made of？",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/middle/grade3/volume1/english/06-When was it invented？",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/middle/grade3/volume1/english/07-Teenagers should be allowed to choose their own clothes",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/middle/grade3/volume1/english/08-It must belong to Carla",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/middle/grade3/volume1/english/09-I like music that I can dance to",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/middle/grade3/volume1/english/10-You're supposed to shake hands",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/middle/grade3/volume2/english/10-I remember meeting all of you in Grade 7",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/middle/grade3/volume2/english/10-Life is full of the unexpected",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/middle/grade3/volume2/english/10-Sad movies make me cry",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/middle/grade3/volume2/english/10-We're trying to save the earth!",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/high/grade1/volume1/english/01-Welcome Unit",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/high/grade1/volume1/english/02-Unit 1 Teenage Life",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/high/grade1/volume1/english/03-Unit 2 Travelling Around",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/high/grade1/volume1/english/04-Unit 3 Sports and Fitness",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/high/grade1/volume1/english/05-Unit 4 Natural Disasters",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/high/grade1/volume1/english/06-Unit 5 Languages Around the World",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/high/grade1/volume2/english/01-Unit 1 Cultural Heritage",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/high/grade1/volume2/english/02-Unit 2 Wildlife Protection",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/high/grade1/volume2/english/03-Unit 3 The Internet",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/high/grade1/volume2/english/04-Unit 4 History and Traditions",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/high/grade1/volume2/english/05-Unit 5 Music",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/high/grade2/volume1/english/01-Unit 1 People of Achievement",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/high/grade2/volume1/english/02-Unit 2 Looking into the Future",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/high/grade2/volume1/english/03-Unit 3 Fascinating Parks",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/high/grade2/volume1/english/04-Unit 4 Body Language",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/high/grade2/volume1/english/05-Unit 5 Working the Land",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/high/grade2/volume2/english/01-Unit 1 Science and Scientists",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/high/grade2/volume2/english/02-Unit 2 Bridging Cultures",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/high/grade2/volume2/english/03-Unit 3 Food and Culture",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/high/grade2/volume2/english/04-Unit 4 Journey Across a Vast Land",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/high/grade2/volume2/english/05-Unit 5 First Aid",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/high/grade3/volume1/english/01-Unit 1 Art",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/high/grade3/volume1/english/02-Unit 2 Healthy Lifestyle",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/high/grade3/volume1/english/03-Unit 3 Environmental Protection",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/high/grade3/volume1/english/04-Unit 4 Adversity and Courage",
+    "detail": "该单元仅 1 篇课文"
+   },
+   {
+    "path": "judge/high/grade3/volume1/english/05-Unit 5 Poems",
+    "detail": "该单元仅 1 篇课文"
+   }
+  ]
+ },
+ "issue_counts": {
+  "naming_dup_lesson": 8,
+  "unit_thin": 162
+ },
+ "cross_dup_total_groups": 1517,
+ "cross_dup_total_questions": 4323,
+ "cross_dup_by_size": {
+  "2": 981,
+  "3": 296,
+  "4": 127,
+  "5": 50,
+  "6": 22,
+  "7": 10,
+  "8": 2,
+  "9": 1,
+  "10": 1,
+  "11": 2,
+  "12": 2,
+  "13": 2,
+  "14": 2,
+  "15": 3,
+  "16": 1,
+  "17": 2,
+  "18": 2,
+  "19": 1,
+  "20": 3,
+  "21": 1,
+  "23": 1,
+  "24": 4,
+  "28": 1
+ },
+ "cross_dup_groups": [
+  {
+   "key": "choose primary gradegrade1 volume1 chinese",
+   "where": [
+    [
+     "choose/primary/grade1/volume1/chinese/01-我上学了/01-我上学了.html",
+     20
+    ],
+    [
+     "choose/primary/grade1/volume1/chinese/01-识字（一）/02-金木水火土.html",
+     19
+    ],
+    [
+     "choose/primary/grade1/volume1/chinese/01-识字（一）/03-口耳目.html",
+     14
+    ],
+    [
+     "choose/primary/grade1/volume1/chinese/01-识字（一）/04-日月水火.html",
+     18
+    ],
+    [
+     "choose/primary/grade1/volume1/chinese/02-汉语拼音（一）/02-i u ü y w.html",
+     19
+    ],
+    [
+     "choose/primary/grade1/volume1/chinese/02-汉语拼音（一）/08-zh ch sh r.html",
+     20
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume1 chinese",
+   "where": [
+    [
+     "choose/primary/grade1/volume1/chinese/01-识字（一）/01-天地人.html",
+     14
+    ],
+    [
+     "choose/primary/grade1/volume1/chinese/01-识字（一）/04-日月水火.html",
+     14
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume1 chinese",
+   "where": [
+    [
+     "choose/primary/grade1/volume1/chinese/01-识字（一）/02-金木水火土.html",
+     17
+    ],
+    [
+     "choose/primary/grade1/volume1/chinese/01-识字（一）/04-日月水火.html",
+     5
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume1 chinese",
+   "where": [
+    [
+     "choose/primary/grade1/volume1/chinese/02-汉语拼音（一）/02-i u ü y w.html",
+     1
+    ],
+    [
+     "choose/primary/grade1/volume1/chinese/02-汉语拼音（一）/03-b p m f.html",
+     1
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume1 chinese",
+   "where": [
+    [
+     "choose/primary/grade1/volume1/chinese/02-汉语拼音（一）/02-i u ü y w.html",
+     12
+    ],
+    [
+     "choose/primary/grade1/volume1/chinese/02-汉语拼音（一）/08-zh ch sh r.html",
+     15
+    ],
+    [
+     "choose/primary/grade1/volume1/chinese/03-汉语拼音（二）/11-ie üe er.html",
+     14
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume1 chinese",
+   "where": [
+    [
+     "choose/primary/grade1/volume1/chinese/02-汉语拼音（一）/03-b p m f.html",
+     16
+    ],
+    [
+     "choose/primary/grade1/volume1/chinese/02-汉语拼音（一）/04-d t n l.html",
+     17
+    ],
+    [
+     "choose/primary/grade1/volume1/chinese/02-汉语拼音（一）/05-g k h.html",
+     18
+    ],
+    [
+     "choose/primary/grade1/volume1/chinese/02-汉语拼音（一）/06-j q x.html",
+     13
+    ],
+    [
+     "choose/primary/grade1/volume1/chinese/02-汉语拼音（一）/07-z c s.html",
+     13
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume1 chinese",
+   "where": [
+    [
+     "choose/primary/grade1/volume1/chinese/02-汉语拼音（一）/07-z c s.html",
+     14
+    ],
+    [
+     "choose/primary/grade1/volume1/chinese/02-汉语拼音（一）/08-zh ch sh r.html",
+     6
+    ],
+    [
+     "choose/primary/grade1/volume1/chinese/03-汉语拼音（二）/12-an en in un ün.html",
+     8
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume1 chinese",
+   "where": [
+    [
+     "choose/primary/grade1/volume1/chinese/03-汉语拼音（二）/09-ai ei ui.html",
+     14
+    ],
+    [
+     "choose/primary/grade1/volume1/chinese/03-汉语拼音（二）/10-ao ou iu.html",
+     15
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume1 chinese",
+   "where": [
+    [
+     "choose/primary/grade1/volume1/chinese/04-课文（一）/02-小小的船.html",
+     13
+    ],
+    [
+     "choose/primary/grade1/volume1/chinese/07-课文（三）/11-项链.html",
+     14
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume1 chinese",
+   "where": [
+    [
+     "choose/primary/grade1/volume1/chinese/05-识字（二）/07-大小多少.html",
+     11
+    ],
+    [
+     "choose/primary/grade1/volume1/chinese/07-课文（三）/10-大还是小.html",
+     11
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume1 chinese",
+   "where": [
+    [
+     "choose/primary/grade1/volume1/chinese/05-识字（二）/07-大小多少.html",
+     12
+    ],
+    [
+     "choose/primary/grade1/volume1/chinese/08-课文（四）/13-乌鸦喝水.html",
+     15
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade1/volume1/math/01-5以内数的认识和加减法/02-1~5的认识.html",
+     1
+    ],
+    [
+     "choose/primary/grade1/volume1/math/01-5以内数的认识和加减法/03-比大小与第几.html",
+     9
+    ],
+    [
+     "choose/primary/grade1/volume1/math/02-6~10的认识和加减法/09-10的认识与加减法.html",
+     4
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade1/volume1/math/01-5以内数的认识和加减法/02-1~5的认识.html",
+     2
+    ],
+    [
+     "choose/primary/grade1/volume1/math/01-5以内数的认识和加减法/03-比大小与第几.html",
+     8
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade1/volume1/math/01-5以内数的认识和加减法/02-1~5的认识.html",
+     3
+    ],
+    [
+     "choose/primary/grade1/volume1/math/01-5以内数的认识和加减法/03-比大小与第几.html",
+     5
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade1/volume1/math/01-5以内数的认识和加减法/02-1~5的认识.html",
+     5
+    ],
+    [
+     "choose/primary/grade1/volume1/math/01-5以内数的认识和加减法/03-比大小与第几.html",
+     10
+    ],
+    [
+     "choose/primary/grade1/volume1/math/02-6~10的认识和加减法/08-8和9的认识与加减法.html",
+     4
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade1/volume1/math/01-5以内数的认识和加减法/02-1~5的认识.html",
+     6
+    ],
+    [
+     "choose/primary/grade1/volume1/math/01-5以内数的认识和加减法/03-比大小与第几.html",
+     7
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade1/volume1/math/01-5以内数的认识和加减法/02-1~5的认识.html",
+     7
+    ],
+    [
+     "choose/primary/grade1/volume1/math/02-6~10的认识和加减法/07-6和7的认识与加减法.html",
+     3
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade1/volume1/math/01-5以内数的认识和加减法/02-1~5的认识.html",
+     8
+    ],
+    [
+     "choose/primary/grade1/volume1/math/01-5以内数的认识和加减法/03-比大小与第几.html",
+     1
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade1/volume1/math/01-5以内数的认识和加减法/02-1~5的认识.html",
+     11
+    ],
+    [
+     "choose/primary/grade1/volume1/math/01-5以内数的认识和加减法/03-比大小与第几.html",
+     2
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade1/volume1/math/01-5以内数的认识和加减法/02-1~5的认识.html",
+     15
+    ],
+    [
+     "choose/primary/grade1/volume1/math/01-5以内数的认识和加减法/03-比大小与第几.html",
+     6
+    ],
+    [
+     "choose/primary/grade1/volume1/math/02-6~10的认识和加减法/08-8和9的认识与加减法.html",
+     8
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade1/volume1/math/01-5以内数的认识和加减法/02-1~5的认识.html",
+     16
+    ],
+    [
+     "choose/primary/grade1/volume1/math/01-5以内数的认识和加减法/03-比大小与第几.html",
+     12
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade1/volume1/math/01-5以内数的认识和加减法/02-1~5的认识.html",
+     18
+    ],
+    [
+     "choose/primary/grade1/volume1/math/02-6~10的认识和加减法/09-10的认识与加减法.html",
+     2
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade1/volume1/math/01-5以内数的认识和加减法/02-1~5的认识.html",
+     21
+    ],
+    [
+     "choose/primary/grade1/volume1/math/01-5以内数的认识和加减法/03-比大小与第几.html",
+     4
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade1/volume1/math/01-5以内数的认识和加减法/02-1~5的认识.html",
+     22
+    ],
+    [
+     "choose/primary/grade1/volume1/math/01-5以内数的认识和加减法/03-比大小与第几.html",
+     3
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade1/volume1/math/01-5以内数的认识和加减法/03-比大小与第几.html",
+     11
+    ],
+    [
+     "choose/primary/grade1/volume1/math/02-6~10的认识和加减法/07-6和7的认识与加减法.html",
+     4
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade1/volume1/math/01-5以内数的认识和加减法/05-5以内的加法.html",
+     9
+    ],
+    [
+     "choose/primary/grade1/volume1/math/06-复习与关联/17-复习与关联（20以内的数与加减法）.html",
+     3
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade1/volume1/math/01-5以内数的认识和加减法/05-5以内的加法.html",
+     11
+    ],
+    [
+     "choose/primary/grade1/volume1/math/02-6~10的认识和加减法/07-6和7的认识与加减法.html",
+     10
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade1/volume1/math/01-5以内数的认识和加减法/05-5以内的加法.html",
+     17
+    ],
+    [
+     "choose/primary/grade1/volume1/math/02-6~10的认识和加减法/08-8和9的认识与加减法.html",
+     15
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade1/volume1/math/01-5以内数的认识和加减法/06-5以内的减法（含 0）.html",
+     1
+    ],
+    [
+     "choose/primary/grade1/volume1/math/02-6~10的认识和加减法/07-6和7的认识与加减法.html",
+     21
+    ],
+    [
+     "choose/primary/grade1/volume1/math/02-6~10的认识和加减法/08-8和9的认识与加减法.html",
+     17
+    ],
+    [
+     "choose/primary/grade1/volume1/math/06-复习与关联/17-复习与关联（20以内的数与加减法）.html",
+     8
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade1/volume1/math/01-5以内数的认识和加减法/06-5以内的减法（含 0）.html",
+     7
+    ],
+    [
+     "choose/primary/grade1/volume1/math/02-6~10的认识和加减法/08-8和9的认识与加减法.html",
+     20
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade1/volume1/math/01-5以内数的认识和加减法/06-5以内的减法（含 0）.html",
+     10
+    ],
+    [
+     "choose/primary/grade1/volume1/math/02-6~10的认识和加减法/07-6和7的认识与加减法.html",
+     22
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade1/volume1/math/01-5以内数的认识和加减法/06-5以内的减法（含 0）.html",
+     14
+    ],
+    [
+     "choose/primary/grade1/volume1/math/02-6~10的认识和加减法/08-8和9的认识与加减法.html",
+     22
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade1/volume1/math/01-5以内数的认识和加减法/06-5以内的减法（含 0）.html",
+     15
+    ],
+    [
+     "choose/primary/grade1/volume1/math/02-6~10的认识和加减法/08-8和9的认识与加减法.html",
+     23
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade1/volume1/math/01-5以内数的认识和加减法/06-5以内的减法（含 0）.html",
+     16
+    ],
+    [
+     "choose/primary/grade1/volume1/math/02-6~10的认识和加减法/07-6和7的认识与加减法.html",
+     23
+    ],
+    [
+     "choose/primary/grade1/volume1/math/02-6~10的认识和加减法/08-8和9的认识与加减法.html",
+     21
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade1/volume1/math/01-5以内数的认识和加减法/06-5以内的减法（含 0）.html",
+     18
+    ],
+    [
+     "choose/primary/grade1/volume1/math/02-6~10的认识和加减法/08-8和9的认识与加减法.html",
+     24
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade1/volume1/math/01-5以内数的认识和加减法/06-5以内的减法（含 0）.html",
+     22
+    ],
+    [
+     "choose/primary/grade1/volume1/math/02-6~10的认识和加减法/08-8和9的认识与加减法.html",
+     19
+    ],
+    [
+     "choose/primary/grade1/volume1/math/02-6~10的认识和加减法/09-10的认识与加减法.html",
+     20
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade1/volume1/math/01-5以内数的认识和加减法/06-5以内的减法（含 0）.html",
+     23
+    ],
+    [
+     "choose/primary/grade1/volume1/math/02-6~10的认识和加减法/09-10的认识与加减法.html",
+     18
+    ],
+    [
+     "choose/primary/grade1/volume1/math/06-复习与关联/17-复习与关联（20以内的数与加减法）.html",
+     11
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade1/volume1/math/02-6~10的认识和加减法/07-6和7的认识与加减法.html",
+     1
+    ],
+    [
+     "choose/primary/grade1/volume1/math/02-6~10的认识和加减法/08-8和9的认识与加减法.html",
+     1
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade1/volume1/math/02-6~10的认识和加减法/07-6和7的认识与加减法.html",
+     2
+    ],
+    [
+     "choose/primary/grade1/volume1/math/02-6~10的认识和加减法/08-8和9的认识与加减法.html",
+     7
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade1/volume1/math/02-6~10的认识和加减法/07-6和7的认识与加减法.html",
+     5
+    ],
+    [
+     "choose/primary/grade1/volume1/math/02-6~10的认识和加减法/09-10的认识与加减法.html",
+     8
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade1/volume1/math/02-6~10的认识和加减法/07-6和7的认识与加减法.html",
+     11
+    ],
+    [
+     "choose/primary/grade1/volume1/math/02-6~10的认识和加减法/08-8和9的认识与加减法.html",
+     12
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade1/volume1/math/02-6~10的认识和加减法/08-8和9的认识与加减法.html",
+     11
+    ],
+    [
+     "choose/primary/grade1/volume1/math/02-6~10的认识和加减法/09-10的认识与加减法.html",
+     15
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade1/volume1/math/02-6~10的认识和加减法/08-8和9的认识与加减法.html",
+     18
+    ],
+    [
+     "choose/primary/grade1/volume1/math/02-6~10的认识和加减法/09-10的认识与加减法.html",
+     23
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade1/volume1/math/05-20以内的进位加法/14-9加几.html",
+     24
+    ],
+    [
+     "choose/primary/grade1/volume1/math/06-复习与关联/17-复习与关联（20以内的数与加减法）.html",
+     16
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade1/volume1/math/05-20以内的进位加法/15-8、7、6加几.html",
+     1
+    ],
+    [
+     "choose/primary/grade1/volume1/math/06-复习与关联/17-复习与关联（20以内的数与加减法）.html",
+     13
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade1/volume1/math/05-20以内的进位加法/15-8、7、6加几.html",
+     11
+    ],
+    [
+     "choose/primary/grade1/volume1/math/06-复习与关联/17-复习与关联（20以内的数与加减法）.html",
+     15
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade1/volume1/math/05-20以内的进位加法/15-8、7、6加几.html",
+     20
+    ],
+    [
+     "choose/primary/grade1/volume1/math/06-复习与关联/17-复习与关联（20以内的数与加减法）.html",
+     17
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume2 chinese",
+   "where": [
+    [
+     "choose/primary/grade1/volume2/chinese/01-识字（一）/01-春夏秋冬.html",
+     7
+    ],
+    [
+     "choose/primary/grade1/volume2/chinese/04-课文（三）/08-静夜思.html",
+     7
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume2 chinese",
+   "where": [
+    [
+     "choose/primary/grade1/volume2/chinese/01-识字（一）/02-姓氏歌.html",
+     19
+    ],
+    [
+     "choose/primary/grade1/volume2/chinese/01-识字（一）/03-小青蛙.html",
+     18
+    ],
+    [
+     "choose/primary/grade1/volume2/chinese/01-识字（一）/04-猜字谜.html",
+     18
+    ],
+    [
+     "choose/primary/grade1/volume2/chinese/02-课文（一）/01-吃水不忘挖井人.html",
+     14
+    ],
+    [
+     "choose/primary/grade1/volume2/chinese/02-课文（一）/02-我多想去看看.html",
+     15
+    ],
+    [
+     "choose/primary/grade1/volume2/chinese/02-课文（一）/03-一个接一个.html",
+     12
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume2 chinese",
+   "where": [
+    [
+     "choose/primary/grade1/volume2/chinese/02-课文（一）/01-吃水不忘挖井人.html",
+     13
+    ],
+    [
+     "choose/primary/grade1/volume2/chinese/02-课文（一）/02-我多想去看看.html",
+     12
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume2 chinese",
+   "where": [
+    [
+     "choose/primary/grade1/volume2/chinese/02-课文（一）/01-吃水不忘挖井人.html",
+     19
+    ],
+    [
+     "choose/primary/grade1/volume2/chinese/03-课文（二）/05-小公鸡和小鸭子.html",
+     9
+    ],
+    [
+     "choose/primary/grade1/volume2/chinese/03-课文（二）/06-树和喜鹊.html",
+     16
+    ],
+    [
+     "choose/primary/grade1/volume2/chinese/07-课文（五）/16-一分钟.html",
+     7
+    ],
+    [
+     "choose/primary/grade1/volume2/chinese/07-课文（五）/18-小猴子下山.html",
+     8
+    ],
+    [
+     "choose/primary/grade1/volume2/chinese/08-课文（六）/19-棉花姑娘.html",
+     8
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume2 chinese",
+   "where": [
+    [
+     "choose/primary/grade1/volume2/chinese/03-课文（二）/05-小公鸡和小鸭子.html",
+     10
+    ],
+    [
+     "choose/primary/grade1/volume2/chinese/06-课文（四）/14-要下雨了.html",
+     10
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume2 chinese",
+   "where": [
+    [
+     "choose/primary/grade1/volume2/chinese/03-课文（二）/07-怎么都快乐.html",
+     9
+    ],
+    [
+     "choose/primary/grade1/volume2/chinese/05-识字（二）/07-操场上.html",
+     4
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume2 math",
+   "where": [
+    [
+     "choose/primary/grade1/volume2/math/03-100以内数的认识/07-数数与数的组成.html",
+     6
+    ],
+    [
+     "choose/primary/grade1/volume2/math/08-复习与关联/20-复习与关联（100以内的数与加减法）.html",
+     1
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume2 math",
+   "where": [
+    [
+     "choose/primary/grade1/volume2/math/03-100以内数的认识/07-数数与数的组成.html",
+     11
+    ],
+    [
+     "choose/primary/grade1/volume2/math/03-100以内数的认识/08-读数与写数.html",
+     13
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume2 math",
+   "where": [
+    [
+     "choose/primary/grade1/volume2/math/03-100以内数的认识/07-数数与数的组成.html",
+     19
+    ],
+    [
+     "choose/primary/grade1/volume2/math/08-复习与关联/20-复习与关联（100以内的数与加减法）.html",
+     4
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume2 math",
+   "where": [
+    [
+     "choose/primary/grade1/volume2/math/04-100以内的口算加、减法/11-整十数加、减整十数.html",
+     19
+    ],
+    [
+     "choose/primary/grade1/volume2/math/08-复习与关联/20-复习与关联（100以内的数与加减法）.html",
+     12
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade1 volume2 math",
+   "where": [
+    [
+     "choose/primary/grade1/volume2/math/04-100以内的口算加、减法/13-两位数减一位数、整十数.html",
+     8
+    ],
+    [
+     "choose/primary/grade1/volume2/math/08-复习与关联/20-复习与关联（100以内的数与加减法）.html",
+     15
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume1 chinese",
+   "where": [
+    [
+     "choose/primary/grade2/volume1/chinese/01-阅读/01-小蝌蚪找妈妈.html",
+     19
+    ],
+    [
+     "choose/primary/grade2/volume1/chinese/03-阅读/04-彩虹.html",
+     19
+    ],
+    [
+     "choose/primary/grade2/volume1/chinese/04-阅读/09-日月潭.html",
+     20
+    ],
+    [
+     "choose/primary/grade2/volume1/chinese/06-阅读/14-八角楼上.html",
+     20
+    ],
+    [
+     "choose/primary/grade2/volume1/chinese/06-阅读/15-朱德的扁担.html",
+     20
+    ],
+    [
+     "choose/primary/grade2/volume1/chinese/07-阅读/20-雪孩子.html",
+     19
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume1 chinese",
+   "where": [
+    [
+     "choose/primary/grade2/volume1/chinese/04-阅读/08-黄山奇石.html",
+     17
+    ],
+    [
+     "choose/primary/grade2/volume1/chinese/05-阅读/13-我要的是葫芦.html",
+     20
+    ],
+    [
+     "choose/primary/grade2/volume1/chinese/06-阅读/14-八角楼上.html",
+     17
+    ],
+    [
+     "choose/primary/grade2/volume1/chinese/06-阅读/15-朱德的扁担.html",
+     16
+    ],
+    [
+     "choose/primary/grade2/volume1/chinese/06-阅读/17-刘胡兰.html",
+     17
+    ],
+    [
+     "choose/primary/grade2/volume1/chinese/07-阅读/19-雾在哪里.html",
+     20
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume1 chinese",
+   "where": [
+    [
+     "choose/primary/grade2/volume1/chinese/05-阅读/11-坐井观天.html",
+     14
+    ],
+    [
+     "choose/primary/grade2/volume1/chinese/05-阅读/12-寒号鸟.html",
+     14
+    ],
+    [
+     "choose/primary/grade2/volume1/chinese/05-阅读/13-我要的是葫芦.html",
+     13
+    ],
+    [
+     "choose/primary/grade2/volume1/chinese/07-阅读/20-雪孩子.html",
+     17
+    ],
+    [
+     "choose/primary/grade2/volume1/chinese/08-阅读/22-纸船和风筝.html",
+     18
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume1 chinese",
+   "where": [
+    [
+     "choose/primary/grade2/volume1/chinese/06-阅读/14-八角楼上.html",
+     18
+    ],
+    [
+     "choose/primary/grade2/volume1/chinese/08-阅读/21-称赞.html",
+     18
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume1/math/02-1~6的表内乘法/02-5的乘法口诀.html",
+     7
+    ],
+    [
+     "choose/primary/grade2/volume1/math/06-复习与关联/01-数与运算.html",
+     6
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume1/math/02-1~6的表内乘法/03-2、3、4的乘法口诀.html",
+     18
+    ],
+    [
+     "choose/primary/grade2/volume1/math/02-1~6的表内乘法/05-6的乘法口诀.html",
+     16
+    ],
+    [
+     "choose/primary/grade2/volume1/math/02-1~6的表内乘法/08-整理和复习.html",
+     14
+    ],
+    [
+     "choose/primary/grade2/volume1/math/05-7~9的表内乘、除法/01-7的乘法口诀.html",
+     21
+    ],
+    [
+     "choose/primary/grade2/volume1/math/05-7~9的表内乘、除法/02-8的乘法口诀.html",
+     21
+    ],
+    [
+     "choose/primary/grade2/volume1/math/05-7~9的表内乘、除法/03-9的乘法口诀.html",
+     21
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume1/math/02-1~6的表内乘法/05-6的乘法口诀.html",
+     7
+    ],
+    [
+     "choose/primary/grade2/volume1/math/06-复习与关联/01-数与运算.html",
+     3
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume1/math/02-1~6的表内乘法/08-整理和复习.html",
+     1
+    ],
+    [
+     "choose/primary/grade2/volume1/math/05-7~9的表内乘、除法/07-整理和复习（表内乘法）.html",
+     17
+    ],
+    [
+     "choose/primary/grade2/volume1/math/06-复习与关联/01-数与运算.html",
+     1
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume1/math/02-1~6的表内乘法/08-整理和复习.html",
+     3
+    ],
+    [
+     "choose/primary/grade2/volume1/math/05-7~9的表内乘、除法/07-整理和复习（表内乘法）.html",
+     7
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume1/math/02-1~6的表内乘法/08-整理和复习.html",
+     5
+    ],
+    [
+     "choose/primary/grade2/volume1/math/05-7~9的表内乘、除法/07-整理和复习（表内乘法）.html",
+     9
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume1/math/03-1~6的表内除法/01-平均分.html",
+     5
+    ],
+    [
+     "choose/primary/grade2/volume1/math/03-1~6的表内除法/04-除法的基本应用.html",
+     13
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume1/math/03-1~6的表内除法/01-平均分.html",
+     6
+    ],
+    [
+     "choose/primary/grade2/volume1/math/03-1~6的表内除法/04-除法的基本应用.html",
+     20
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume1/math/03-1~6的表内除法/01-平均分.html",
+     7
+    ],
+    [
+     "choose/primary/grade2/volume1/math/03-1~6的表内除法/04-除法的基本应用.html",
+     15
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume1/math/03-1~6的表内除法/01-平均分.html",
+     8
+    ],
+    [
+     "choose/primary/grade2/volume1/math/03-1~6的表内除法/04-除法的基本应用.html",
+     12
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume1/math/03-1~6的表内除法/01-平均分.html",
+     14
+    ],
+    [
+     "choose/primary/grade2/volume1/math/03-1~6的表内除法/04-除法的基本应用.html",
+     14
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume1/math/03-1~6的表内除法/01-平均分.html",
+     15
+    ],
+    [
+     "choose/primary/grade2/volume1/math/03-1~6的表内除法/04-除法的基本应用.html",
+     16
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume1/math/03-1~6的表内除法/03-用2~6的乘法口诀求商.html",
+     2
+    ],
+    [
+     "choose/primary/grade2/volume1/math/03-1~6的表内除法/05-整理和复习.html",
+     16
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume1/math/03-1~6的表内除法/03-用2~6的乘法口诀求商.html",
+     3
+    ],
+    [
+     "choose/primary/grade2/volume1/math/06-复习与关联/01-数与运算.html",
+     20
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume1/math/03-1~6的表内除法/03-用2~6的乘法口诀求商.html",
+     4
+    ],
+    [
+     "choose/primary/grade2/volume1/math/03-1~6的表内除法/05-整理和复习.html",
+     2
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume1/math/03-1~6的表内除法/03-用2~6的乘法口诀求商.html",
+     5
+    ],
+    [
+     "choose/primary/grade2/volume1/math/06-复习与关联/01-数与运算.html",
+     17
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume1/math/03-1~6的表内除法/03-用2~6的乘法口诀求商.html",
+     9
+    ],
+    [
+     "choose/primary/grade2/volume1/math/05-7~9的表内乘、除法/04-用7、8的乘法口诀求商.html",
+     10
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume1/math/03-1~6的表内除法/03-用2~6的乘法口诀求商.html",
+     10
+    ],
+    [
+     "choose/primary/grade2/volume1/math/05-7~9的表内乘、除法/05-用9的乘法口诀求商.html",
+     14
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume1/math/03-1~6的表内除法/03-用2~6的乘法口诀求商.html",
+     14
+    ],
+    [
+     "choose/primary/grade2/volume1/math/06-复习与关联/01-数与运算.html",
+     12
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume1/math/03-1~6的表内除法/03-用2~6的乘法口诀求商.html",
+     15
+    ],
+    [
+     "choose/primary/grade2/volume1/math/05-7~9的表内乘、除法/05-用9的乘法口诀求商.html",
+     5
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume1/math/03-1~6的表内除法/05-整理和复习.html",
+     4
+    ],
+    [
+     "choose/primary/grade2/volume1/math/06-复习与关联/01-数与运算.html",
+     11
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume1/math/03-1~6的表内除法/05-整理和复习.html",
+     8
+    ],
+    [
+     "choose/primary/grade2/volume1/math/06-复习与关联/01-数与运算.html",
+     16
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume1/math/03-1~6的表内除法/05-整理和复习.html",
+     10
+    ],
+    [
+     "choose/primary/grade2/volume1/math/05-7~9的表内乘、除法/04-用7、8的乘法口诀求商.html",
+     11
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume1/math/03-1~6的表内除法/05-整理和复习.html",
+     14
+    ],
+    [
+     "choose/primary/grade2/volume1/math/05-7~9的表内乘、除法/04-用7、8的乘法口诀求商.html",
+     7
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume1/math/03-1~6的表内除法/05-整理和复习.html",
+     15
+    ],
+    [
+     "choose/primary/grade2/volume1/math/06-复习与关联/01-数与运算.html",
+     19
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume1/math/04-厘米和米/02-认识米及用米量.html",
+     1
+    ],
+    [
+     "choose/primary/grade2/volume1/math/06-复习与关联/03-图形与测量.html",
+     2
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume1/math/04-厘米和米/02-认识米及用米量.html",
+     25
+    ],
+    [
+     "choose/primary/grade2/volume1/math/04-校园小导游（综合实践）/01-认识东南西北.html",
+     19
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume1/math/04-厘米和米/03-认识线段.html",
+     1
+    ],
+    [
+     "choose/primary/grade2/volume1/math/06-复习与关联/03-图形与测量.html",
+     1
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume1/math/05-7~9的表内乘、除法/01-7的乘法口诀.html",
+     1
+    ],
+    [
+     "choose/primary/grade2/volume1/math/05-7~9的表内乘、除法/07-整理和复习（表内乘法）.html",
+     16
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume1/math/05-7~9的表内乘、除法/01-7的乘法口诀.html",
+     7
+    ],
+    [
+     "choose/primary/grade2/volume1/math/05-7~9的表内乘、除法/07-整理和复习（表内乘法）.html",
+     6
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume1/math/05-7~9的表内乘、除法/02-8的乘法口诀.html",
+     3
+    ],
+    [
+     "choose/primary/grade2/volume1/math/05-7~9的表内乘、除法/07-整理和复习（表内乘法）.html",
+     19
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume1/math/05-7~9的表内乘、除法/02-8的乘法口诀.html",
+     5
+    ],
+    [
+     "choose/primary/grade2/volume1/math/05-7~9的表内乘、除法/07-整理和复习（表内乘法）.html",
+     1
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume1/math/05-7~9的表内乘、除法/03-9的乘法口诀.html",
+     4
+    ],
+    [
+     "choose/primary/grade2/volume1/math/05-7~9的表内乘、除法/07-整理和复习（表内乘法）.html",
+     18
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume1/math/05-7~9的表内乘、除法/04-用7、8的乘法口诀求商.html",
+     4
+    ],
+    [
+     "choose/primary/grade2/volume1/math/06-复习与关联/01-数与运算.html",
+     13
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume1/math/05-7~9的表内乘、除法/04-用7、8的乘法口诀求商.html",
+     6
+    ],
+    [
+     "choose/primary/grade2/volume1/math/06-复习与关联/01-数与运算.html",
+     15
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume1/math/05-7~9的表内乘、除法/04-用7、8的乘法口诀求商.html",
+     9
+    ],
+    [
+     "choose/primary/grade2/volume1/math/05-7~9的表内乘、除法/05-用9的乘法口诀求商.html",
+     13
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume1/math/05-7~9的表内乘、除法/04-用7、8的乘法口诀求商.html",
+     23
+    ],
+    [
+     "choose/primary/grade2/volume1/math/05-7~9的表内乘、除法/05-用9的乘法口诀求商.html",
+     26
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume1/math/05-7~9的表内乘、除法/04-用7、8的乘法口诀求商.html",
+     26
+    ],
+    [
+     "choose/primary/grade2/volume1/math/05-7~9的表内乘、除法/05-用9的乘法口诀求商.html",
+     21
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume1/math/05-7~9的表内乘、除法/04-用7、8的乘法口诀求商.html",
+     31
+    ],
+    [
+     "choose/primary/grade2/volume1/math/05-7~9的表内乘、除法/05-用9的乘法口诀求商.html",
+     31
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume1/math/05-7~9的表内乘、除法/04-用7、8的乘法口诀求商.html",
+     35
+    ],
+    [
+     "choose/primary/grade2/volume1/math/05-7~9的表内乘、除法/05-用9的乘法口诀求商.html",
+     25
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume1/math/05-7~9的表内乘、除法/07-整理和复习（表内乘法）.html",
+     4
+    ],
+    [
+     "choose/primary/grade2/volume1/math/06-复习与关联/01-数与运算.html",
+     8
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume2 chinese",
+   "where": [
+    [
+     "choose/primary/grade2/volume2/chinese/01-阅读/03-开满鲜花的小路.html",
+     16
+    ],
+    [
+     "choose/primary/grade2/volume2/chinese/01-阅读/04-邓小平爷爷植树.html",
+     18
+    ],
+    [
+     "choose/primary/grade2/volume2/chinese/03-识字/03-“贝”的故事.html",
+     18
+    ],
+    [
+     "choose/primary/grade2/volume2/chinese/04-阅读/08-彩色的梦.html",
+     18
+    ],
+    [
+     "choose/primary/grade2/volume2/chinese/04-阅读/10-枫树上的喜鹊.html",
+     18
+    ],
+    [
+     "choose/primary/grade2/volume2/chinese/06-阅读/15-雷雨.html",
+     18
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume2 chinese",
+   "where": [
+    [
+     "choose/primary/grade2/volume2/chinese/02-阅读/07-我不是最弱小的.html",
+     6
+    ],
+    [
+     "choose/primary/grade2/volume2/chinese/05-阅读/13-小马过河.html",
+     10
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume2 chinese",
+   "where": [
+    [
+     "choose/primary/grade2/volume2/chinese/03-识字/01-神州谣.html",
+     19
+    ],
+    [
+     "choose/primary/grade2/volume2/chinese/05-阅读/13-小马过河.html",
+     20
+    ],
+    [
+     "choose/primary/grade2/volume2/chinese/07-阅读/18-大象的耳朵.html",
+     20
+    ],
+    [
+     "choose/primary/grade2/volume2/chinese/08-阅读/23-黄帝的传说.html",
+     20
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume2 chinese",
+   "where": [
+    [
+     "choose/primary/grade2/volume2/chinese/04-阅读/08-彩色的梦.html",
+     20
+    ],
+    [
+     "choose/primary/grade2/volume2/chinese/04-阅读/09-一匹出色的马.html",
+     19
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume2 chinese",
+   "where": [
+    [
+     "choose/primary/grade2/volume2/chinese/04-阅读/10-枫树上的喜鹊.html",
+     19
+    ],
+    [
+     "choose/primary/grade2/volume2/chinese/05-阅读/13-小马过河.html",
+     19
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume2 chinese",
+   "where": [
+    [
+     "choose/primary/grade2/volume2/chinese/06-阅读/16-要是你在野外迷了路.html",
+     20
+    ],
+    [
+     "choose/primary/grade2/volume2/chinese/08-阅读/22-羿射九日.html",
+     20
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume2 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume2/math/01-时间在哪里（综合实践）/01-时间在哪里.html",
+     7
+    ],
+    [
+     "choose/primary/grade2/volume2/math/05-复习与关联/03-图形与时间.html",
+     6
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume2 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume2/math/01-时间在哪里（综合实践）/01-时间在哪里.html",
+     8
+    ],
+    [
+     "choose/primary/grade2/volume2/math/05-复习与关联/03-图形与时间.html",
+     5
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume2 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume2/math/01-时间在哪里（综合实践）/01-时间在哪里.html",
+     9
+    ],
+    [
+     "choose/primary/grade2/volume2/math/05-复习与关联/03-图形与时间.html",
+     1
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume2 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume2/math/01-时间在哪里（综合实践）/01-时间在哪里.html",
+     31
+    ],
+    [
+     "choose/primary/grade2/volume2/math/05-复习与关联/03-图形与时间.html",
+     21
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume2 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume2/math/01-时间在哪里（综合实践）/01-时间在哪里.html",
+     32
+    ],
+    [
+     "choose/primary/grade2/volume2/math/02-数量间的乘除关系/01-倍的认识.html",
+     15
+    ],
+    [
+     "choose/primary/grade2/volume2/math/02-数量间的乘除关系/02-求一个数的几倍是多少.html",
+     26
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume2 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume2/math/01-有余数的除法/03-解决问题.html",
+     4
+    ],
+    [
+     "choose/primary/grade2/volume2/math/01-有余数的除法/04-整理和复习.html",
+     19
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume2 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume2/math/01-有余数的除法/04-整理和复习.html",
+     31
+    ],
+    [
+     "choose/primary/grade2/volume2/math/03-万以内数的认识/03-简单的加、减法.html",
+     27
+    ],
+    [
+     "choose/primary/grade2/volume2/math/04-万以内的加法和减法/01-加法.html",
+     29
+    ],
+    [
+     "choose/primary/grade2/volume2/math/04-万以内的加法和减法/02-减法.html",
+     28
+    ],
+    [
+     "choose/primary/grade2/volume2/math/04-万以内的加法和减法/04-整理和复习.html",
+     31
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume2 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume2/math/02-数量间的乘除关系/01-倍的认识.html",
+     5
+    ],
+    [
+     "choose/primary/grade2/volume2/math/02-数量间的乘除关系/03-整理和复习.html",
+     11
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume2 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume2/math/02-数量间的乘除关系/02-求一个数的几倍是多少.html",
+     3
+    ],
+    [
+     "choose/primary/grade2/volume2/math/02-数量间的乘除关系/03-整理和复习.html",
+     6
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume2 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume2/math/02-数量间的乘除关系/02-求一个数的几倍是多少.html",
+     4
+    ],
+    [
+     "choose/primary/grade2/volume2/math/02-数量间的乘除关系/03-整理和复习.html",
+     1
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume2 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume2/math/02-数量间的乘除关系/02-求一个数的几倍是多少.html",
+     11
+    ],
+    [
+     "choose/primary/grade2/volume2/math/02-数量间的乘除关系/03-整理和复习.html",
+     3
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume2 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume2/math/02-数量间的乘除关系/03-整理和复习.html",
+     36
+    ],
+    [
+     "choose/primary/grade2/volume2/math/05-复习与关联/01-数与运算.html",
+     28
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume2 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume2/math/03-万以内数的认识/02-10000以内数的认识.html",
+     19
+    ],
+    [
+     "choose/primary/grade2/volume2/math/05-复习与关联/01-数与运算.html",
+     15
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume2 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume2/math/03-万以内数的认识/03-简单的加、减法.html",
+     13
+    ],
+    [
+     "choose/primary/grade2/volume2/math/03-万以内数的认识/04-整理和复习.html",
+     19
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade2 volume2 math",
+   "where": [
+    [
+     "choose/primary/grade2/volume2/math/04-万以内的加法和减法/04-整理和复习.html",
+     24
+    ],
+    [
+     "choose/primary/grade2/volume2/math/05-复习与关联/01-数与运算.html",
+     18
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume1 chinese",
+   "where": [
+    [
+     "choose/primary/grade3/volume1/chinese/04-预测与想象/13-一块奶酪.html",
+     11
+    ],
+    [
+     "choose/primary/grade3/volume1/chinese/05-留心观察/14-搭船的鸟.html",
+     17
+    ],
+    [
+     "choose/primary/grade3/volume1/chinese/05-留心观察/15-金色的草地.html",
+     15
+    ],
+    [
+     "choose/primary/grade3/volume1/chinese/07-自然的乐章/22-读不完的大书.html",
+     12
+    ],
+    [
+     "choose/primary/grade3/volume1/chinese/08-美好品质/24-一定要争气.html",
+     19
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume1 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume1/english/01-Making friends 交朋友/01-核心词汇.html",
+     2
+    ],
+    [
+     "choose/primary/grade3/volume1/english/07-复习与检测/01-Revision 1（Units 1~3）.html",
+     1
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume1 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume1/english/01-Making friends 交朋友/01-核心词汇.html",
+     6
+    ],
+    [
+     "choose/primary/grade3/volume1/english/02-Different families 不同的家庭/01-核心词汇.html",
+     12
+    ],
+    [
+     "choose/primary/grade3/volume1/english/05-The colourful world 多彩世界/01-核心词汇.html",
+     17
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume1 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume1/english/01-Making friends 交朋友/01-核心词汇.html",
+     8
+    ],
+    [
+     "choose/primary/grade3/volume1/english/06-Useful numbers 有用的数字/01-核心词汇.html",
+     6
+    ],
+    [
+     "choose/primary/grade3/volume1/english/07-复习与检测/01-Revision 1（Units 1~3）.html",
+     8
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume1 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume1/english/01-Making friends 交朋友/01-核心词汇.html",
+     10
+    ],
+    [
+     "choose/primary/grade3/volume1/english/02-Different families 不同的家庭/01-核心词汇.html",
+     14
+    ],
+    [
+     "choose/primary/grade3/volume1/english/07-复习与检测/01-Revision 1（Units 1~3）.html",
+     5
+    ],
+    [
+     "choose/primary/grade3/volume1/english/07-复习与检测/02-Revision 2（Units 4~6）.html",
+     22
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume1 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume1/english/01-Making friends 交朋友/01-核心词汇.html",
+     12
+    ],
+    [
+     "choose/primary/grade3/volume1/english/02-Different families 不同的家庭/01-核心词汇.html",
+     1
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume1 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume1/english/01-Making friends 交朋友/01-核心词汇.html",
+     16
+    ],
+    [
+     "choose/primary/grade3/volume1/english/07-复习与检测/01-Revision 1（Units 1~3）.html",
+     17
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume1 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume1/english/01-Making friends 交朋友/01-核心词汇.html",
+     18
+    ],
+    [
+     "choose/primary/grade3/volume1/english/03-Amazing animals 神奇的动物/01-核心词汇.html",
+     7
+    ],
+    [
+     "choose/primary/grade3/volume1/english/05-The colourful world 多彩世界/01-核心词汇.html",
+     10
+    ],
+    [
+     "choose/primary/grade3/volume1/english/06-Useful numbers 有用的数字/01-核心词汇.html",
+     5
+    ],
+    [
+     "choose/primary/grade3/volume1/english/07-复习与检测/01-Revision 1（Units 1~3）.html",
+     14
+    ],
+    [
+     "choose/primary/grade3/volume1/english/07-复习与检测/02-Revision 2（Units 4~6）.html",
+     18
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume1 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume1/english/01-Making friends 交朋友/01-核心词汇.html",
+     20
+    ],
+    [
+     "choose/primary/grade3/volume1/english/03-Amazing animals 神奇的动物/01-核心词汇.html",
+     10
+    ],
+    [
+     "choose/primary/grade3/volume1/english/05-The colourful world 多彩世界/01-核心词汇.html",
+     6
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume1 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume1/english/01-Making friends 交朋友/01-核心词汇.html",
+     21
+    ],
+    [
+     "choose/primary/grade3/volume1/english/03-Amazing animals 神奇的动物/01-核心词汇.html",
+     21
+    ],
+    [
+     "choose/primary/grade3/volume1/english/06-Useful numbers 有用的数字/01-核心词汇.html",
+     16
+    ],
+    [
+     "choose/primary/grade3/volume1/english/07-复习与检测/02-Revision 2（Units 4~6）.html",
+     13
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume1 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume1/english/02-Different families 不同的家庭/01-核心词汇.html",
+     2
+    ],
+    [
+     "choose/primary/grade3/volume1/english/06-Useful numbers 有用的数字/01-核心词汇.html",
+     22
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume1 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume1/english/02-Different families 不同的家庭/01-核心词汇.html",
+     3
+    ],
+    [
+     "choose/primary/grade3/volume1/english/04-Plants around us 我们身边的植物/01-核心词汇.html",
+     10
+    ],
+    [
+     "choose/primary/grade3/volume1/english/06-Useful numbers 有用的数字/01-核心词汇.html",
+     9
+    ],
+    [
+     "choose/primary/grade3/volume1/english/07-复习与检测/01-Revision 1（Units 1~3）.html",
+     9
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume1 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume1/english/02-Different families 不同的家庭/01-核心词汇.html",
+     5
+    ],
+    [
+     "choose/primary/grade3/volume1/english/04-Plants around us 我们身边的植物/01-核心词汇.html",
+     14
+    ],
+    [
+     "choose/primary/grade3/volume1/english/07-复习与检测/02-Revision 2（Units 4~6）.html",
+     20
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume1 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume1/english/02-Different families 不同的家庭/01-核心词汇.html",
+     6
+    ],
+    [
+     "choose/primary/grade3/volume1/english/05-The colourful world 多彩世界/01-核心词汇.html",
+     12
+    ],
+    [
+     "choose/primary/grade3/volume1/english/07-复习与检测/01-Revision 1（Units 1~3）.html",
+     4
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume1 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume1/english/02-Different families 不同的家庭/01-核心词汇.html",
+     7
+    ],
+    [
+     "choose/primary/grade3/volume1/english/03-Amazing animals 神奇的动物/01-核心词汇.html",
+     11
+    ],
+    [
+     "choose/primary/grade3/volume1/english/07-复习与检测/02-Revision 2（Units 4~6）.html",
+     12
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume1 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume1/english/02-Different families 不同的家庭/01-核心词汇.html",
+     8
+    ],
+    [
+     "choose/primary/grade3/volume1/english/04-Plants around us 我们身边的植物/01-核心词汇.html",
+     1
+    ],
+    [
+     "choose/primary/grade3/volume1/english/05-The colourful world 多彩世界/01-核心词汇.html",
+     14
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume1 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume1/english/02-Different families 不同的家庭/01-核心词汇.html",
+     9
+    ],
+    [
+     "choose/primary/grade3/volume1/english/07-复习与检测/01-Revision 1（Units 1~3）.html",
+     15
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume1 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume1/english/02-Different families 不同的家庭/01-核心词汇.html",
+     17
+    ],
+    [
+     "choose/primary/grade3/volume1/english/03-Amazing animals 神奇的动物/01-核心词汇.html",
+     2
+    ],
+    [
+     "choose/primary/grade3/volume1/english/07-复习与检测/01-Revision 1（Units 1~3）.html",
+     16
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume1 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume1/english/02-Different families 不同的家庭/01-核心词汇.html",
+     19
+    ],
+    [
+     "choose/primary/grade3/volume1/english/07-复习与检测/01-Revision 1（Units 1~3）.html",
+     10
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume1 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume1/english/02-Different families 不同的家庭/01-核心词汇.html",
+     20
+    ],
+    [
+     "choose/primary/grade3/volume1/english/07-复习与检测/01-Revision 1（Units 1~3）.html",
+     20
+    ],
+    [
+     "choose/primary/grade3/volume1/english/07-复习与检测/02-Revision 2（Units 4~6）.html",
+     10
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume1 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume1/english/02-Different families 不同的家庭/03-综合运用.html",
+     10
+    ],
+    [
+     "choose/primary/grade3/volume1/english/04-Plants around us 我们身边的植物/03-综合运用.html",
+     8
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume1 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume1/english/03-Amazing animals 神奇的动物/01-核心词汇.html",
+     4
+    ],
+    [
+     "choose/primary/grade3/volume1/english/04-Plants around us 我们身边的植物/01-核心词汇.html",
+     19
+    ],
+    [
+     "choose/primary/grade3/volume1/english/05-The colourful world 多彩世界/01-核心词汇.html",
+     8
+    ],
+    [
+     "choose/primary/grade3/volume1/english/07-复习与检测/01-Revision 1（Units 1~3）.html",
+     22
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume1 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume1/english/03-Amazing animals 神奇的动物/01-核心词汇.html",
+     5
+    ],
+    [
+     "choose/primary/grade3/volume1/english/04-Plants around us 我们身边的植物/01-核心词汇.html",
+     3
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume1 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume1/english/03-Amazing animals 神奇的动物/01-核心词汇.html",
+     8
+    ],
+    [
+     "choose/primary/grade3/volume1/english/04-Plants around us 我们身边的植物/01-核心词汇.html",
+     21
+    ],
+    [
+     "choose/primary/grade3/volume1/english/05-The colourful world 多彩世界/01-核心词汇.html",
+     2
+    ],
+    [
+     "choose/primary/grade3/volume1/english/06-Useful numbers 有用的数字/01-核心词汇.html",
+     2
+    ],
+    [
+     "choose/primary/grade3/volume1/english/07-复习与检测/02-Revision 2（Units 4~6）.html",
+     19
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume1 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume1/english/03-Amazing animals 神奇的动物/01-核心词汇.html",
+     13
+    ],
+    [
+     "choose/primary/grade3/volume1/english/07-复习与检测/01-Revision 1（Units 1~3）.html",
+     18
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume1 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume1/english/03-Amazing animals 神奇的动物/01-核心词汇.html",
+     17
+    ],
+    [
+     "choose/primary/grade3/volume1/english/03-Amazing animals 神奇的动物/02-句型与对话.html",
+     6
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume1 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume1/english/03-Amazing animals 神奇的动物/03-综合运用.html",
+     20
+    ],
+    [
+     "choose/primary/grade3/volume1/english/04-Plants around us 我们身边的植物/03-综合运用.html",
+     20
+    ],
+    [
+     "choose/primary/grade3/volume1/english/05-The colourful world 多彩世界/03-综合运用.html",
+     19
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume1 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume1/english/04-Plants around us 我们身边的植物/01-核心词汇.html",
+     2
+    ],
+    [
+     "choose/primary/grade3/volume1/english/07-复习与检测/02-Revision 2（Units 4~6）.html",
+     15
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume1 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume1/english/04-Plants around us 我们身边的植物/01-核心词汇.html",
+     6
+    ],
+    [
+     "choose/primary/grade3/volume1/english/04-Plants around us 我们身边的植物/02-句型与对话.html",
+     19
+    ],
+    [
+     "choose/primary/grade3/volume1/english/05-The colourful world 多彩世界/01-核心词汇.html",
+     3
+    ],
+    [
+     "choose/primary/grade3/volume1/english/07-复习与检测/02-Revision 2（Units 4~6）.html",
+     11
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume1 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume1/english/04-Plants around us 我们身边的植物/01-核心词汇.html",
+     7
+    ],
+    [
+     "choose/primary/grade3/volume1/english/05-The colourful world 多彩世界/01-核心词汇.html",
+     13
+    ],
+    [
+     "choose/primary/grade3/volume1/english/06-Useful numbers 有用的数字/01-核心词汇.html",
+     11
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume1 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume1/english/04-Plants around us 我们身边的植物/01-核心词汇.html",
+     8
+    ],
+    [
+     "choose/primary/grade3/volume1/english/07-复习与检测/01-Revision 1（Units 1~3）.html",
+     12
+    ],
+    [
+     "choose/primary/grade3/volume1/english/07-复习与检测/02-Revision 2（Units 4~6）.html",
+     3
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume1 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume1/english/04-Plants around us 我们身边的植物/01-核心词汇.html",
+     13
+    ],
+    [
+     "choose/primary/grade3/volume1/english/05-The colourful world 多彩世界/01-核心词汇.html",
+     1
+    ],
+    [
+     "choose/primary/grade3/volume1/english/06-Useful numbers 有用的数字/01-核心词汇.html",
+     19
+    ],
+    [
+     "choose/primary/grade3/volume1/english/07-复习与检测/01-Revision 1（Units 1~3）.html",
+     7
+    ],
+    [
+     "choose/primary/grade3/volume1/english/07-复习与检测/02-Revision 2（Units 4~6）.html",
+     8
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume1 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume1/english/04-Plants around us 我们身边的植物/01-核心词汇.html",
+     16
+    ],
+    [
+     "choose/primary/grade3/volume1/english/07-复习与检测/02-Revision 2（Units 4~6）.html",
+     21
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume1 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume1/english/04-Plants around us 我们身边的植物/01-核心词汇.html",
+     20
+    ],
+    [
+     "choose/primary/grade3/volume1/english/05-The colourful world 多彩世界/01-核心词汇.html",
+     5
+    ],
+    [
+     "choose/primary/grade3/volume1/english/07-复习与检测/01-Revision 1（Units 1~3）.html",
+     21
+    ],
+    [
+     "choose/primary/grade3/volume1/english/07-复习与检测/02-Revision 2（Units 4~6）.html",
+     16
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume1 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume1/english/05-The colourful world 多彩世界/01-核心词汇.html",
+     9
+    ],
+    [
+     "choose/primary/grade3/volume1/english/07-复习与检测/02-Revision 2（Units 4~6）.html",
+     1
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume1 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume1/english/05-The colourful world 多彩世界/01-核心词汇.html",
+     11
+    ],
+    [
+     "choose/primary/grade3/volume1/english/05-The colourful world 多彩世界/02-句型与对话.html",
+     3
+    ],
+    [
+     "choose/primary/grade3/volume1/english/07-复习与检测/02-Revision 2（Units 4~6）.html",
+     7
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume1 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume1/english/06-Useful numbers 有用的数字/01-核心词汇.html",
+     10
+    ],
+    [
+     "choose/primary/grade3/volume1/english/07-复习与检测/02-Revision 2（Units 4~6）.html",
+     6
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume1 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume1/english/06-Useful numbers 有用的数字/01-核心词汇.html",
+     13
+    ],
+    [
+     "choose/primary/grade3/volume1/english/07-复习与检测/02-Revision 2（Units 4~6）.html",
+     17
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade3/volume1/math/03-毫米、分米和千米/01-毫米的认识.html",
+     3
+    ],
+    [
+     "choose/primary/grade3/volume1/math/03-毫米、分米和千米/02-分米的认识.html",
+     5
+    ],
+    [
+     "choose/primary/grade3/volume1/math/03-毫米、分米和千米/03-千米的认识.html",
+     14
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade3/volume1/math/03-毫米、分米和千米/01-毫米的认识.html",
+     4
+    ],
+    [
+     "choose/primary/grade3/volume1/math/03-毫米、分米和千米/02-分米的认识.html",
+     21
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade3/volume1/math/03-毫米、分米和千米/01-毫米的认识.html",
+     5
+    ],
+    [
+     "choose/primary/grade3/volume1/math/03-毫米、分米和千米/02-分米的认识.html",
+     1
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade3/volume1/math/03-毫米、分米和千米/01-毫米的认识.html",
+     10
+    ],
+    [
+     "choose/primary/grade3/volume1/math/03-毫米、分米和千米/02-分米的认识.html",
+     9
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade3/volume1/math/03-毫米、分米和千米/02-分米的认识.html",
+     4
+    ],
+    [
+     "choose/primary/grade3/volume1/math/03-毫米、分米和千米/03-千米的认识.html",
+     3
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade3/volume1/math/03-毫米、分米和千米/05-认识质量单位（吨）.html",
+     10
+    ],
+    [
+     "choose/primary/grade3/volume1/math/07-复习与关联/01-数与运算.html",
+     19
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade3/volume1/math/04-多位数乘一位数/01-口算乘法.html",
+     25
+    ],
+    [
+     "choose/primary/grade3/volume1/math/04-多位数乘一位数/02-笔算乘法（不进位与进位）.html",
+     21
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade3/volume1/math/04-多位数乘一位数/03-笔算乘法（连续进位）.html",
+     22
+    ],
+    [
+     "choose/primary/grade3/volume1/math/07-复习与关联/01-数与运算.html",
+     26
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume1 math",
+   "where": [
+    [
+     "choose/primary/grade3/volume1/math/07-复习与关联/02-数量关系.html",
+     5
+    ],
+    [
+     "choose/primary/grade3/volume1/math/07-复习与关联/04-数学广角：搭配问题.html",
+     6
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume2 chinese",
+   "where": [
+    [
+     "choose/primary/grade3/volume2/chinese/02-寓言故事/06-会摇尾巴的狼.html",
+     18
+    ],
+    [
+     "choose/primary/grade3/volume2/chinese/02-寓言故事/07-鹿角和鹿腿.html",
+     8
+    ],
+    [
+     "choose/primary/grade3/volume2/chinese/05-想象与创造/17-我变成了一棵树.html",
+     20
+    ],
+    [
+     "choose/primary/grade3/volume2/chinese/08-有趣的故事/26-漏.html",
+     22
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume2 chinese",
+   "where": [
+    [
+     "choose/primary/grade3/volume2/chinese/03-海底世界探秘/10-石蜂.html",
+     15
+    ],
+    [
+     "choose/primary/grade3/volume2/chinese/08-有趣的故事/25-慢性子裁缝和急性子顾客.html",
+     12
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume2 chinese",
+   "where": [
+    [
+     "choose/primary/grade3/volume2/chinese/06-童年趣事/19-肥皂泡.html",
+     22
+    ],
+    [
+     "choose/primary/grade3/volume2/chinese/06-童年趣事/20-灰雀.html",
+     14
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume2 chinese",
+   "where": [
+    [
+     "choose/primary/grade3/volume2/chinese/06-童年趣事/20-灰雀.html",
+     18
+    ],
+    [
+     "choose/primary/grade3/volume2/chinese/08-有趣的故事/27-枣核.html",
+     22
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume2 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume2/english/01-Meeting new people 结识新朋友/01-核心词汇.html",
+     3
+    ],
+    [
+     "choose/primary/grade3/volume2/english/01-Meeting new people 结识新朋友/02-句型与对话.html",
+     10
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume2 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume2/english/01-Meeting new people 结识新朋友/01-核心词汇.html",
+     5
+    ],
+    [
+     "choose/primary/grade3/volume2/english/02-Expressing yourself 表达自己/01-核心词汇.html",
+     4
+    ],
+    [
+     "choose/primary/grade3/volume2/english/04-Healthy food 健康食物/01-核心词汇.html",
+     1
+    ],
+    [
+     "choose/primary/grade3/volume2/english/05-Old toys 旧玩具/01-核心词汇.html",
+     5
+    ],
+    [
+     "choose/primary/grade3/volume2/english/06-Numbers in life 生活中的数字/01-核心词汇.html",
+     4
+    ],
+    [
+     "choose/primary/grade3/volume2/english/07-复习与检测/02-Revision 2（Units 4~6）.html",
+     16
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume2 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume2/english/01-Meeting new people 结识新朋友/01-核心词汇.html",
+     6
+    ],
+    [
+     "choose/primary/grade3/volume2/english/02-Expressing yourself 表达自己/01-核心词汇.html",
+     14
+    ],
+    [
+     "choose/primary/grade3/volume2/english/04-Healthy food 健康食物/01-核心词汇.html",
+     10
+    ],
+    [
+     "choose/primary/grade3/volume2/english/05-Old toys 旧玩具/01-核心词汇.html",
+     12
+    ],
+    [
+     "choose/primary/grade3/volume2/english/06-Numbers in life 生活中的数字/01-核心词汇.html",
+     14
+    ],
+    [
+     "choose/primary/grade3/volume2/english/07-复习与检测/01-Revision 1（Units 1~3）.html",
+     4
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume2 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume2/english/01-Meeting new people 结识新朋友/01-核心词汇.html",
+     7
+    ],
+    [
+     "choose/primary/grade3/volume2/english/05-Old toys 旧玩具/01-核心词汇.html",
+     4
+    ],
+    [
+     "choose/primary/grade3/volume2/english/07-复习与检测/02-Revision 2（Units 4~6）.html",
+     14
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume2 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume2/english/01-Meeting new people 结识新朋友/01-核心词汇.html",
+     8
+    ],
+    [
+     "choose/primary/grade3/volume2/english/01-Meeting new people 结识新朋友/02-句型与对话.html",
+     8
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume2 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume2/english/01-Meeting new people 结识新朋友/01-核心词汇.html",
+     11
+    ],
+    [
+     "choose/primary/grade3/volume2/english/01-Meeting new people 结识新朋友/02-句型与对话.html",
+     14
+    ],
+    [
+     "choose/primary/grade3/volume2/english/05-Old toys 旧玩具/01-核心词汇.html",
+     19
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume2 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume2/english/01-Meeting new people 结识新朋友/01-核心词汇.html",
+     12
+    ],
+    [
+     "choose/primary/grade3/volume2/english/03-Learning better 更好地学习/01-核心词汇.html",
+     3
+    ],
+    [
+     "choose/primary/grade3/volume2/english/04-Healthy food 健康食物/01-核心词汇.html",
+     7
+    ],
+    [
+     "choose/primary/grade3/volume2/english/05-Old toys 旧玩具/01-核心词汇.html",
+     22
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume2 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume2/english/01-Meeting new people 结识新朋友/01-核心词汇.html",
+     14
+    ],
+    [
+     "choose/primary/grade3/volume2/english/02-Expressing yourself 表达自己/01-核心词汇.html",
+     15
+    ],
+    [
+     "choose/primary/grade3/volume2/english/03-Learning better 更好地学习/01-核心词汇.html",
+     17
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume2 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume2/english/01-Meeting new people 结识新朋友/01-核心词汇.html",
+     15
+    ],
+    [
+     "choose/primary/grade3/volume2/english/02-Expressing yourself 表达自己/01-核心词汇.html",
+     18
+    ],
+    [
+     "choose/primary/grade3/volume2/english/04-Healthy food 健康食物/01-核心词汇.html",
+     20
+    ],
+    [
+     "choose/primary/grade3/volume2/english/05-Old toys 旧玩具/01-核心词汇.html",
+     17
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume2 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume2/english/01-Meeting new people 结识新朋友/01-核心词汇.html",
+     17
+    ],
+    [
+     "choose/primary/grade3/volume2/english/07-复习与检测/01-Revision 1（Units 1~3）.html",
+     22
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume2 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume2/english/01-Meeting new people 结识新朋友/01-核心词汇.html",
+     20
+    ],
+    [
+     "choose/primary/grade3/volume2/english/03-Learning better 更好地学习/01-核心词汇.html",
+     12
+    ],
+    [
+     "choose/primary/grade3/volume2/english/07-复习与检测/01-Revision 1（Units 1~3）.html",
+     20
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume2 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume2/english/01-Meeting new people 结识新朋友/02-句型与对话.html",
+     15
+    ],
+    [
+     "choose/primary/grade3/volume2/english/07-复习与检测/01-Revision 1（Units 1~3）.html",
+     6
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume2 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume2/english/01-Meeting new people 结识新朋友/02-句型与对话.html",
+     23
+    ],
+    [
+     "choose/primary/grade3/volume2/english/01-Meeting new people 结识新朋友/03-综合运用.html",
+     22
+    ],
+    [
+     "choose/primary/grade3/volume2/english/02-Expressing yourself 表达自己/02-句型与对话.html",
+     23
+    ],
+    [
+     "choose/primary/grade3/volume2/english/02-Expressing yourself 表达自己/03-综合运用.html",
+     21
+    ],
+    [
+     "choose/primary/grade3/volume2/english/03-Learning better 更好地学习/02-句型与对话.html",
+     23
+    ],
+    [
+     "choose/primary/grade3/volume2/english/03-Learning better 更好地学习/03-综合运用.html",
+     21
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume2 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume2/english/02-Expressing yourself 表达自己/01-核心词汇.html",
+     3
+    ],
+    [
+     "choose/primary/grade3/volume2/english/02-Expressing yourself 表达自己/02-句型与对话.html",
+     11
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume2 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume2/english/02-Expressing yourself 表达自己/01-核心词汇.html",
+     6
+    ],
+    [
+     "choose/primary/grade3/volume2/english/07-复习与检测/01-Revision 1（Units 1~3）.html",
+     18
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume2 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume2/english/02-Expressing yourself 表达自己/01-核心词汇.html",
+     8
+    ],
+    [
+     "choose/primary/grade3/volume2/english/03-Learning better 更好地学习/01-核心词汇.html",
+     14
+    ],
+    [
+     "choose/primary/grade3/volume2/english/04-Healthy food 健康食物/01-核心词汇.html",
+     9
+    ],
+    [
+     "choose/primary/grade3/volume2/english/07-复习与检测/01-Revision 1（Units 1~3）.html",
+     10
+    ],
+    [
+     "choose/primary/grade3/volume2/english/07-复习与检测/02-Revision 2（Units 4~6）.html",
+     18
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume2 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume2/english/02-Expressing yourself 表达自己/01-核心词汇.html",
+     10
+    ],
+    [
+     "choose/primary/grade3/volume2/english/07-复习与检测/01-Revision 1（Units 1~3）.html",
+     13
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume2 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume2/english/02-Expressing yourself 表达自己/01-核心词汇.html",
+     12
+    ],
+    [
+     "choose/primary/grade3/volume2/english/03-Learning better 更好地学习/01-核心词汇.html",
+     7
+    ],
+    [
+     "choose/primary/grade3/volume2/english/04-Healthy food 健康食物/01-核心词汇.html",
+     16
+    ],
+    [
+     "choose/primary/grade3/volume2/english/05-Old toys 旧玩具/01-核心词汇.html",
+     1
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume2 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume2/english/02-Expressing yourself 表达自己/01-核心词汇.html",
+     16
+    ],
+    [
+     "choose/primary/grade3/volume2/english/05-Old toys 旧玩具/01-核心词汇.html",
+     21
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume2 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume2/english/02-Expressing yourself 表达自己/01-核心词汇.html",
+     17
+    ],
+    [
+     "choose/primary/grade3/volume2/english/04-Healthy food 健康食物/01-核心词汇.html",
+     13
+    ],
+    [
+     "choose/primary/grade3/volume2/english/06-Numbers in life 生活中的数字/01-核心词汇.html",
+     9
+    ],
+    [
+     "choose/primary/grade3/volume2/english/07-复习与检测/02-Revision 2（Units 4~6）.html",
+     4
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume2 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume2/english/02-Expressing yourself 表达自己/01-核心词汇.html",
+     19
+    ],
+    [
+     "choose/primary/grade3/volume2/english/02-Expressing yourself 表达自己/03-综合运用.html",
+     3
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume2 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume2/english/02-Expressing yourself 表达自己/01-核心词汇.html",
+     20
+    ],
+    [
+     "choose/primary/grade3/volume2/english/03-Learning better 更好地学习/01-核心词汇.html",
+     19
+    ],
+    [
+     "choose/primary/grade3/volume2/english/04-Healthy food 健康食物/01-核心词汇.html",
+     17
+    ],
+    [
+     "choose/primary/grade3/volume2/english/06-Numbers in life 生活中的数字/01-核心词汇.html",
+     11
+    ],
+    [
+     "choose/primary/grade3/volume2/english/07-复习与检测/02-Revision 2（Units 4~6）.html",
+     6
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume2 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume2/english/03-Learning better 更好地学习/01-核心词汇.html",
+     1
+    ],
+    [
+     "choose/primary/grade3/volume2/english/05-Old toys 旧玩具/01-核心词汇.html",
+     8
+    ],
+    [
+     "choose/primary/grade3/volume2/english/06-Numbers in life 生活中的数字/01-核心词汇.html",
+     16
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume2 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume2/english/03-Learning better 更好地学习/01-核心词汇.html",
+     2
+    ],
+    [
+     "choose/primary/grade3/volume2/english/05-Old toys 旧玩具/01-核心词汇.html",
+     3
+    ],
+    [
+     "choose/primary/grade3/volume2/english/06-Numbers in life 生活中的数字/01-核心词汇.html",
+     3
+    ]
+   ]
+  },
+  {
+   "key": "choose primary gradegrade3 volume2 english",
+   "where": [
+    [
+     "choose/primary/grade3/volume2/english/03-Learning better 更好地学习/01-核心词汇.html",
+     4
+    ],
+    [
+     "choose/primary/grade3/volume2/english/07-复习与检测/01-Revision 1（Units 1~3）.html",
+     9
+    ]
+   ]
+  }
+ ],
+ "structure": {
+  "choose": {
+   "primary": {
+    "grade1": {
+     "volume1": {
+      "units": {
+       "chinese/01-我上学了": 1,
+       "chinese/01-识字（一）": 5,
+       "chinese/02-汉语拼音（一）": 8,
+       "chinese/03-汉语拼音（二）": 5,
+       "chinese/04-课文（一）": 4,
+       "chinese/05-识字（二）": 5,
+       "chinese/06-课文（二）": 4,
+       "chinese/07-课文（三）": 3,
+       "chinese/08-课文（四）": 3,
+       "math/01-5以内数的认识和加减法": 6,
+       "math/02-6~10的认识和加减法": 4,
+       "math/03-认识立体图形": 1,
+       "math/04-11~20的认识": 2,
+       "math/05-20以内的进位加法": 3,
+       "math/06-复习与关联": 1
+      },
+      "review_files": 0
+     },
+     "volume2": {
+      "units": {
+       "chinese/01-识字（一）": 4,
+       "chinese/02-课文（一）": 4,
+       "chinese/03-课文（二）": 3,
+       "chinese/04-课文（三）": 4,
+       "chinese/05-识字（二）": 4,
+       "chinese/06-课文（四）": 3,
+       "chinese/07-课文（五）": 4,
+       "chinese/08-课文（六）": 3,
+       "math/01-认识平面图形": 2,
+       "math/02-20以内的退位减法": 4,
+       "math/03-100以内数的认识": 4,
+       "math/04-100以内的口算加、减法": 3,
+       "math/05-100以内的笔算加、减法": 2,
+       "math/06-数量间的加减关系": 2,
+       "math/07-欢乐购物街": 2,
+       "math/08-复习与关联": 1
+      },
+      "review_files": 0
+     }
+    },
+    "grade2": {
+     "volume1": {
+      "units": {
+       "chinese/01-阅读": 3,
+       "chinese/02-识字": 4,
+       "chinese/03-阅读": 3,
+       "chinese/04-阅读": 4,
+       "chinese/05-阅读": 3,
+       "chinese/06-阅读": 4,
+       "chinese/07-阅读": 3,
+       "chinese/08-阅读": 3,
+       "math/01-分类与整理": 3,
+       "math/02-1~6的表内乘法": 8,
+       "math/03-1~6的表内除法": 5,
+       "math/04-厘米和米": 4,
+       "math/04-校园小导游（综合实践）": 2,
+       "math/05-7~9的表内乘、除法": 7,
+       "math/06-复习与关联": 3,
+       "math/06-身体上的尺子（综合实践）": 1
+      },
+      "review_files": 0
+     },
+     "volume2": {
+      "units": {
+       "chinese/01-阅读": 4,
+       "chinese/02-阅读": 3,
+       "chinese/03-识字": 4,
+       "chinese/04-阅读": 3,
+       "chinese/05-阅读": 3,
+       "chinese/06-阅读": 4,
+       "chinese/07-阅读": 4,
+       "chinese/08-阅读": 3,
+       "math/01-时间在哪里（综合实践）": 1,
+       "math/01-有余数的除法": 4,
+       "math/02-数量间的乘除关系": 3,
+       "math/03-万以内数的认识": 4,
+       "math/04-万以内的加法和减法": 4,
+       "math/05-复习与关联": 3,
+       "math/06-数学连环画（综合实践）": 1
+      },
+      "review_files": 0
+     }
+    },
+    "grade3": {
+     "volume1": {
+      "units": {
+       "chinese/01-学校生活": 3,
+       "chinese/02-秋天的诗情": 4,
+       "chinese/03-童话王国": 3,
+       "chinese/04-预测与想象": 3,
+       "chinese/05-留心观察": 2,
+       "chinese/06-祖国河山": 4,
+       "chinese/07-自然的乐章": 3,
+       "chinese/08-美好品质": 4,
+       "english/01-Making friends 交朋友": 3,
+       "english/02-Different families 不同的家庭": 3,
+       "english/03-Amazing animals 神奇的动物": 3,
+       "english/04-Plants around us 我们身边的植物": 3,
+       "english/05-The colourful world 多彩世界": 3,
+       "english/06-Useful numbers 有用的数字": 3,
+       "english/07-复习与检测": 2,
+       "math/01-观察物体": 3,
+       "math/02-混合运算": 2,
+       "math/03-毫米、分米和千米": 5,
+       "math/04-多位数乘一位数": 6,
+       "math/05-线和角": 3,
+       "math/06-分数的初步认识": 5,
+       "math/07-复习与关联": 4
+      },
+      "review_files": 0
+     },
+     "volume2": {
+      "units": {
+       "chinese/01-春天的旋律": 4,
+       "chinese/02-寓言故事": 4,
+       "chinese/03-海底世界探秘": 3,
+       "chinese/04-传统文化": 4,
+       "chinese/05-想象与创造": 2,
+       "chinese/06-童年趣事": 4,
+       "chinese/07-奇妙世界": 3,
+       "chinese/08-有趣的故事": 3,
+       "english/01-Meeting new people 结识新朋友": 3,
+       "english/02-Expressing yourself 表达自己": 3,
+       "english/03-Learning better 更好地学习": 3,
+       "english/04-Healthy food 健康食物": 3,
+       "english/05-Old toys 旧玩具": 3,
+       "english/06-Numbers in life 生活中的数字": 3,
+       "english/07-复习与检测": 2,
+       "math/01-生活中的运动现象": 2,
+       "math/02-除数是一位数的除法": 5,
+       "math/03-长方形和正方形": 3,
+       "math/04-图形的面积": 4,
+       "math/05-数据的收集与整理": 1,
+       "math/06-年、月、日的秘密": 3,
+       "math/07-小数的初步认识": 3,
+       "math/08-复习与关联": 4
+      },
+      "review_files": 0
+     }
+    },
+    "grade4": {
+     "volume1": {
+      "units": {
+       "chinese/01-自然之美": 4,
+       "chinese/02-提问": 4,
+       "chinese/03-连续观察": 3,
+       "chinese/04-神话故事": 4,
+       "chinese/05-习作单元": 2,
+       "chinese/06-童年回忆": 3,
+       "chinese/07-家国情怀": 4,
+       "chinese/08-历史传说故事": 3,
+       "english/01-My classroom 我的教室": 3,
+       "english/02-My schoolbag 我的书包": 3,
+       "english/03-My friends 我的朋友": 3,
+       "english/04-My home 我的家": 3,
+       "english/05-Dinner’s ready 晚餐准备好了": 3,
+       "english/06-Meet my family 见见我的家人": 3,
+       "math/01-大数的认识": 4,
+       "math/02-公顷和平方千米": 2,
+       "math/03-角的度量": 4,
+       "math/04-三位数乘两位数": 4,
+       "math/05-平行四边形和梯形": 3,
+       "math/06-除数是两位数的除法": 3,
+       "math/07-条形统计图": 1,
+       "math/08-数学广角——优化": 3,
+       "morallaw/01-与班级共成长": 3,
+       "morallaw/02-为父母分担": 3,
+       "morallaw/03-信息万花筒": 3,
+       "morallaw/04-让生活多一些绿色": 3,
+       "science/01-动植物的繁殖": 4,
+       "science/02-多样的动物": 4,
+       "science/03-水的变化与分布": 4,
+       "science/04-声音": 4,
+       "science/05-制作简易乐器": 3
+      },
+      "review_files": 0
+     },
+     "volume2": {
+      "units": {
+       "chinese/01-乡村生活": 4,
+       "chinese/02-科学探秘": 4,
+       "chinese/03-诗歌世界": 4,
+       "chinese/04-动物朋友": 3,
+       "chinese/05-习作单元": 2,
+       "chinese/06-成长故事": 4,
+       "chinese/07-人物品格": 4,
+       "chinese/08-中外童话": 3,
+       "english/01-My school 我的学校": 3,
+       "english/02-What time is it？ 现在几点了": 3,
+       "english/03-Weather 天气": 3,
+       "english/04-At the farm 在农场": 3,
+       "english/05-My clothes 我的衣服": 3,
+       "english/06-Shopping 购物": 3,
+       "math/01-四则运算": 4,
+       "math/02-观察物体（二）": 1,
+       "math/03-运算定律": 4,
+       "math/04-小数的意义和性质": 7,
+       "math/05-三角形": 4,
+       "math/06-小数的加法和减法": 3,
+       "math/07-图形的运动（二）": 2,
+       "math/08-平均数与条形统计图": 3,
+       "math/09-数学广角——鸡兔同笼": 1,
+       "morallaw/01-同伴与交往": 3,
+       "morallaw/02-做聪明的消费者": 3,
+       "morallaw/03-美好生活哪里来": 3,
+       "morallaw/04-感受家乡文化 关心家乡发展": 3,
+       "science/01-天气与气候": 4,
+       "science/02-养蚕": 4,
+       "science/03-环境中的生物": 3,
+       "science/04-地球 太阳 月球": 3,
+       "science/05-影子的变化": 2,
+       "science/06-简易计时器": 2
+      },
+      "review_files": 0
+     }
+    },
+    "grade5": {
+     "volume1": {
+      "units": {
+       "chinese/01-万物有灵": 4,
+       "chinese/02-阅读要有一定的速度": 4,
+       "chinese/03-民间故事": 3,
+       "chinese/04-家国情怀": 4,
+       "chinese/05-说明性文章": 2,
+       "chinese/06-舐犊情深": 3,
+       "chinese/07-景物的动态和静态": 4,
+       "chinese/08-读书": 3,
+       "english/01-What is he like": 3,
+       "english/02-My week": 3,
+       "english/03-What would you like": 3,
+       "english/04-What can you do": 3,
+       "english/05-There is a big bed": 3,
+       "english/06-In a nature park": 3,
+       "english/07-复习与检测": 2,
+       "math/01-小数乘法": 5,
+       "math/02-位置": 1,
+       "math/03-小数除法": 6,
+       "math/04-可能性": 2,
+       "math/05-简易方程": 5,
+       "math/06-多边形的面积": 4,
+       "math/07-数学广角——植树问题": 1,
+       "math/08-总复习": 1,
+       "morallaw/01-面对成长中的新问题": 3,
+       "morallaw/02-我们是班级的主人": 2,
+       "morallaw/03-我们的国土 我们的家园": 2,
+       "morallaw/04-骄人祖先 灿烂文化": 3,
+       "science/01-烧水过程中的热传递": 4,
+       "science/02-后代与亲代": 3,
+       "science/03-显微镜下的生物世界": 4,
+       "science/04-光": 3,
+       "science/05-太阳能热水器": 3
+      },
+      "review_files": 0
+     },
+     "volume2": {
+      "units": {
+       "chinese/01-童年往事": 4,
+       "chinese/02-古典名著": 4,
+       "chinese/03-遨游汉字王国": 2,
+       "chinese/04-家国情怀": 4,
+       "chinese/05-人物描写": 2,
+       "chinese/06-思维的火花": 3,
+       "chinese/07-环球风光": 3,
+       "chinese/08-幽默语言": 3,
+       "english/01-My day": 3,
+       "english/02-My favourite season": 3,
+       "english/03-My school calendar": 3,
+       "english/04-When is the art show": 3,
+       "english/05-Whose dog is it": 3,
+       "english/06-Work quietly": 3,
+       "english/07-复习与检测": 2,
+       "math/01-观察物体（三）": 1,
+       "math/02-因数与倍数": 3,
+       "math/03-长方体和正方体": 6,
+       "math/04-分数的意义和性质": 10,
+       "math/05-图形的运动（三）": 2,
+       "math/06-分数的加法和减法": 3,
+       "math/07-折线统计图": 2,
+       "math/08-数学广角——找次品": 1,
+       "math/09-总复习": 1,
+       "morallaw/01-我们一家人": 3,
+       "morallaw/02-公共生活靠大家": 3,
+       "morallaw/03-百年追梦 复兴中华": 6,
+       "science/01-昼夜与四季": 3,
+       "science/02-能量的转换": 4,
+       "science/03-健康生活": 3,
+       "science/04-简单机械": 4,
+       "science/05-制作省力装置": 2
+      },
+      "review_files": 0
+     }
+    },
+    "grade6": {
+     "volume1": {
+      "units": {
+       "chinese/01-触摸自然": 4,
+       "chinese/02-革命岁月": 5,
+       "chinese/03-有目的地阅读": 3,
+       "chinese/04-小说": 3,
+       "chinese/05-习作单元": 2,
+       "chinese/06-保护环境": 4,
+       "chinese/07-艺术之美": 3,
+       "chinese/08-走近鲁迅": 4,
+       "english/01-How can I get there": 3,
+       "english/02-Ways to go to school": 3,
+       "english/03-My weekend plan": 3,
+       "english/04-I have a pen pal": 3,
+       "english/05-What does he do": 3,
+       "english/06-How do you feel": 3,
+       "english/07-复习与检测": 2,
+       "math/01-分数乘法": 5,
+       "math/02-位置与方向（二）": 2,
+       "math/03-分数除法": 5,
+       "math/04-比": 4,
+       "math/05-圆": 4,
+       "math/06-百分数（一）": 4,
+       "math/07-扇形统计图": 1,
+       "math/08-数学广角——数与形": 1,
+       "math/09-总复习": 3,
+       "morallaw/01-我们的守护者": 2,
+       "morallaw/02-我们是公民": 2,
+       "morallaw/03-我们的国家机构": 3,
+       "morallaw/04-法律保护我们健康成长": 2,
+       "science/01-相互依存的生命世界": 4,
+       "science/02-能的转化": 4,
+       "science/03-水和天气": 4,
+       "science/04-自然资源": 4,
+       "science/05-建造“植物工厂”": 3
+      },
+      "review_files": 0
+     },
+     "volume2": {
+      "units": {
+       "chinese/01-民风民俗": 4,
+       "chinese/02-外国文学名著": 3,
+       "chinese/03-真情": 2,
+       "chinese/04-志向": 4,
+       "chinese/05-科学精神": 4,
+       "chinese/06-难忘小学生活": 2,
+       "chinese/07-古诗词诵读": 2,
+       "english/01-How tall are you": 3,
+       "english/02-Last weekend": 3,
+       "english/03-Where did you go": 3,
+       "english/04-Then and now": 3,
+       "english/05-Recycle Mike's happy days": 2,
+       "math/01-负数": 3,
+       "math/02-百分数（二）": 5,
+       "math/03-圆柱与圆锥": 5,
+       "math/04-比例": 8,
+       "math/05-数学广角——鸽巢问题": 1,
+       "math/06-整理和复习": 4,
+       "morallaw/01-完善自我 健康成长": 3,
+       "morallaw/02-爱护地球 共同责任": 2,
+       "morallaw/03-多样文明 多彩生活": 2,
+       "morallaw/04-让世界更美好": 3,
+       "science/01-生物与环境": 3,
+       "science/02-地表形态的变化": 4,
+       "science/03-探索宇宙": 4,
+       "science/04-“飞向”太空": 3
+      },
+      "review_files": 0
+     }
+    }
+   },
+   "middle": {
+    "grade1": {
+     "volume1": {
+      "units": {
+       "biology/01-生物和生物圈": 4,
+       "biology/02-生物体的结构层次": 6,
+       "biology/03-生物圈中的绿色植物": 8,
+       "chinese/01-四季美景": 4,
+       "chinese/02-至爱亲情": 4,
+       "chinese/03-学习生活": 3,
+       "chinese/04-人生之舟": 4,
+       "chinese/05-人与动物": 3,
+       "chinese/06-想象之翼": 4,
+       "english/01-Starter 起始单元": 2,
+       "english/02-You and Me": 3,
+       "english/03-We're Family": 3,
+       "english/04-My School": 3,
+       "english/05-My Favourite Subject": 3,
+       "english/06-Fun Clubs": 3,
+       "english/07-A Day in the Life": 3,
+       "english/08-Happy Birthday": 3,
+       "english/09-复习与检测": 2,
+       "geography/01-地球": 3,
+       "geography/02-地图": 2,
+       "geography/03-陆地和海洋": 3,
+       "geography/04-天气与气候": 4,
+       "geography/05-居民与文化": 3,
+       "geography/06-发展与合作": 1,
+       "history/01-史前时期": 3,
+       "history/02-夏商周时期": 5,
+       "history/03-秦汉时期": 7,
+       "history/04-三国两晋南北朝时期": 5,
+       "math/01-有理数": 8,
+       "math/02-整式的加减": 4,
+       "math/03-一元一次方程": 4,
+       "math/04-几何图形初步": 4,
+       "morallaw/01-少年有梦": 3,
+       "morallaw/02-成长的时空": 4,
+       "morallaw/03-珍爱我们的生命": 3,
+       "morallaw/04-追求美好人生": 3,
+       "science/01-科学入门": 3,
+       "science/02-观察生物": 4,
+       "science/03-人类的家园——地球": 3,
+       "science/04-物质的特性": 3
+      },
+      "review_files": 0
+     },
+     "volume2": {
+      "units": {
+       "biology/04-生物圈中的人": 11,
+       "biology/05-生物圈中的其他生物": 3,
+       "biology/06-健康地生活": 2,
+       "chinese/01-群星闪耀": 4,
+       "chinese/02-家国情怀": 5,
+       "chinese/03-凡人小事": 4,
+       "chinese/04-修身正己": 4,
+       "chinese/05-生活哲理": 4,
+       "chinese/06-科幻探险": 4,
+       "english/01-Animal Friends": 3,
+       "english/02-No Rules, No Order": 3,
+       "english/03-Keep Fit": 3,
+       "english/04-Eat Well": 3,
+       "english/05-Here and Now": 3,
+       "english/06-Rain or Shine": 3,
+       "english/07-A Day to Remember": 3,
+       "english/08-复习与检测": 2,
+       "geography/07-我们生活的大洲——亚洲": 2,
+       "geography/08-我们邻近的地区和国家": 4,
+       "geography/09-东半球其他的地区和国家": 4,
+       "geography/10-极地地区": 1,
+       "geography/10-西半球的国家": 2,
+       "history/01-隋唐时期：繁荣与开放的时代": 5,
+       "history/02-辽宋夏金元时期": 8,
+       "history/03-明清时期：统一多民族国家的巩固与发展": 7,
+       "math/01-相交线与平行线": 3,
+       "math/02-实数": 3,
+       "math/03-平面直角坐标系": 2,
+       "math/04-二元一次方程组": 3,
+       "math/05-不等式与不等式组": 3,
+       "math/06-数据的收集、整理与描述": 2,
+       "morallaw/01-青春时光": 3,
+       "morallaw/02-做情绪情感的主人": 2,
+       "morallaw/03-在集体中成长": 3,
+       "morallaw/04-走进法治天地": 2,
+       "science/01-代代相传的生命": 4,
+       "science/02-对环境的察觉": 3,
+       "science/03-运动和力": 3,
+       "science/04-地球与宇宙": 2
+      },
+      "review_files": 0
+     }
+    },
+    "grade2": {
+     "volume1": {
+      "units": {
+       "biology/01-人体生理与健康（二）": 8,
+       "biology/02-生物与环境": 5,
+       "chinese/01-新闻活动探究": 6,
+       "chinese/02-人物回忆": 4,
+       "chinese/03-山水之美": 4,
+       "chinese/04-情感哲思": 4,
+       "chinese/05-事物说明": 4,
+       "chinese/06-经典智慧": 4,
+       "english/01-Happy Holiday": 1,
+       "english/02-Home Sweet Home": 1,
+       "english/03-Same or Different？": 1,
+       "english/04-Amazing Plants and Animals": 1,
+       "english/05-What a Delicious Meal!": 1,
+       "english/06-Plan for Yourself": 1,
+       "english/07-When Tomorrow Comes": 1,
+       "english/08-Let's Communicate!": 1,
+       "geography/01-从世界看中国": 3,
+       "geography/02-中国的自然环境": 3,
+       "geography/03-中国的自然资源": 4,
+       "geography/04-中国的经济发展": 3,
+       "geography/05-建设美丽中国": 2,
+       "history/01-中国开始沦为半殖民地半封建社会": 3,
+       "history/02-早期现代化的初步探索和民族危机加剧": 4,
+       "history/03-资产阶级民主革命与中华民国的建立": 3,
+       "history/04-新民主主义革命的兴起": 2,
+       "history/05-从国共合作到农村革命根据地的建立": 3,
+       "history/06-中华民族的抗日战争": 4,
+       "history/07-人民解放战争": 2,
+       "math/01-三角形": 3,
+       "math/02-全等三角形": 3,
+       "math/03-轴对称": 4,
+       "math/04-整式的乘法": 4,
+       "math/05-因式分解": 2,
+       "math/06-分式": 4,
+       "morallaw/01-走进社会生活": 3,
+       "morallaw/02-维护社会秩序": 3,
+       "morallaw/03-勇担社会责任": 3,
+       "morallaw/04-维护国家利益": 3,
+       "physics/01-机械运动": 4,
+       "physics/02-声现象": 4,
+       "physics/03-物态变化": 4,
+       "physics/04-光现象": 5,
+       "physics/05-透镜及其应用": 4,
+       "physics/06-质量与密度": 4
+      },
+      "review_files": 0
+     },
+     "volume2": {
+      "units": {
+       "biology/06-生命的延续和发展": 10,
+       "chinese/01-民风民俗": 4,
+       "chinese/02-科普说明": 4,
+       "chinese/03-古诗文经典": 4,
+       "chinese/04-演讲与思考": 4,
+       "chinese/05-游记": 4,
+       "chinese/06-诸子经典": 4,
+       "english/01-Time to Relax": 1,
+       "english/02-Stay Healthy": 1,
+       "english/03-Growing Up": 1,
+       "english/04-The Wonders of Nature": 1,
+       "english/05-Nature's Temper": 1,
+       "english/06-Crossing Cultures": 1,
+       "english/07-A Good Read": 1,
+       "english/08-Making a Difference": 1,
+       "geography/01-中国的地理差异": 1,
+       "geography/02-北方地区": 4,
+       "geography/03-南方地区": 4,
+       "geography/04-西北地区": 2,
+       "geography/05-青藏地区": 2,
+       "geography/06-奋进中的中国": 1,
+       "history/01-中华人民共和国成立和社会主义制度建立": 4,
+       "history/02-社会主义建设道路的探索": 3,
+       "history/03-改革开放与中国特色社会主义的开创": 4,
+       "history/04-中国特色社会主义迈向21世纪": 3,
+       "history/05-在新形势下坚持和发展中国特色社会主义": 3,
+       "history/06-中国特色社会主义进入新时代": 4,
+       "history/07-全面建设社会主义现代化国家": 2,
+       "math/01-二次根式": 4,
+       "math/02-勾股定理": 3,
+       "math/03-四边形": 6,
+       "math/04-函数": 2,
+       "math/05-一次函数": 3,
+       "math/06-数据的分析": 4,
+       "morallaw/01-坚持宪法至上": 2,
+       "morallaw/02-理解权利义务": 2,
+       "morallaw/03-认识国家制度": 2,
+       "morallaw/04-走近国家机构": 6,
+       "morallaw/05-建设法治中国": 2,
+       "physics/07-力": 3,
+       "physics/08-运动和力": 4,
+       "physics/09-压强": 4,
+       "physics/10-浮力": 3,
+       "physics/11-功和机械能": 4,
+       "physics/12-简单机械": 3
+      },
+      "review_files": 0
+     }
+    },
+    "grade3": {
+     "volume1": {
+      "units": {
+       "chemistry/01-绪论单元": 1,
+       "chemistry/01-走进化学世界": 2,
+       "chemistry/02-空气和氧气": 3,
+       "chemistry/03-物质构成的奥秘": 3,
+       "chemistry/04-自然界的水": 3,
+       "chemistry/05-化学反应的定量关系": 2,
+       "chemistry/06-碳和碳的氧化物": 3,
+       "chemistry/07-能源的合理利用与开发": 2,
+       "chinese/01-活动·探究": 6,
+       "chinese/02-议论性文章": 4,
+       "chinese/03-山水游记": 4,
+       "chinese/04-小说": 3,
+       "chinese/05-议论性文章": 4,
+       "chinese/06-古典小说": 4,
+       "english/01-How can we become good learners？": 1,
+       "english/02-I think that mooncakes are delicious!": 1,
+       "english/03-Could you please tell me where the restrooms are？": 1,
+       "english/04-I used to be afraid of the dark": 1,
+       "english/05-What are the shirts made of？": 1,
+       "english/06-When was it invented？": 1,
+       "english/07-Teenagers should be allowed to choose their own clothes": 1,
+       "english/08-It must belong to Carla": 1,
+       "english/09-I like music that I can dance to": 1,
+       "english/10-You're supposed to shake hands": 1,
+       "history/01-文明的产生和古代亚非文明": 4,
+       "history/02-古代欧洲文明": 2,
+       "history/03-封建时代的欧洲": 3,
+       "history/04-中古时期的亚洲、非洲和美洲": 3,
+       "history/05-走向近代": 3,
+       "history/06-资本主义制度的初步确立": 3,
+       "history/07-第一次工业革命和马克思主义的诞生": 3,
+       "math/25-一元二次方程": 3,
+       "math/26-二次函数": 4,
+       "math/27-反比例函数": 3,
+       "math/28-旋转": 2,
+       "math/29-圆": 3,
+       "math/30-直线和圆的位置关系": 3,
+       "morallaw/01-富强与创新": 2,
+       "morallaw/02-民主与法治": 2,
+       "morallaw/03-文明与家园": 2,
+       "morallaw/04-和谐与梦想": 2,
+       "physics/13-内能": 3,
+       "physics/14-内能的利用": 3,
+       "physics/15-电流和电路": 5,
+       "physics/16-电压 电阻": 4,
+       "physics/17-欧姆定律": 4,
+       "physics/18-电功率": 3,
+       "physics/19-生活用电": 2
+      },
+      "review_files": 0
+     },
+     "volume2": {
+      "units": {
+       "chemistry/08-金属和金属材料": 3,
+       "chemistry/09-溶液": 3,
+       "chemistry/10-常见的酸、碱、盐": 3,
+       "chemistry/11-化学与社会": 2,
+       "chinese/01-诗歌与散文诗": 4,
+       "chinese/02-小说天地": 4,
+       "chinese/03-古诗文诵读": 4,
+       "chinese/04-思辨与言说": 4,
+       "chinese/05-舞台人生": 3,
+       "chinese/06-古诗文吟诵": 5,
+       "english/10-I remember meeting all of you in Grade 7": 1,
+       "english/10-Life is full of the unexpected": 1,
+       "english/10-Sad movies make me cry": 1,
+       "english/10-We're trying to save the earth!": 1,
+       "history/01-殖民地人民的反抗与资本主义制度的扩展": 4,
+       "history/02-第二次工业革命和近代科学文化": 3,
+       "history/03-第一次世界大战和战后初期的世界": 5,
+       "history/04-资本主义经济大危机和第二次世界大战": 3,
+       "history/05-第二次世界大战后的世界变化": 4,
+       "history/06-当代世界的主要发展趋势": 2,
+       "math/31-相似": 3,
+       "math/32-锐角三角函数": 2,
+       "math/33-投影与视图": 2,
+       "math/34-随机事件的概率": 3,
+       "morallaw/01-我们共同的世界": 2,
+       "morallaw/02-世界舞台上的中国": 2,
+       "morallaw/03-走向未来的少年": 3,
+       "physics/20-电与磁": 5,
+       "physics/21-电磁波及其应用": 3,
+       "physics/22-能源与可持续发展": 2
+      },
+      "review_files": 0
+     }
+    }
+   },
+   "high": {
+    "grade1": {
+     "volume1": {
+      "units": {
+       "biology/01-第一章 走近细胞": 2,
+       "biology/02-第二章 组成细胞的分子": 5,
+       "biology/03-第三章 细胞的基本结构": 3,
+       "biology/04-第四章 细胞的物质输入和输出": 2,
+       "biology/05-第五章 细胞的能量供应和利用": 4,
+       "biology/06-第六章 细胞的生命历程": 3,
+       "chemistry/01-第一章 物质及其变化": 3,
+       "chemistry/02-第二章 海水中的重要元素——钠和氯": 3,
+       "chemistry/03-第三章 铁 金属材料": 2,
+       "chemistry/04-第四章 物质结构 元素周期律": 3,
+       "chinese/01-青春激扬": 3,
+       "chinese/02-劳动光荣": 3,
+       "chinese/03-生命的诗意": 3,
+       "chinese/06-学习之道": 4,
+       "chinese/07-自然情怀": 3,
+       "english/01-Welcome Unit": 1,
+       "english/02-Unit 1 Teenage Life": 1,
+       "english/03-Unit 2 Travelling Around": 1,
+       "english/04-Unit 3 Sports and Fitness": 1,
+       "english/05-Unit 4 Natural Disasters": 1,
+       "english/06-Unit 5 Languages Around the World": 1,
+       "geography/01-第一章 宇宙中的地球": 4,
+       "geography/02-第二章 地球上的大气": 2,
+       "geography/03-第三章 地球上的水": 3,
+       "geography/04-第四章 地貌": 2,
+       "geography/05-第五章 植被与土壤": 2,
+       "history/01-从中华文明起源到秦汉统一多民族封建国家的建立与巩固": 4,
+       "history/02-三国两晋南北朝的民族交融与隋唐统一多民族封建国家的发展": 4,
+       "history/03-辽宋夏金多民族政权的并立与元朝的统一": 4,
+       "history/04-明清中国版图的奠定与面临的挑战": 3,
+       "history/05-晚清时期的内忧外患与救亡图存": 3,
+       "history/06-辛亥革命与中华民国的建立": 2,
+       "history/07-中国共产党成立与新民主主义革命兴起": 2,
+       "history/08-中华民族的抗日战争和人民解放战争": 3,
+       "history/09-中华人民共和国成立和社会主义革命与建设": 2,
+       "history/10-改革开放与社会主义现代化建设新时期": 2,
+       "math/01-第一章 集合与常用逻辑用语": 4,
+       "math/02-第二章 一元二次函数、方程和不等式": 3,
+       "math/03-第三章 函数的概念与性质": 4,
+       "math/04-第四章 指数函数与对数函数": 5,
+       "math/05-第五章 三角函数": 7,
+       "physics/01-第一章 运动的描述": 4,
+       "physics/02-第二章 匀变速直线运动的研究": 4,
+       "physics/03-第三章 相互作用——力": 5,
+       "physics/04-第四章 运动和力的关系": 6,
+       "politics/01-必修1 中国特色社会主义": 4
+      },
+      "review_files": 0
+     },
+     "volume2": {
+      "units": {
+       "biology/01-第一章 遗传因子的发现": 2,
+       "biology/02-第二章 基因和染色体的关系": 3,
+       "biology/03-第三章 基因的本质": 4,
+       "biology/04-第四章 基因的表达": 2,
+       "biology/05-第五章 基因突变及其他变异": 3,
+       "biology/06-第六章 生物的进化": 4,
+       "chemistry/01-第五章 化工生产中的重要非金属元素": 3,
+       "chemistry/02-第六章 化学反应与能量": 2,
+       "chemistry/03-第七章 有机化合物": 4,
+       "chemistry/04-第八章 化学与可持续发展": 3,
+       "chinese/01-中华文明之光": 3,
+       "chinese/02-良知与悲悯": 3,
+       "chinese/03-探索与创新": 3,
+       "chinese/05-抱负与使命": 2,
+       "chinese/06-观察与批判": 3,
+       "chinese/08-责任与担当": 2,
+       "english/01-Unit 1 Cultural Heritage": 1,
+       "english/02-Unit 2 Wildlife Protection": 1,
+       "english/03-Unit 3 The Internet": 1,
+       "english/04-Unit 4 History and Traditions": 1,
+       "english/05-Unit 5 Music": 1,
+       "geography/01-第一章 人口": 3,
+       "geography/02-第二章 乡村和城镇": 3,
+       "geography/03-第三章 产业区位因素": 3,
+       "geography/04-第四章 交通运输布局与区域发展": 2,
+       "geography/05-第五章 环境与发展": 2,
+       "history/01-古代文明的产生与发展": 2,
+       "history/02-中古时期的世界": 3,
+       "history/03-走向整体的世界": 2,
+       "history/04-资本主义制度的确立": 2,
+       "history/05-工业革命与马克思主义的诞生": 2,
+       "history/06-世界殖民体系与亚非拉民族独立运动": 2,
+       "history/07-两次世界大战、十月革命与国际秩序的演变": 4,
+       "history/08-当代世界发展的特点与主要趋势": 5,
+       "math/01-第六章 平面向量及其应用": 5,
+       "math/02-第七章 复数": 3,
+       "math/03-第八章 立体几何初步": 6,
+       "math/04-第九章 统计": 2,
+       "math/05-第十章 概率": 3,
+       "physics/05-抛体运动": 4,
+       "physics/06-圆周运动": 4,
+       "physics/07-万有引力与宇宙航行": 5,
+       "physics/08-机械能守恒定律": 5,
+       "politics/01-生产资料所有制与经济体制": 2,
+       "politics/02-经济发展与社会进步": 2
+      },
+      "review_files": 0
+     }
+    },
+    "grade2": {
+     "volume1": {
+      "units": {
+       "biology/01-第一章 人体的内环境与稳态": 2,
+       "biology/02-第二章 神经调节": 5,
+       "biology/03-第三章 体液调节": 3,
+       "biology/04-第四章 免疫调节": 4,
+       "biology/05-第五章 植物生命活动的调节": 4,
+       "chemistry/01-第一章 化学反应的热效应": 2,
+       "chemistry/02-第二章 化学反应速率与化学平衡": 4,
+       "chemistry/03-第三章 水溶液中的离子反应与平衡": 4,
+       "chemistry/04-第四章 化学反应与电能": 4,
+       "chinese/01-革命文化与社会主义先进文化": 4,
+       "chinese/02-诸子经典": 3,
+       "chinese/03-外国作家作品研习": 4,
+       "english/01-Unit 1 People of Achievement": 1,
+       "english/02-Unit 2 Looking into the Future": 1,
+       "english/03-Unit 3 Fascinating Parks": 1,
+       "english/04-Unit 4 Body Language": 1,
+       "english/05-Unit 5 Working the Land": 1,
+       "geography/01-第一章 地球的运动": 2,
+       "geography/02-第二章 地表形态的塑造": 3,
+       "geography/03-第三章 大气的运动": 3,
+       "geography/04-第四章 水的运动": 3,
+       "geography/05-第五章 自然环境的整体性与差异性": 2,
+       "history/01-政治制度": 4,
+       "history/02-官员的选拔与管理": 3,
+       "history/03-法律与教化": 3,
+       "history/04-民族关系与国家关系": 4,
+       "history/05-货币与赋税制度": 2,
+       "history/06-基层治理与社会保障": 2,
+       "math/01-第一章 空间向量与立体几何": 4,
+       "math/02-第二章 直线和圆的方程": 5,
+       "math/03-第三章 圆锥曲线的方程": 3,
+       "physics/01-第一章 动量守恒定律": 5,
+       "physics/02-第二章 机械振动": 5,
+       "physics/03-第三章 机械波": 7,
+       "physics/04-第四章 光": 5,
+       "politics/01-各具特色的国家": 2,
+       "politics/02-世界多极化": 3,
+       "politics/03-经济全球化": 2,
+       "politics/04-国际组织": 2
+      },
+      "review_files": 0
+     },
+     "volume2": {
+      "units": {
+       "biology/01-第一章 种群及其动态": 3,
+       "biology/02-第二章 群落及其演替": 3,
+       "biology/03-第三章 生态系统及其稳定性": 5,
+       "biology/04-第四章 人与环境": 3,
+       "chemistry/01-第一章 原子结构与性质": 3,
+       "chemistry/02-第二章 分子结构与性质": 5,
+       "chemistry/03-第三章 晶体结构与性质": 5,
+       "chinese/01-理论价值": 5,
+       "chinese/02-革命文学": 3,
+       "chinese/03-史传与史论": 3,
+       "chinese/04-外国戏剧与诗歌": 2,
+       "english/01-Unit 1 Science and Scientists": 1,
+       "english/02-Unit 2 Bridging Cultures": 1,
+       "english/03-Unit 3 Food and Culture": 1,
+       "english/04-Unit 4 Journey Across a Vast Land": 1,
+       "english/05-Unit 5 First Aid": 1,
+       "geography/01-第一章 区域与区域发展": 2,
+       "geography/02-第二章 资源、环境与区域发展": 3,
+       "geography/03-第三章 城市、产业与区域发展": 2,
+       "geography/04-第四章 区际联系与区域协调发展": 4,
+       "history/01-食物生产与社会生活": 3,
+       "history/02-生产工具与劳作方式": 3,
+       "history/03-商业贸易与日常生活": 3,
+       "history/04-村落、城镇与居住环境": 2,
+       "history/05-交通与社会变迁": 2,
+       "history/06-医疗与公共卫生": 2,
+       "math/01-第四章 数列": 4,
+       "math/02-第五章 一元函数的导数及其应用": 4,
+       "physics/01-第一章 安培力与洛伦兹力": 4,
+       "physics/02-第二章 电磁感应": 4,
+       "physics/03-第三章 交变电流": 4,
+       "physics/04-第四章 电磁振荡与电磁波": 3,
+       "physics/05-第五章 传感器": 2,
+       "politics/01-民事权利与义务": 4,
+       "politics/02-家庭与婚姻": 2,
+       "politics/03-就业与创业": 2,
+       "politics/04-社会争议解决": 2
+      },
+      "review_files": 0
+     }
+    },
+    "grade3": {
+     "review": {
+      "units": {},
+      "review_files": 56
+     },
+     "volume1": {
+      "units": {
+       "biology/01-第一章 发酵工程": 3,
+       "biology/02-第二章 细胞工程": 3,
+       "biology/03-第三章 基因工程": 4,
+       "biology/04-第四章 生物技术的安全性与伦理问题": 3,
+       "chemistry/01-第一章 有机化合物的结构特点与研究方法": 2,
+       "chemistry/02-第二章 烃": 3,
+       "chemistry/03-第三章 烃的衍生物": 5,
+       "chemistry/04-第四章 生物大分子": 3,
+       "chemistry/05-第五章 合成高分子": 2,
+       "chinese/01-中华传统文化经典研习（一）": 4,
+       "chinese/02-中国现当代作家作品研习": 4,
+       "chinese/03-中华传统文化经典研习（二）": 4,
+       "chinese/04-科学与文化论著研习": 2,
+       "english/01-Unit 1 Art": 1,
+       "english/02-Unit 2 Healthy Lifestyle": 1,
+       "english/03-Unit 3 Environmental Protection": 1,
+       "english/04-Unit 4 Adversity and Courage": 1,
+       "english/05-Unit 5 Poems": 1,
+       "geography/01-第一章 自然环境与人类社会": 3,
+       "geography/02-第二章 资源安全与国家安全": 4,
+       "geography/03-第三章 环境安全与国家安全": 4,
+       "geography/04-第四章 保障国家安全的资源、环境战略与行动": 3,
+       "history/01-源远流长的中华文化": 2,
+       "history/02-丰富多样的世界文化": 3,
+       "history/03-人口迁徙、文化交融与认同": 3,
+       "history/04-商路、贸易与文化交流": 2,
+       "history/05-战争与文化交锋": 3,
+       "history/06-文化的传承与保护": 2,
+       "math/01-第六章 计数原理": 3,
+       "math/02-第七章 随机变量及其分布": 5,
+       "math/03-第八章 成对数据的统计分析": 3,
+       "physics/01-第一章 分子动理论": 4,
+       "physics/02-第二章 气体、固体和液体": 5,
+       "physics/03-第三章 热力学定律": 4,
+       "physics/04-第四章 原子结构和波粒二象性": 5,
+       "physics/05-第五章 原子核": 5,
+       "politics/01-树立科学思维观念": 3,
+       "politics/02-遵循逻辑思维规则": 4,
+       "politics/03-运用辩证思维方法": 3,
+       "politics/04-提高创新思维能力": 3
+      },
+      "review_files": 0
+     }
+    }
+   }
+  },
+  "judge": {
+   "primary": {
+    "grade1": {
+     "volume1": {
+      "units": {
+       "chinese/01-我上学了": 1,
+       "chinese/01-识字（一）": 5,
+       "chinese/02-汉语拼音（一）": 8,
+       "chinese/03-汉语拼音（二）": 5,
+       "chinese/04-课文（一）": 4,
+       "chinese/05-识字（二）": 5,
+       "chinese/06-课文（二）": 4,
+       "chinese/07-课文（三）": 3,
+       "chinese/08-课文（四）": 3,
+       "math/01-5以内数的认识和加减法": 6,
+       "math/02-6~10的认识和加减法": 4,
+       "math/03-认识立体图形": 1,
+       "math/04-11~20的认识": 2,
+       "math/05-20以内的进位加法": 3,
+       "math/06-复习与关联": 1
+      },
+      "review_files": 0
+     },
+     "volume2": {
+      "units": {
+       "chinese/01-识字（一）": 4,
+       "chinese/02-课文（一）": 4,
+       "chinese/03-课文（二）": 3,
+       "chinese/04-课文（三）": 4,
+       "chinese/05-识字（二）": 4,
+       "chinese/06-课文（四）": 3,
+       "chinese/07-课文（五）": 4,
+       "chinese/08-课文（六）": 3,
+       "math/01-认识平面图形": 2,
+       "math/02-20以内的退位减法": 4,
+       "math/03-100以内数的认识": 4,
+       "math/04-100以内的口算加、减法": 3,
+       "math/05-100以内的笔算加、减法": 2,
+       "math/06-数量间的加减关系": 2,
+       "math/07-欢乐购物街": 2,
+       "math/08-复习与关联": 1
+      },
+      "review_files": 0
+     }
+    },
+    "grade2": {
+     "volume1": {
+      "units": {
+       "chinese/01-阅读": 3,
+       "chinese/02-识字": 4,
+       "chinese/03-阅读": 3,
+       "chinese/04-阅读": 4,
+       "chinese/05-阅读": 3,
+       "chinese/06-阅读": 4,
+       "chinese/07-阅读": 3,
+       "chinese/08-阅读": 3,
+       "math/01-分类与整理": 3,
+       "math/02-1~6的表内乘法": 8,
+       "math/03-1~6的表内除法": 5,
+       "math/04-厘米和米": 4,
+       "math/04-校园小导游（综合实践）": 2,
+       "math/05-7~9的表内乘、除法": 7,
+       "math/06-复习与关联": 3,
+       "math/06-身体上的尺子（综合实践）": 1
+      },
+      "review_files": 0
+     },
+     "volume2": {
+      "units": {
+       "chinese/01-阅读": 4,
+       "chinese/02-阅读": 3,
+       "chinese/03-识字": 4,
+       "chinese/04-阅读": 3,
+       "chinese/05-阅读": 3,
+       "chinese/06-阅读": 4,
+       "chinese/07-阅读": 4,
+       "chinese/08-阅读": 3,
+       "math/01-时间在哪里（综合实践）": 1,
+       "math/01-有余数的除法": 4,
+       "math/02-数量间的乘除关系": 3,
+       "math/03-万以内数的认识": 4,
+       "math/04-万以内的加法和减法": 4,
+       "math/05-复习与关联": 3,
+       "math/06-数学连环画（综合实践）": 1
+      },
+      "review_files": 0
+     }
+    },
+    "grade3": {
+     "volume1": {
+      "units": {
+       "chinese/01-学校生活": 3,
+       "chinese/02-秋天的诗情": 4,
+       "chinese/03-童话王国": 3,
+       "chinese/04-预测与想象": 3,
+       "chinese/05-留心观察": 2,
+       "chinese/06-祖国河山": 4,
+       "chinese/07-自然的乐章": 3,
+       "chinese/08-美好品质": 4,
+       "english/01-Making friends 交朋友": 3,
+       "english/02-Different families 不同的家庭": 3,
+       "english/03-Amazing animals 神奇的动物": 3,
+       "english/04-Plants around us 我们身边的植物": 3,
+       "english/05-The colourful world 多彩世界": 3,
+       "english/06-Useful numbers 有用的数字": 3,
+       "english/07-复习与检测": 2,
+       "math/01-观察物体": 3,
+       "math/02-混合运算": 2,
+       "math/03-毫米、分米和千米": 5,
+       "math/04-多位数乘一位数": 6,
+       "math/05-线和角": 3,
+       "math/06-分数的初步认识": 5,
+       "math/07-复习与关联": 4
+      },
+      "review_files": 0
+     },
+     "volume2": {
+      "units": {
+       "chinese/01-春天的旋律": 4,
+       "chinese/02-寓言故事": 4,
+       "chinese/03-海底世界探秘": 3,
+       "chinese/04-传统文化": 4,
+       "chinese/05-想象与创造": 2,
+       "chinese/06-童年趣事": 4,
+       "chinese/07-奇妙世界": 3,
+       "chinese/08-有趣的故事": 3,
+       "english/01-Meeting new people 结识新朋友": 3,
+       "english/02-Expressing yourself 表达自己": 3,
+       "english/03-Learning better 更好地学习": 3,
+       "english/04-Healthy food 健康食物": 3,
+       "english/05-Old toys 旧玩具": 3,
+       "english/06-Numbers in life 生活中的数字": 3,
+       "english/07-复习与检测": 2,
+       "math/01-生活中的运动现象": 2,
+       "math/02-除数是一位数的除法": 5,
+       "math/03-长方形和正方形": 3,
+       "math/04-图形的面积": 4,
+       "math/05-数据的收集与整理": 1,
+       "math/06-年、月、日的秘密": 3,
+       "math/07-小数的初步认识": 3,
+       "math/08-复习与关联": 4
+      },
+      "review_files": 0
+     }
+    },
+    "grade4": {
+     "volume1": {
+      "units": {
+       "chinese/01-自然之美": 4,
+       "chinese/02-提问": 4,
+       "chinese/03-连续观察": 3,
+       "chinese/04-神话故事": 4,
+       "chinese/05-习作单元": 2,
+       "chinese/06-童年回忆": 3,
+       "chinese/07-家国情怀": 4,
+       "chinese/08-历史传说故事": 3,
+       "english/01-My classroom 我的教室": 3,
+       "english/02-My schoolbag 我的书包": 3,
+       "english/03-My friends 我的朋友": 3,
+       "english/04-My home 我的家": 3,
+       "english/05-Dinner’s ready 晚餐准备好了": 3,
+       "english/06-Meet my family 见见我的家人": 3,
+       "math/01-大数的认识": 4,
+       "math/02-公顷和平方千米": 2,
+       "math/03-角的度量": 4,
+       "math/04-三位数乘两位数": 4,
+       "math/05-平行四边形和梯形": 3,
+       "math/06-除数是两位数的除法": 3,
+       "math/07-条形统计图": 1,
+       "math/08-数学广角——优化": 3,
+       "morallaw/01-与班级共成长": 3,
+       "morallaw/02-为父母分担": 3,
+       "morallaw/03-信息万花筒": 3,
+       "morallaw/04-让生活多一些绿色": 3,
+       "science/01-动植物的繁殖": 4,
+       "science/02-多样的动物": 4,
+       "science/03-水的变化与分布": 4,
+       "science/04-声音": 4,
+       "science/05-制作简易乐器": 3
+      },
+      "review_files": 0
+     },
+     "volume2": {
+      "units": {
+       "chinese/01-乡村生活": 4,
+       "chinese/02-科学探秘": 4,
+       "chinese/03-诗歌世界": 4,
+       "chinese/04-动物朋友": 3,
+       "chinese/05-习作单元": 2,
+       "chinese/06-成长故事": 4,
+       "chinese/07-人物品格": 4,
+       "chinese/08-中外童话": 3,
+       "english/01-My school 我的学校": 3,
+       "english/02-What time is it？ 现在几点了": 3,
+       "english/03-Weather 天气": 3,
+       "english/04-At the farm 在农场": 3,
+       "english/05-My clothes 我的衣服": 3,
+       "english/06-Shopping 购物": 3,
+       "math/01-四则运算": 4,
+       "math/02-观察物体（二）": 1,
+       "math/03-运算定律": 4,
+       "math/04-小数的意义和性质": 7,
+       "math/05-三角形": 4,
+       "math/06-小数的加法和减法": 3,
+       "math/07-图形的运动（二）": 2,
+       "math/08-平均数与条形统计图": 3,
+       "math/09-数学广角——鸡兔同笼": 1,
+       "morallaw/01-同伴与交往": 3,
+       "morallaw/02-做聪明的消费者": 3,
+       "morallaw/03-美好生活哪里来": 3,
+       "morallaw/04-感受家乡文化 关心家乡发展": 3,
+       "science/01-天气与气候": 4,
+       "science/02-养蚕": 4,
+       "science/03-环境中的生物": 3,
+       "science/04-地球 太阳 月球": 3,
+       "science/05-影子的变化": 2,
+       "science/06-简易计时器": 2
+      },
+      "review_files": 0
+     }
+    },
+    "grade5": {
+     "volume1": {
+      "units": {
+       "chinese/01-万物有灵": 4,
+       "chinese/02-阅读要有一定的速度": 4,
+       "chinese/03-民间故事": 3,
+       "chinese/04-家国情怀": 4,
+       "chinese/05-说明性文章": 2,
+       "chinese/06-舐犊情深": 3,
+       "chinese/07-景物的动态和静态": 4,
+       "chinese/08-读书": 3,
+       "english/01-What is he like": 3,
+       "english/02-My week": 3,
+       "english/03-What would you like": 3,
+       "english/04-What can you do": 3,
+       "english/05-There is a big bed": 3,
+       "english/06-In a nature park": 3,
+       "english/07-复习与检测": 2,
+       "math/01-小数乘法": 5,
+       "math/02-位置": 1,
+       "math/03-小数除法": 6,
+       "math/04-可能性": 2,
+       "math/05-简易方程": 5,
+       "math/06-多边形的面积": 4,
+       "math/07-数学广角——植树问题": 1,
+       "math/08-总复习": 1,
+       "morallaw/01-面对成长中的新问题": 3,
+       "morallaw/02-我们是班级的主人": 2,
+       "morallaw/03-我们的国土 我们的家园": 2,
+       "morallaw/04-骄人祖先 灿烂文化": 3,
+       "science/01-烧水过程中的热传递": 4,
+       "science/02-后代与亲代": 3,
+       "science/03-显微镜下的生物世界": 4,
+       "science/04-光": 3,
+       "science/05-太阳能热水器": 3
+      },
+      "review_files": 0
+     },
+     "volume2": {
+      "units": {
+       "chinese/01-童年往事": 4,
+       "chinese/02-古典名著": 4,
+       "chinese/03-遨游汉字王国": 2,
+       "chinese/04-家国情怀": 4,
+       "chinese/05-人物描写": 2,
+       "chinese/06-思维的火花": 3,
+       "chinese/07-环球风光": 3,
+       "chinese/08-幽默语言": 3,
+       "english/01-My day": 3,
+       "english/02-My favourite season": 3,
+       "english/03-My school calendar": 3,
+       "english/04-When is the art show": 3,
+       "english/05-Whose dog is it": 3,
+       "english/06-Work quietly": 3,
+       "english/07-复习与检测": 2,
+       "math/01-观察物体（三）": 1,
+       "math/02-因数与倍数": 3,
+       "math/03-长方体和正方体": 6,
+       "math/04-分数的意义和性质": 10,
+       "math/05-图形的运动（三）": 2,
+       "math/06-分数的加法和减法": 3,
+       "math/07-折线统计图": 2,
+       "math/08-数学广角——找次品": 1,
+       "math/09-总复习": 1,
+       "morallaw/01-我们一家人": 3,
+       "morallaw/02-公共生活靠大家": 3,
+       "morallaw/03-百年追梦 复兴中华": 6,
+       "science/01-昼夜与四季": 3,
+       "science/02-能量的转换": 4,
+       "science/03-健康生活": 3,
+       "science/04-简单机械": 4,
+       "science/05-制作省力装置": 2
+      },
+      "review_files": 0
+     }
+    },
+    "grade6": {
+     "volume1": {
+      "units": {
+       "chinese/01-触摸自然": 4,
+       "chinese/02-革命岁月": 5,
+       "chinese/03-有目的地阅读": 3,
+       "chinese/04-小说": 3,
+       "chinese/05-习作单元": 2,
+       "chinese/06-保护环境": 4,
+       "chinese/07-艺术之美": 3,
+       "chinese/08-走近鲁迅": 4,
+       "english/01-How can I get there": 3,
+       "english/02-Ways to go to school": 3,
+       "english/03-My weekend plan": 3,
+       "english/04-I have a pen pal": 3,
+       "english/05-What does he do": 3,
+       "english/06-How do you feel": 3,
+       "english/07-复习与检测": 2,
+       "math/01-分数乘法": 5,
+       "math/02-位置与方向（二）": 2,
+       "math/03-分数除法": 5,
+       "math/04-比": 4,
+       "math/05-圆": 4,
+       "math/06-百分数（一）": 4,
+       "math/07-扇形统计图": 1,
+       "math/08-数学广角——数与形": 1,
+       "math/09-总复习": 3,
+       "morallaw/01-我们的守护者": 2,
+       "morallaw/02-我们是公民": 2,
+       "morallaw/03-我们的国家机构": 3,
+       "morallaw/04-法律保护我们健康成长": 2,
+       "science/01-相互依存的生命世界": 4,
+       "science/02-能的转化": 4,
+       "science/03-水和天气": 4,
+       "science/04-自然资源": 4,
+       "science/05-建造“植物工厂”": 3
+      },
+      "review_files": 0
+     },
+     "volume2": {
+      "units": {
+       "chinese/01-民风民俗": 4,
+       "chinese/02-外国文学名著": 3,
+       "chinese/03-真情": 2,
+       "chinese/04-志向": 4,
+       "chinese/05-科学精神": 4,
+       "chinese/06-难忘小学生活": 2,
+       "chinese/07-古诗词诵读": 2,
+       "english/01-How tall are you": 3,
+       "english/02-Last weekend": 3,
+       "english/03-Where did you go": 3,
+       "english/04-Then and now": 3,
+       "english/05-Recycle Mike's happy days": 2,
+       "math/01-负数": 3,
+       "math/02-百分数（二）": 5,
+       "math/03-圆柱与圆锥": 5,
+       "math/04-比例": 8,
+       "math/05-数学广角——鸽巢问题": 1,
+       "math/06-整理和复习": 4,
+       "morallaw/01-完善自我 健康成长": 3,
+       "morallaw/02-爱护地球 共同责任": 2,
+       "morallaw/03-多样文明 多彩生活": 2,
+       "morallaw/04-让世界更美好": 3,
+       "science/01-生物与环境": 3,
+       "science/02-地表形态的变化": 4,
+       "science/03-探索宇宙": 4,
+       "science/04-“飞向”太空": 3
+      },
+      "review_files": 0
+     }
+    }
+   },
+   "middle": {
+    "grade1": {
+     "volume1": {
+      "units": {
+       "biology/01-生物和生物圈": 4,
+       "biology/02-生物体的结构层次": 6,
+       "biology/03-生物圈中的绿色植物": 8,
+       "chinese/01-四季美景": 4,
+       "chinese/02-至爱亲情": 4,
+       "chinese/03-学习生活": 3,
+       "chinese/04-人生之舟": 4,
+       "chinese/05-人与动物": 3,
+       "chinese/06-想象之翼": 4,
+       "english/01-Starter 起始单元": 2,
+       "english/02-You and Me": 3,
+       "english/03-We're Family": 3,
+       "english/04-My School": 3,
+       "english/05-My Favourite Subject": 3,
+       "english/06-Fun Clubs": 3,
+       "english/07-A Day in the Life": 3,
+       "english/08-Happy Birthday": 3,
+       "english/09-复习与检测": 2,
+       "geography/01-地球": 3,
+       "geography/02-地图": 2,
+       "geography/03-陆地和海洋": 3,
+       "geography/04-天气与气候": 4,
+       "geography/05-居民与文化": 3,
+       "geography/06-发展与合作": 1,
+       "history/01-史前时期": 3,
+       "history/02-夏商周时期": 5,
+       "history/03-秦汉时期": 7,
+       "history/04-三国两晋南北朝时期": 5,
+       "math/01-有理数": 8,
+       "math/02-整式的加减": 4,
+       "math/03-一元一次方程": 4,
+       "math/04-几何图形初步": 4,
+       "morallaw/01-少年有梦": 3,
+       "morallaw/02-成长的时空": 4,
+       "morallaw/03-珍爱我们的生命": 3,
+       "morallaw/04-追求美好人生": 3,
+       "science/01-科学入门": 3,
+       "science/02-观察生物": 4,
+       "science/03-人类的家园——地球": 3,
+       "science/04-物质的特性": 3
+      },
+      "review_files": 0
+     },
+     "volume2": {
+      "units": {
+       "biology/04-生物圈中的人": 11,
+       "biology/05-生物圈中的其他生物": 3,
+       "biology/06-健康地生活": 2,
+       "chinese/01-群星闪耀": 4,
+       "chinese/02-家国情怀": 5,
+       "chinese/03-凡人小事": 4,
+       "chinese/04-修身正己": 4,
+       "chinese/05-生活哲理": 4,
+       "chinese/06-科幻探险": 4,
+       "english/01-Animal Friends": 3,
+       "english/02-No Rules, No Order": 3,
+       "english/03-Keep Fit": 3,
+       "english/04-Eat Well": 3,
+       "english/05-Here and Now": 3,
+       "english/06-Rain or Shine": 3,
+       "english/07-A Day to Remember": 3,
+       "english/08-复习与检测": 2,
+       "geography/07-我们生活的大洲——亚洲": 2,
+       "geography/08-我们邻近的地区和国家": 4,
+       "geography/09-东半球其他的地区和国家": 4,
+       "geography/10-极地地区": 1,
+       "geography/10-西半球的国家": 2,
+       "history/01-隋唐时期：繁荣与开放的时代": 5,
+       "history/02-辽宋夏金元时期": 8,
+       "history/03-明清时期：统一多民族国家的巩固与发展": 7,
+       "math/01-相交线与平行线": 3,
+       "math/02-实数": 3,
+       "math/03-平面直角坐标系": 2,
+       "math/04-二元一次方程组": 3,
+       "math/05-不等式与不等式组": 3,
+       "math/06-数据的收集、整理与描述": 2,
+       "morallaw/01-青春时光": 3,
+       "morallaw/02-做情绪情感的主人": 2,
+       "morallaw/03-在集体中成长": 3,
+       "morallaw/04-走进法治天地": 2,
+       "science/01-代代相传的生命": 4,
+       "science/02-对环境的察觉": 3,
+       "science/03-运动和力": 3,
+       "science/04-地球与宇宙": 2
+      },
+      "review_files": 0
+     }
+    },
+    "grade2": {
+     "volume1": {
+      "units": {
+       "biology/01-人体生理与健康（二）": 8,
+       "biology/02-生物与环境": 5,
+       "chinese/01-新闻活动探究": 6,
+       "chinese/02-人物回忆": 4,
+       "chinese/03-山水之美": 4,
+       "chinese/04-情感哲思": 4,
+       "chinese/05-事物说明": 4,
+       "chinese/06-经典智慧": 4,
+       "english/01-Happy Holiday": 1,
+       "english/02-Home Sweet Home": 1,
+       "english/03-Same or Different？": 1,
+       "english/04-Amazing Plants and Animals": 1,
+       "english/05-What a Delicious Meal!": 1,
+       "english/06-Plan for Yourself": 1,
+       "english/07-When Tomorrow Comes": 1,
+       "english/08-Let's Communicate!": 1,
+       "geography/01-从世界看中国": 3,
+       "geography/02-中国的自然环境": 3,
+       "geography/03-中国的自然资源": 4,
+       "geography/04-中国的经济发展": 3,
+       "geography/05-建设美丽中国": 2,
+       "history/01-中国开始沦为半殖民地半封建社会": 3,
+       "history/02-早期现代化的初步探索和民族危机加剧": 4,
+       "history/03-资产阶级民主革命与中华民国的建立": 3,
+       "history/04-新民主主义革命的兴起": 2,
+       "history/05-从国共合作到农村革命根据地的建立": 3,
+       "history/06-中华民族的抗日战争": 4,
+       "history/07-人民解放战争": 2,
+       "math/01-三角形": 3,
+       "math/02-全等三角形": 3,
+       "math/03-轴对称": 4,
+       "math/04-整式的乘法": 4,
+       "math/05-因式分解": 2,
+       "math/06-分式": 4,
+       "morallaw/01-走进社会生活": 3,
+       "morallaw/02-维护社会秩序": 3,
+       "morallaw/03-勇担社会责任": 3,
+       "morallaw/04-维护国家利益": 3,
+       "physics/01-机械运动": 4,
+       "physics/02-声现象": 4,
+       "physics/03-物态变化": 4,
+       "physics/04-光现象": 5,
+       "physics/05-透镜及其应用": 4,
+       "physics/06-质量与密度": 4
+      },
+      "review_files": 0
+     },
+     "volume2": {
+      "units": {
+       "biology/06-生命的延续和发展": 10,
+       "chinese/01-民风民俗": 4,
+       "chinese/02-科普说明": 4,
+       "chinese/03-古诗文经典": 4,
+       "chinese/04-演讲与思考": 4,
+       "chinese/05-游记": 4,
+       "chinese/06-诸子经典": 4,
+       "english/01-Time to Relax": 1,
+       "english/02-Stay Healthy": 1,
+       "english/03-Growing Up": 1,
+       "english/04-The Wonders of Nature": 1,
+       "english/05-Nature's Temper": 1,
+       "english/06-Crossing Cultures": 1,
+       "english/07-A Good Read": 1,
+       "english/08-Making a Difference": 1,
+       "geography/01-中国的地理差异": 1,
+       "geography/02-北方地区": 4,
+       "geography/03-南方地区": 4,
+       "geography/04-西北地区": 2,
+       "geography/05-青藏地区": 2,
+       "geography/06-奋进中的中国": 1,
+       "history/01-中华人民共和国成立和社会主义制度建立": 4,
+       "history/02-社会主义建设道路的探索": 3,
+       "history/03-改革开放与中国特色社会主义的开创": 4,
+       "history/04-中国特色社会主义迈向21世纪": 3,
+       "history/05-在新形势下坚持和发展中国特色社会主义": 3,
+       "history/06-中国特色社会主义进入新时代": 4,
+       "history/07-全面建设社会主义现代化国家": 2,
+       "math/01-二次根式": 4,
+       "math/02-勾股定理": 3,
+       "math/03-四边形": 6,
+       "math/04-函数": 2,
+       "math/05-一次函数": 3,
+       "math/06-数据的分析": 4,
+       "morallaw/01-坚持宪法至上": 2,
+       "morallaw/02-理解权利义务": 2,
+       "morallaw/03-认识国家制度": 2,
+       "morallaw/04-走近国家机构": 6,
+       "morallaw/05-建设法治中国": 2,
+       "physics/07-力": 3,
+       "physics/08-运动和力": 4,
+       "physics/09-压强": 4,
+       "physics/10-浮力": 3,
+       "physics/11-功和机械能": 4,
+       "physics/12-简单机械": 3
+      },
+      "review_files": 0
+     }
+    },
+    "grade3": {
+     "volume1": {
+      "units": {
+       "chemistry/01-绪论单元": 1,
+       "chemistry/01-走进化学世界": 2,
+       "chemistry/02-空气和氧气": 3,
+       "chemistry/03-物质构成的奥秘": 3,
+       "chemistry/04-自然界的水": 3,
+       "chemistry/05-化学反应的定量关系": 2,
+       "chemistry/06-碳和碳的氧化物": 3,
+       "chemistry/07-能源的合理利用与开发": 2,
+       "chinese/01-活动·探究": 6,
+       "chinese/02-议论性文章": 4,
+       "chinese/03-山水游记": 4,
+       "chinese/04-小说": 3,
+       "chinese/05-议论性文章": 4,
+       "chinese/06-古典小说": 4,
+       "english/01-How can we become good learners？": 1,
+       "english/02-I think that mooncakes are delicious!": 1,
+       "english/03-Could you please tell me where the restrooms are？": 1,
+       "english/04-I used to be afraid of the dark": 1,
+       "english/05-What are the shirts made of？": 1,
+       "english/06-When was it invented？": 1,
+       "english/07-Teenagers should be allowed to choose their own clothes": 1,
+       "english/08-It must belong to Carla": 1,
+       "english/09-I like music that I can dance to": 1,
+       "english/10-You're supposed to shake hands": 1,
+       "history/01-文明的产生和古代亚非文明": 4,
+       "history/02-古代欧洲文明": 2,
+       "history/03-封建时代的欧洲": 3,
+       "history/04-中古时期的亚洲、非洲和美洲": 3,
+       "history/05-走向近代": 3,
+       "history/06-资本主义制度的初步确立": 3,
+       "history/07-第一次工业革命和马克思主义的诞生": 3,
+       "math/25-一元二次方程": 3,
+       "math/26-二次函数": 4,
+       "math/27-反比例函数": 3,
+       "math/28-旋转": 2,
+       "math/29-圆": 3,
+       "math/30-直线和圆的位置关系": 3,
+       "morallaw/01-富强与创新": 2,
+       "morallaw/02-民主与法治": 2,
+       "morallaw/03-文明与家园": 2,
+       "morallaw/04-和谐与梦想": 2,
+       "physics/13-内能": 3,
+       "physics/14-内能的利用": 3,
+       "physics/15-电流和电路": 5,
+       "physics/16-电压 电阻": 4,
+       "physics/17-欧姆定律": 4,
+       "physics/18-电功率": 3,
+       "physics/19-生活用电": 2
+      },
+      "review_files": 0
+     },
+     "volume2": {
+      "units": {
+       "chemistry/08-金属和金属材料": 3,
+       "chemistry/09-溶液": 3,
+       "chemistry/10-常见的酸、碱、盐": 3,
+       "chemistry/11-化学与社会": 2,
+       "chinese/01-诗歌与散文诗": 4,
+       "chinese/02-小说天地": 4,
+       "chinese/03-古诗文诵读": 4,
+       "chinese/04-思辨与言说": 4,
+       "chinese/05-舞台人生": 3,
+       "chinese/06-古诗文吟诵": 5,
+       "english/10-I remember meeting all of you in Grade 7": 1,
+       "english/10-Life is full of the unexpected": 1,
+       "english/10-Sad movies make me cry": 1,
+       "english/10-We're trying to save the earth!": 1,
+       "history/01-殖民地人民的反抗与资本主义制度的扩展": 4,
+       "history/02-第二次工业革命和近代科学文化": 3,
+       "history/03-第一次世界大战和战后初期的世界": 5,
+       "history/04-资本主义经济大危机和第二次世界大战": 3,
+       "history/05-第二次世界大战后的世界变化": 4,
+       "history/06-当代世界的主要发展趋势": 2,
+       "math/31-相似": 3,
+       "math/32-锐角三角函数": 2,
+       "math/33-投影与视图": 2,
+       "math/34-随机事件的概率": 3,
+       "morallaw/01-我们共同的世界": 2,
+       "morallaw/02-世界舞台上的中国": 2,
+       "morallaw/03-走向未来的少年": 3,
+       "physics/20-电与磁": 5,
+       "physics/21-电磁波及其应用": 3,
+       "physics/22-能源与可持续发展": 2
+      },
+      "review_files": 0
+     }
+    }
+   },
+   "high": {
+    "grade1": {
+     "volume1": {
+      "units": {
+       "biology/01-第一章 走近细胞": 2,
+       "biology/02-第二章 组成细胞的分子": 5,
+       "biology/03-第三章 细胞的基本结构": 3,
+       "biology/04-第四章 细胞的物质输入和输出": 2,
+       "biology/05-第五章 细胞的能量供应和利用": 4,
+       "biology/06-第六章 细胞的生命历程": 3,
+       "chemistry/01-第一章 物质及其变化": 3,
+       "chemistry/02-第二章 海水中的重要元素——钠和氯": 3,
+       "chemistry/03-第三章 铁 金属材料": 2,
+       "chemistry/04-第四章 物质结构 元素周期律": 3,
+       "chinese/01-青春激扬": 3,
+       "chinese/02-劳动光荣": 3,
+       "chinese/03-生命的诗意": 3,
+       "chinese/06-学习之道": 4,
+       "chinese/07-自然情怀": 3,
+       "english/01-Welcome Unit": 1,
+       "english/02-Unit 1 Teenage Life": 1,
+       "english/03-Unit 2 Travelling Around": 1,
+       "english/04-Unit 3 Sports and Fitness": 1,
+       "english/05-Unit 4 Natural Disasters": 1,
+       "english/06-Unit 5 Languages Around the World": 1,
+       "geography/01-第一章 宇宙中的地球": 4,
+       "geography/02-第二章 地球上的大气": 2,
+       "geography/03-第三章 地球上的水": 3,
+       "geography/04-第四章 地貌": 2,
+       "geography/05-第五章 植被与土壤": 2,
+       "history/01-从中华文明起源到秦汉统一多民族封建国家的建立与巩固": 4,
+       "history/02-三国两晋南北朝的民族交融与隋唐统一多民族封建国家的发展": 4,
+       "history/03-辽宋夏金多民族政权的并立与元朝的统一": 4,
+       "history/04-明清中国版图的奠定与面临的挑战": 3,
+       "history/05-晚清时期的内忧外患与救亡图存": 3,
+       "history/06-辛亥革命与中华民国的建立": 2,
+       "history/07-中国共产党成立与新民主主义革命兴起": 2,
+       "history/08-中华民族的抗日战争和人民解放战争": 3,
+       "history/09-中华人民共和国成立和社会主义革命与建设": 2,
+       "history/10-改革开放与社会主义现代化建设新时期": 2,
+       "math/01-第一章 集合与常用逻辑用语": 4,
+       "math/02-第二章 一元二次函数、方程和不等式": 3,
+       "math/03-第三章 函数的概念与性质": 4,
+       "math/04-第四章 指数函数与对数函数": 5,
+       "math/05-第五章 三角函数": 7,
+       "physics/01-第一章 运动的描述": 4,
+       "physics/02-第二章 匀变速直线运动的研究": 4,
+       "physics/03-第三章 相互作用——力": 5,
+       "physics/04-第四章 运动和力的关系": 6,
+       "politics/01-必修1 中国特色社会主义": 4
+      },
+      "review_files": 0
+     },
+     "volume2": {
+      "units": {
+       "biology/01-第一章 遗传因子的发现": 2,
+       "biology/02-第二章 基因和染色体的关系": 3,
+       "biology/03-第三章 基因的本质": 4,
+       "biology/04-第四章 基因的表达": 2,
+       "biology/05-第五章 基因突变及其他变异": 3,
+       "biology/06-第六章 生物的进化": 4,
+       "chemistry/01-第五章 化工生产中的重要非金属元素": 3,
+       "chemistry/02-第六章 化学反应与能量": 2,
+       "chemistry/03-第七章 有机化合物": 4,
+       "chemistry/04-第八章 化学与可持续发展": 3,
+       "chinese/01-中华文明之光": 3,
+       "chinese/02-良知与悲悯": 3,
+       "chinese/03-探索与创新": 3,
+       "chinese/05-抱负与使命": 2,
+       "chinese/06-观察与批判": 3,
+       "chinese/08-责任与担当": 2,
+       "english/01-Unit 1 Cultural Heritage": 1,
+       "english/02-Unit 2 Wildlife Protection": 1,
+       "english/03-Unit 3 The Internet": 1,
+       "english/04-Unit 4 History and Traditions": 1,
+       "english/05-Unit 5 Music": 1,
+       "geography/01-第一章 人口": 3,
+       "geography/02-第二章 乡村和城镇": 3,
+       "geography/03-第三章 产业区位因素": 3,
+       "geography/04-第四章 交通运输布局与区域发展": 2,
+       "geography/05-第五章 环境与发展": 2,
+       "history/01-古代文明的产生与发展": 2,
+       "history/02-中古时期的世界": 3,
+       "history/03-走向整体的世界": 2,
+       "history/04-资本主义制度的确立": 2,
+       "history/05-工业革命与马克思主义的诞生": 2,
+       "history/06-世界殖民体系与亚非拉民族独立运动": 2,
+       "history/07-两次世界大战、十月革命与国际秩序的演变": 4,
+       "history/08-当代世界发展的特点与主要趋势": 5,
+       "math/01-第六章 平面向量及其应用": 5,
+       "math/02-第七章 复数": 3,
+       "math/03-第八章 立体几何初步": 6,
+       "math/04-第九章 统计": 2,
+       "math/05-第十章 概率": 3,
+       "physics/05-抛体运动": 4,
+       "physics/06-圆周运动": 4,
+       "physics/07-万有引力与宇宙航行": 5,
+       "physics/08-机械能守恒定律": 5,
+       "politics/01-生产资料所有制与经济体制": 2,
+       "politics/02-经济发展与社会进步": 2
+      },
+      "review_files": 0
+     }
+    },
+    "grade2": {
+     "volume1": {
+      "units": {
+       "biology/01-第一章 人体的内环境与稳态": 2,
+       "biology/02-第二章 神经调节": 5,
+       "biology/03-第三章 体液调节": 3,
+       "biology/04-第四章 免疫调节": 4,
+       "biology/05-第五章 植物生命活动的调节": 4,
+       "chemistry/01-第一章 化学反应的热效应": 2,
+       "chemistry/02-第二章 化学反应速率与化学平衡": 4,
+       "chemistry/03-第三章 水溶液中的离子反应与平衡": 4,
+       "chemistry/04-第四章 化学反应与电能": 4,
+       "chinese/01-革命文化与社会主义先进文化": 4,
+       "chinese/02-诸子经典": 3,
+       "chinese/03-外国作家作品研习": 4,
+       "english/01-Unit 1 People of Achievement": 1,
+       "english/02-Unit 2 Looking into the Future": 1,
+       "english/03-Unit 3 Fascinating Parks": 1,
+       "english/04-Unit 4 Body Language": 1,
+       "english/05-Unit 5 Working the Land": 1,
+       "geography/01-第一章 地球的运动": 2,
+       "geography/02-第二章 地表形态的塑造": 3,
+       "geography/03-第三章 大气的运动": 3,
+       "geography/04-第四章 水的运动": 3,
+       "geography/05-第五章 自然环境的整体性与差异性": 2,
+       "history/01-政治制度": 4,
+       "history/02-官员的选拔与管理": 3,
+       "history/03-法律与教化": 3,
+       "history/04-民族关系与国家关系": 4,
+       "history/05-货币与赋税制度": 2,
+       "history/06-基层治理与社会保障": 2,
+       "math/01-第一章 空间向量与立体几何": 4,
+       "math/02-第二章 直线和圆的方程": 5,
+       "math/03-第三章 圆锥曲线的方程": 3,
+       "physics/01-第一章 动量守恒定律": 5,
+       "physics/02-第二章 机械振动": 5,
+       "physics/03-第三章 机械波": 7,
+       "physics/04-第四章 光": 5,
+       "politics/01-各具特色的国家": 2,
+       "politics/02-世界多极化": 3,
+       "politics/03-经济全球化": 2,
+       "politics/04-国际组织": 2
+      },
+      "review_files": 0
+     },
+     "volume2": {
+      "units": {
+       "biology/01-第一章 种群及其动态": 3,
+       "biology/02-第二章 群落及其演替": 3,
+       "biology/03-第三章 生态系统及其稳定性": 5,
+       "biology/04-第四章 人与环境": 3,
+       "chemistry/01-第一章 原子结构与性质": 3,
+       "chemistry/02-第二章 分子结构与性质": 5,
+       "chemistry/03-第三章 晶体结构与性质": 5,
+       "chinese/01-理论价值": 5,
+       "chinese/02-革命文学": 3,
+       "chinese/03-史传与史论": 3,
+       "chinese/04-外国戏剧与诗歌": 2,
+       "english/01-Unit 1 Science and Scientists": 1,
+       "english/02-Unit 2 Bridging Cultures": 1,
+       "english/03-Unit 3 Food and Culture": 1,
+       "english/04-Unit 4 Journey Across a Vast Land": 1,
+       "english/05-Unit 5 First Aid": 1,
+       "geography/01-第一章 区域与区域发展": 2,
+       "geography/02-第二章 资源、环境与区域发展": 3,
+       "geography/03-第三章 城市、产业与区域发展": 2,
+       "geography/04-第四章 区际联系与区域协调发展": 4,
+       "history/01-食物生产与社会生活": 3,
+       "history/02-生产工具与劳作方式": 3,
+       "history/03-商业贸易与日常生活": 3,
+       "history/04-村落、城镇与居住环境": 2,
+       "history/05-交通与社会变迁": 2,
+       "history/06-医疗与公共卫生": 2,
+       "math/01-第四章 数列": 4,
+       "math/02-第五章 一元函数的导数及其应用": 4,
+       "physics/01-第一章 安培力与洛伦兹力": 4,
+       "physics/02-第二章 电磁感应": 4,
+       "physics/03-第三章 交变电流": 4,
+       "physics/04-第四章 电磁振荡与电磁波": 3,
+       "physics/05-第五章 传感器": 2,
+       "politics/01-民事权利与义务": 4,
+       "politics/02-家庭与婚姻": 2,
+       "politics/03-就业与创业": 2,
+       "politics/04-社会争议解决": 2
+      },
+      "review_files": 0
+     }
+    },
+    "grade3": {
+     "review": {
+      "units": {},
+      "review_files": 56
+     },
+     "volume1": {
+      "units": {
+       "biology/01-第一章 发酵工程": 3,
+       "biology/02-第二章 细胞工程": 3,
+       "biology/03-第三章 基因工程": 4,
+       "biology/04-第四章 生物技术的安全性与伦理问题": 3,
+       "chemistry/01-第一章 有机化合物的结构特点与研究方法": 2,
+       "chemistry/02-第二章 烃": 3,
+       "chemistry/03-第三章 烃的衍生物": 5,
+       "chemistry/04-第四章 生物大分子": 3,
+       "chemistry/05-第五章 合成高分子": 2,
+       "chinese/01-中华传统文化经典研习（一）": 4,
+       "chinese/02-中国现当代作家作品研习": 4,
+       "chinese/03-中华传统文化经典研习（二）": 4,
+       "chinese/04-科学与文化论著研习": 2,
+       "english/01-Unit 1 Art": 1,
+       "english/02-Unit 2 Healthy Lifestyle": 1,
+       "english/03-Unit 3 Environmental Protection": 1,
+       "english/04-Unit 4 Adversity and Courage": 1,
+       "english/05-Unit 5 Poems": 1,
+       "geography/01-第一章 自然环境与人类社会": 3,
+       "geography/02-第二章 资源安全与国家安全": 4,
+       "geography/03-第三章 环境安全与国家安全": 4,
+       "geography/04-第四章 保障国家安全的资源、环境战略与行动": 3,
+       "history/01-源远流长的中华文化": 2,
+       "history/02-丰富多样的世界文化": 3,
+       "history/03-人口迁徙、文化交融与认同": 3,
+       "history/04-商路、贸易与文化交流": 2,
+       "history/05-战争与文化交锋": 3,
+       "history/06-文化的传承与保护": 2,
+       "math/01-第六章 计数原理": 3,
+       "math/02-第七章 随机变量及其分布": 5,
+       "math/03-第八章 成对数据的统计分析": 3,
+       "physics/01-第一章 分子动理论": 4,
+       "physics/02-第二章 气体、固体和液体": 5,
+       "physics/03-第三章 热力学定律": 4,
+       "physics/04-第四章 原子结构和波粒二象性": 5,
+       "physics/05-第五章 原子核": 5,
+       "politics/01-树立科学思维观念": 3,
+       "politics/02-遵循逻辑思维规则": 4,
+       "politics/03-运用辩证思维方法": 3,
+       "politics/04-提高创新思维能力": 3
+      },
+      "review_files": 0
+     }
+    }
+   }
+  }
+ },
+ "sample": [
+  {
+   "stage": "primary",
+   "choose": "choose/primary/grade3/volume2/math/02-除数是一位数的除法/05-笔算除法（三位数除以一位数）.html",
+   "judge": "judge/primary/grade3/volume2/math/02-除数是一位数的除法/05-笔算除法（三位数除以一位数）.html"
+  },
+  {
+   "stage": "primary",
+   "choose": "choose/primary/grade5/volume2/math/04-分数的意义和性质/16-约分.html",
+   "judge": "judge/primary/grade5/volume2/math/04-分数的意义和性质/16-约分.html"
+  },
+  {
+   "stage": "primary",
+   "choose": "choose/primary/grade4/volume1/english/03-My friends 我的朋友/02-句型.html",
+   "judge": "judge/primary/grade4/volume1/english/03-My friends 我的朋友/02-句型.html"
+  },
+  {
+   "stage": "primary",
+   "choose": "choose/primary/grade5/volume1/morallaw/01-面对成长中的新问题/01-自主选择课余生活.html",
+   "judge": "judge/primary/grade5/volume1/morallaw/01-面对成长中的新问题/01-自主选择课余生活.html"
+  },
+  {
+   "stage": "primary",
+   "choose": "choose/primary/grade1/volume1/math/05-20以内的进位加法/14-9加几.html",
+   "judge": "judge/primary/grade1/volume1/math/05-20以内的进位加法/14-9加几.html"
+  },
+  {
+   "stage": "primary",
+   "choose": "choose/primary/grade2/volume2/math/03-万以内数的认识/01-1000以内数的认识.html",
+   "judge": "judge/primary/grade2/volume2/math/03-万以内数的认识/01-1000以内数的认识.html"
+  },
+  {
+   "stage": "primary",
+   "choose": "choose/primary/grade6/volume1/math/03-分数除法/08-倒数的认识.html",
+   "judge": "judge/primary/grade6/volume1/math/03-分数除法/08-倒数的认识.html"
+  },
+  {
+   "stage": "primary",
+   "choose": "choose/primary/grade1/volume1/chinese/03-汉语拼音（二）/11-ie üe er.html",
+   "judge": "judge/primary/grade1/volume1/chinese/03-汉语拼音（二）/11-ie üe er.html"
+  },
+  {
+   "stage": "middle",
+   "choose": "choose/middle/grade3/volume2/history/03-第一次世界大战和战后初期的世界/10-列宁与十月革命.html",
+   "judge": "judge/middle/grade3/volume2/history/03-第一次世界大战和战后初期的世界/10-列宁与十月革命.html"
+  },
+  {
+   "stage": "middle",
+   "choose": "choose/middle/grade3/volume1/chemistry/04-自然界的水/03-物质组成的表示.html",
+   "judge": "judge/middle/grade3/volume1/chemistry/04-自然界的水/03-物质组成的表示.html"
+  },
+  {
+   "stage": "middle",
+   "choose": "choose/middle/grade2/volume1/physics/01-机械运动/01-长度和时间的测量.html",
+   "judge": "judge/middle/grade2/volume1/physics/01-机械运动/01-长度和时间的测量.html"
+  },
+  {
+   "stage": "middle",
+   "choose": "choose/middle/grade1/volume1/biology/03-生物圈中的绿色植物/17-绿色植物是生物圈中有机物的制造者.html",
+   "judge": "judge/middle/grade1/volume1/biology/03-生物圈中的绿色植物/17-绿色植物是生物圈中有机物的制造者.html"
+  },
+  {
+   "stage": "middle",
+   "choose": "choose/middle/grade3/volume1/math/26-二次函数/02-二次函数的图象和性质.html",
+   "judge": "judge/middle/grade3/volume1/math/26-二次函数/02-二次函数的图象和性质.html"
+  },
+  {
+   "stage": "middle",
+   "choose": "choose/middle/grade1/volume2/math/02-实数/03-实数.html",
+   "judge": "judge/middle/grade1/volume2/math/02-实数/03-实数.html"
+  },
+  {
+   "stage": "middle",
+   "choose": "choose/middle/grade2/volume1/geography/01-从世界看中国/02-人口.html",
+   "judge": "judge/middle/grade2/volume1/geography/01-从世界看中国/02-人口.html"
+  },
+  {
+   "stage": "middle",
+   "choose": "choose/middle/grade3/volume1/morallaw/03-文明与家园/06-建设美丽中国.html",
+   "judge": "judge/middle/grade3/volume1/morallaw/03-文明与家园/06-建设美丽中国.html"
+  },
+  {
+   "stage": "high",
+   "choose": "choose/high/grade1/volume1/chinese/03-生命的诗意/09-念奴娇·赤壁怀古永遇乐·京口北固亭怀古声声慢.html",
+   "judge": "judge/high/grade1/volume1/chinese/03-生命的诗意/09-念奴娇·赤壁怀古永遇乐·京口北固亭怀古声声慢.html"
+  },
+  {
+   "stage": "high",
+   "choose": "choose/high/grade1/volume1/biology/02-第二章 组成细胞的分子/03-细胞中的糖类和脂质.html",
+   "judge": "judge/high/grade1/volume1/biology/02-第二章 组成细胞的分子/03-细胞中的糖类和脂质.html"
+  },
+  {
+   "stage": "high",
+   "choose": "choose/high/grade2/volume1/biology/02-第二章 神经调节/04-神经系统的分级调节.html",
+   "judge": "judge/high/grade2/volume1/biology/02-第二章 神经调节/04-神经系统的分级调节.html"
+  },
+  {
+   "stage": "high",
+   "choose": "choose/high/grade2/volume1/history/03-法律与教化/09-近代西方的法律与教化.html",
+   "judge": "judge/high/grade2/volume1/history/03-法律与教化/09-近代西方的法律与教化.html"
+  },
+  {
+   "stage": "high",
+   "choose": "choose/high/grade2/volume1/math/01-第一章 空间向量与立体几何/02-空间向量基本定理.html",
+   "judge": "judge/high/grade2/volume1/math/01-第一章 空间向量与立体几何/02-空间向量基本定理.html"
+  },
+  {
+   "stage": "high",
+   "choose": "choose/high/grade2/volume2/english/04-Unit 4 Journey Across a Vast Land/04-Unit 4 Journey Across a Vast Land.html",
+   "judge": "judge/high/grade2/volume2/english/04-Unit 4 Journey Across a Vast Land/04-Unit 4 Journey Across a Vast Land.html"
+  },
+  {
+   "stage": "high",
+   "choose": "choose/high/grade2/volume2/chinese/04-外国戏剧与诗歌/12-玩偶之家（节选）.html",
+   "judge": "judge/high/grade2/volume2/chinese/04-外国戏剧与诗歌/12-玩偶之家（节选）.html"
+  },
+  {
+   "stage": "high",
+   "choose": "choose/high/grade1/volume1/physics/01-第一章 运动的描述/04-速度变化快慢的描述——加速度.html",
+   "judge": "judge/high/grade1/volume1/physics/01-第一章 运动的描述/04-速度变化快慢的描述——加速度.html"
+  },
+  {
+   "stage": "high",
+   "choose": "choose/high/grade3/review/chemistry/03-元素及其化合物（金属与非金属）.html",
+   "judge": "judge/high/grade3/review/chemistry/03-元素及其化合物（金属与非金属）.html"
+  },
+  {
+   "stage": "high",
+   "choose": "choose/high/grade3/review/chinese/03-文言文阅读.html",
+   "judge": "judge/high/grade3/review/chinese/03-文言文阅读.html"
+  }
+ ]
+}

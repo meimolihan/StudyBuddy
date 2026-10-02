@@ -127,27 +127,27 @@
 </div>
 
 <script>
-const ALL = [ {t:"s",q:"一年中的第一个月是（　）。",o:["December", "January", "March", "February"],a:["B"]},
- {t:"s",q:"一年中的最后一个月是（　）。",o:["January", "October", "November", "December"],a:["D"]},
- {t:"s",q:"February 后面的月份是（　）。",o:["April", "March", "January", "May"],a:["B"]},
- {t:"s",q:"August 前面的月份是（　）。",o:["June", "July", "October", "September"],a:["B"]},
- {t:"s",q:"选择正确的问答搭配（　）。",o:["What is May? — Yes, it is.", "Where is the sports meet? — It's in April.", "When is the school trip? — It's in October.", "When is the school trip? — In the park."],a:["C"]},
- {t:"s",q:"“The sports meet is in April.”改成问句应为（　）。",o:["When is the sports meet?", "Is the sports meet fun?", "Where is the sports meet?", "What do you do in April?"],a:["A"]},
- {t:"s",q:"选择月份排序正确的一组（　）。",o:["December, November, October, September", "September, November, October, December", "October, September, December, November", "September, October, November, December"],a:["D"]},
- {t:"s",q:"“January”常用缩写是（　）。",o:["Jr.", "Jny.", "Jau.", "Jan."],a:["D"]},
- {t:"s",q:"“September”常用缩写是（　）。",o:["Sptm.", "Sepm.", "Set.", "Sept."],a:["D"]},
- {t:"s",q:"“calendar”的意思是（　）。",o:["季节", "日历；日程表", "课程", "生日蛋糕"],a:["B"]},
- {t:"m",q:"含有 31 天的月份有（　）。",o:["January", "April", "May", "March"],a:["A", "C", "D"]},
- {t:"m",q:"通常属于暑假的月份有（　）。",o:["July", "February", "summer months", "August"],a:["A", "C", "D"]},
- {t:"s",q:"学校日历写“English party — April”，应表达为（　）。",o:["The English party is in April.", "The English party is on April.", "English party are April.", "April has English party is."],a:["A"]},
- {t:"s",q:"“Autumn is my favourite season. I like September.”中 September 属于（　）。",o:["summer", "autumn", "spring", "winter"],a:["B"]},
- {t:"s",q:"在中国，winter vacation 常在（　）。",o:["January or February", "May or June", "July or August", "September or October"],a:["A"]},
- {t:"s",q:"“When is Mother's Day?”可以回答（　）。",o:["It's in May.", "It's on Sunday every week.", "I love my mother.", "It's a gift."],a:["A"]},
- {t:"s",q:"“When is Father's Day?”可以回答（　）。",o:["It's in June.", "It's in May.", "It's in December.", "It's in September."],a:["A"]},
- {t:"s",q:"安排活动时先查看 calendar 可以帮助我们（　）。",o:["决定天气", "避免时间冲突", "减少一年月份", "改变月份顺序"],a:["B"]},
- {t:"s",q:"下列哪句同时包含活动和月份？（　）",o:["I like singing.", "When is the contest?", "The singing contest is in May.", "May is warm."],a:["C"]},
- {t:"s",q:"十二个月按顺序循环，December 之后是（　）。",o:["November", "October", "January", "February"],a:["C"]},
- {t:"s",q:"本单元主要学会了（　）。",o:["描述物品归属", "谈论最喜欢的季节", "介绍作息时间", "询问并回答节日或活动所在月份"],a:["D"]}];
+const ALL = [ {t:"s",q:"一年中的第一个月是（　）。",o:["December", "January", "March", "February"],a:["B"],e:"解析：本题正确答案为 B：January。"},
+ {t:"s",q:"一年中的最后一个月是（　）。",o:["January", "October", "November", "December"],a:["D"],e:"解析：本题正确答案为 D：December。"},
+ {t:"s",q:"February 后面的月份是（　）。",o:["April", "March", "January", "May"],a:["B"],e:"解析：本题正确答案为 B：March。"},
+ {t:"s",q:"August 前面的月份是（　）。",o:["June", "July", "October", "September"],a:["B"],e:"解析：本题正确答案为 B：July。"},
+ {t:"s",q:"选择正确的问答搭配（　）。",o:["What is May? — Yes, it is.", "Where is the sports meet? — It's in April.", "When is the school trip? — It's in October.", "When is the school trip? — In the park."],a:["C"],e:"解析：本题正确答案为 C：When is the school trip? — It's in October.。"},
+ {t:"s",q:"“The sports meet is in April.”改成问句应为（　）。",o:["When is the sports meet?", "Is the sports meet fun?", "Where is the sports meet?", "What do you do in April?"],a:["A"],e:"解析：本题正确答案为 A：When is the sports meet?。"},
+ {t:"s",q:"选择月份排序正确的一组（　）。",o:["December, November, October, September", "September, November, October, December", "October, September, December, November", "September, October, November, December"],a:["D"],e:"解析：本题正确答案为 D：September, October, November, December。"},
+ {t:"s",q:"“January”常用缩写是（　）。",o:["Jr.", "Jny.", "Jau.", "Jan."],a:["D"],e:"解析：本题正确答案为 D：Jan.。"},
+ {t:"s",q:"“September”常用缩写是（　）。",o:["Sptm.", "Sepm.", "Set.", "Sept."],a:["D"],e:"解析：本题正确答案为 D：Sept.。"},
+ {t:"s",q:"“calendar”的意思是（　）。",o:["季节", "日历；日程表", "课程", "生日蛋糕"],a:["B"],e:"解析：本题正确答案为 B：日历；日程表。"},
+ {t:"m",q:"含有 31 天的月份有（　）。",o:["January", "April", "May", "March"],a:["A", "C", "D"],e:"解析：本题正确答案为 A、C、D：January；May；March。"},
+ {t:"m",q:"通常属于暑假的月份有（　）。",o:["July", "February", "summer months", "August"],a:["A", "C", "D"],e:"解析：本题正确答案为 A、C、D：July；summer months；August。"},
+ {t:"s",q:"学校日历写“English party — April”，应表达为（　）。",o:["The English party is in April.", "The English party is on April.", "English party are April.", "April has English party is."],a:["A"],e:"解析：本题正确答案为 A：The English party is in April.。"},
+ {t:"s",q:"“Autumn is my favourite season. I like September.”中 September 属于（　）。",o:["summer", "autumn", "spring", "winter"],a:["B"],e:"解析：本题正确答案为 B：autumn。"},
+ {t:"s",q:"在中国，winter vacation 常在（　）。",o:["January or February", "May or June", "July or August", "September or October"],a:["A"],e:"解析：本题正确答案为 A：January or February。"},
+ {t:"s",q:"“When is Mother's Day?”可以回答（　）。",o:["It's in May.", "It's on Sunday every week.", "I love my mother.", "It's a gift."],a:["A"],e:"解析：本题正确答案为 A：It's in May.。"},
+ {t:"s",q:"“When is Father's Day?”可以回答（　）。",o:["It's in June.", "It's in May.", "It's in December.", "It's in September."],a:["A"],e:"解析：本题正确答案为 A：It's in June.。"},
+ {t:"s",q:"安排活动时先查看 calendar 可以帮助我们（　）。",o:["决定天气", "避免时间冲突", "减少一年月份", "改变月份顺序"],a:["B"],e:"解析：本题正确答案为 B：避免时间冲突。"},
+ {t:"s",q:"下列哪句同时包含活动和月份？（　）",o:["I like singing.", "When is the contest?", "The singing contest is in May.", "May is warm."],a:["C"],e:"解析：本题正确答案为 C：The singing contest is in May.。"},
+ {t:"s",q:"十二个月按顺序循环，December 之后是（　）。",o:["November", "October", "January", "February"],a:["C"],e:"解析：本题正确答案为 C：January。"},
+ {t:"s",q:"本单元主要学会了（　）。",o:["描述物品归属", "谈论最喜欢的季节", "介绍作息时间", "询问并回答节日或活动所在月份"],a:["D"],e:"解析：本题正确答案为 D：询问并回答节日或活动所在月份。"}];
 const PER_ROUND = 10;
 const quiz = document.getElementById("quiz");
 let Q = [];

@@ -127,27 +127,27 @@
 </div>
 
 <script>
-const ALL = [ {t:"s",q:"询问“公园里有河吗？”应该说（　）。",o:["Are there a river in the park?", "Where is the river park?", "Is there a river in the park?", "Does the park river?"],a:["C"]},
- {t:"s",q:"“Is there a lake?”的肯定回答是（　）。",o:["Yes, there does.", "Yes, there are.", "Yes, there is.", "Yes, it is."],a:["C"]},
- {t:"s",q:"“Is there a forest?”的否定回答是（　）。",o:["No, it isn't.", "No, there aren't.", "No, there isn't.", "No, there doesn't."],a:["C"]},
- {t:"s",q:"询问“有一些高楼吗？”应该说（　）。",o:["Are there a tall building?", "Are there any tall buildings?", "Do there tall buildings?", "Is there any tall buildings?"],a:["B"]},
- {t:"s",q:"“Are there any houses?”的肯定回答是（　）。",o:["Yes, there is.", "Yes, there are.", "Yes, it is.", "Yes, they are houses."],a:["B"]},
- {t:"s",q:"“Are there any bridges?”的否定回答是（　）。",o:["No, there isn't.", "No, it isn't.", "No, they don't.", "No, there aren't."],a:["D"]},
- {t:"s",q:"“There is a river near the village.”的意思是（　）。",o:["河离村庄很远。", "村庄里有一座桥。", "村庄附近有一条河。", "河里有一个村庄。"],a:["C"]},
- {t:"s",q:"“There are many trees in the forest.”的意思是（　）。",o:["树旁边有森林。", "森林里有一棵树。", "森林里有许多树。", "山上没有树。"],a:["C"]},
- {t:"s",q:"描述“湖前面有一座小山”应说（　）。",o:["The lake is a hill.", "There is hill behind lake are.", "There is a hill in front of the lake.", "There are a hill in front of the lake."],a:["C"]},
- {t:"s",q:"“The nature park is so quiet.”的意思是（　）。",o:["自然公园真安静。", "自然公园有高楼。", "自然公园很小。", "自然公园很热闹。"],a:["A"]},
- {t:"s",q:"自然景物 river 表示（　）。",o:["湖泊", "森林", "河流", "高山"],a:["C"]},
- {t:"s",q:"人工建筑 bridge 表示（　）。",o:["高楼", "村庄", "房屋", "桥"],a:["D"]},
- {t:"m",q:"自然景物有（　）。",o:["river", "mountain", "forest", "building"],a:["A", "B", "C"]},
- {t:"m",q:"人们建造的事物有（　）。",o:["lake", "building", "bridge", "house"],a:["B", "C", "D"]},
- {t:"s",q:"补全句子：There（　）some boats on the lake.",o:["is", "am", "are", "be"],a:["C"]},
- {t:"s",q:"补全对话：— Is there a mountain? — No,（　）。",o:["there isn't", "there doesn't", "it isn't", "there aren't"],a:["A"]},
- {t:"s",q:"“some”常用于肯定句，“any”常用于（　）。",o:["祈使句", "感叹句", "所有肯定句", "疑问句或否定句"],a:["D"]},
- {t:"s",q:"询问村庄里是否有房屋，可以说（　）。",o:["Does village have are houses?", "Is there houses in the village?", "Are there any houses in the village?", "Where are any houses village?"],a:["C"]},
- {t:"s",q:"“Let's go boating.”的意思是（　）。",o:["我们去村庄吧。", "我们去划船吧。", "我们去爬山吧。", "我们去游泳吧。"],a:["B"]},
- {t:"s",q:"“The water is clean.”的意思是（　）。",o:["水很深。", "水很干净。", "水很热。", "水很多。"],a:["B"]},
- {t:"s",q:"询问公园景物，正确的句子是（　）。",o:["Do there trees beside lake?", "Are there a tree beside the lake?", "Is there any trees beside the lake?", "Are there any trees beside the lake?"],a:["D"]}];
+const ALL = [ {t:"s",q:"询问“公园里有河吗？”应该说（　）。",o:["Are there a river in the park?", "Where is the river park?", "Is there a river in the park?", "Does the park river?"],a:["C"],e:"解析：本题正确答案为 C：Is there a river in the park?。"},
+ {t:"s",q:"“Is there a lake?”的肯定回答是（　）。",o:["Yes, there does.", "Yes, there are.", "Yes, there is.", "Yes, it is."],a:["C"],e:"解析：本题正确答案为 C：Yes, there is.。"},
+ {t:"s",q:"“Is there a forest?”的否定回答是（　）。",o:["No, it isn't.", "No, there aren't.", "No, there isn't.", "No, there doesn't."],a:["C"],e:"解析：本题正确答案为 C：No, there isn't.。"},
+ {t:"s",q:"询问“有一些高楼吗？”应该说（　）。",o:["Are there a tall building?", "Are there any tall buildings?", "Do there tall buildings?", "Is there any tall buildings?"],a:["B"],e:"解析：本题正确答案为 B：Are there any tall buildings?。"},
+ {t:"s",q:"“Are there any houses?”的肯定回答是（　）。",o:["Yes, there is.", "Yes, there are.", "Yes, it is.", "Yes, they are houses."],a:["B"],e:"解析：本题正确答案为 B：Yes, there are.。"},
+ {t:"s",q:"“Are there any bridges?”的否定回答是（　）。",o:["No, there isn't.", "No, it isn't.", "No, they don't.", "No, there aren't."],a:["D"],e:"解析：本题正确答案为 D：No, there aren't.。"},
+ {t:"s",q:"“There is a river near the village.”的意思是（　）。",o:["河离村庄很远。", "村庄里有一座桥。", "村庄附近有一条河。", "河里有一个村庄。"],a:["C"],e:"解析：本题正确答案为 C：村庄附近有一条河。。"},
+ {t:"s",q:"“There are many trees in the forest.”的意思是（　）。",o:["树旁边有森林。", "森林里有一棵树。", "森林里有许多树。", "山上没有树。"],a:["C"],e:"解析：本题正确答案为 C：森林里有许多树。。"},
+ {t:"s",q:"描述“湖前面有一座小山”应说（　）。",o:["The lake is a hill.", "There is hill behind lake are.", "There is a hill in front of the lake.", "There are a hill in front of the lake."],a:["C"],e:"解析：本题正确答案为 C：There is a hill in front of the lake.。"},
+ {t:"s",q:"“The nature park is so quiet.”的意思是（　）。",o:["自然公园真安静。", "自然公园有高楼。", "自然公园很小。", "自然公园很热闹。"],a:["A"],e:"解析：本题正确答案为 A：自然公园真安静。。"},
+ {t:"s",q:"自然景物 river 表示（　）。",o:["湖泊", "森林", "河流", "高山"],a:["C"],e:"解析：本题正确答案为 C：河流。"},
+ {t:"s",q:"人工建筑 bridge 表示（　）。",o:["高楼", "村庄", "房屋", "桥"],a:["D"],e:"解析：本题正确答案为 D：桥。"},
+ {t:"m",q:"自然景物有（　）。",o:["river", "mountain", "forest", "building"],a:["A", "B", "C"],e:"解析：本题正确答案为 A、B、C：river；mountain；forest。"},
+ {t:"m",q:"人们建造的事物有（　）。",o:["lake", "building", "bridge", "house"],a:["B", "C", "D"],e:"解析：本题正确答案为 B、C、D：building；bridge；house。"},
+ {t:"s",q:"补全句子：There（　）some boats on the lake.",o:["is", "am", "are", "be"],a:["C"],e:"解析：本题正确答案为 C：are。"},
+ {t:"s",q:"补全对话：— Is there a mountain? — No,（　）。",o:["there isn't", "there doesn't", "it isn't", "there aren't"],a:["A"],e:"解析：本题正确答案为 A：there isn't。"},
+ {t:"s",q:"“some”常用于肯定句，“any”常用于（　）。",o:["祈使句", "感叹句", "所有肯定句", "疑问句或否定句"],a:["D"],e:"解析：本题正确答案为 D：疑问句或否定句。"},
+ {t:"s",q:"询问村庄里是否有房屋，可以说（　）。",o:["Does village have are houses?", "Is there houses in the village?", "Are there any houses in the village?", "Where are any houses village?"],a:["C"],e:"解析：本题正确答案为 C：Are there any houses in the village?。"},
+ {t:"s",q:"“Let's go boating.”的意思是（　）。",o:["我们去村庄吧。", "我们去划船吧。", "我们去爬山吧。", "我们去游泳吧。"],a:["B"],e:"解析：本题正确答案为 B：我们去划船吧。。"},
+ {t:"s",q:"“The water is clean.”的意思是（　）。",o:["水很深。", "水很干净。", "水很热。", "水很多。"],a:["B"],e:"解析：本题正确答案为 B：水很干净。。"},
+ {t:"s",q:"询问公园景物，正确的句子是（　）。",o:["Do there trees beside lake?", "Are there a tree beside the lake?", "Is there any trees beside the lake?", "Are there any trees beside the lake?"],a:["D"],e:"解析：本题正确答案为 D：Are there any trees beside the lake?。"}];
 const PER_ROUND = 10;
 const quiz = document.getElementById("quiz");
 let Q = [];

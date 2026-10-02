@@ -127,27 +127,27 @@
 </div>
 
 <script>
-const ALL = [ {t:"s",q:"「I have a cat.」的意思是（　）。",o:["我有一只猫。", "猫是我的。", "我想要一只猫。", "这是一只猫。"],a:["A"]},
- {t:"s",q:"询问「你知道哪些宠物？」应该说（　）。",o:["What's your name?", "How are you?", "What pets do you know?", "Where is the cat?"],a:["C"]},
- {t:"s",q:"熊猫的英语是（　）。",o:["pig", "panda", "plant", "pencil"],a:["B"]},
- {t:"s",q:"「The panda is black and white.」的意思是（　）。",o:["熊猫会游泳。", "熊猫很大。", "熊猫是黑白色的。", "熊猫爱吃竹子。"],a:["C"]},
- {t:"s",q:"告诉别人你有一只狗，说（　）。",o:["I have a dog.", "I am a dog.", "Dog, go!", "This is a dog food."],a:["A"]},
- {t:"s",q:"「cute」的意思是（　）。",o:["可爱的", "难看的", "巨大的", "危险的"],a:["A"]},
- {t:"s",q:"兔子的英语是（　）。",o:["rubber", "rabbit", "rain", "robot"],a:["B"]},
- {t:"s",q:"「Look at the bird!」的意思是（　）。",o:["喂那只鸟。", "鸟飞走了。", "看那只鸟！", "鸟在唱歌。"],a:["C"]},
- {t:"s",q:"宠物和野生动物的区别是（　）。",o:["野生动物更小", "宠物在家养，野生动物在大自然", "宠物会说话", "一样"],a:["B"]},
- {t:"s",q:"「fish」的复数一般说（　）。",o:["fishes 只在少数情况", "fishes 一定不用——常见 fish", "fishes 一定", "fish"],a:["D"]},
- {t:"m",q:"Pets 有（　）。",o:["cat", "dog", "panda（野生动物）", "fish"],a:["A", "B", "D"]},
- {t:"m",q:"Wild animals 有（　）。",o:["tiger", "elephant", "pet cat", "panda"],a:["A", "B", "D"]},
- {t:"s",q:"「Do you have a pet?」的正确回答是（　）。",o:["Yes, I have a dog.", "Ten.", "I'm fine.", "Yes, it is red."],a:["A"]},
- {t:"s",q:"爱护动物要（　）。",o:["投喂零食都行", "捉回家", "吓唬它们", "不打扰、不伤害它们"],a:["D"]},
- {t:"s",q:"「The rabbit has long ears.」的意思是（　）。",o:["兔子有长耳朵。", "兔子有短尾巴。", "兔子跑得快。", "兔子爱吃萝卜。"],a:["A"]},
- {t:"s",q:"问别人宠物的名字，说（　）。",o:["What colour is it?", "How old are you?", "What's your pet's name?", "Who are you?"],a:["C"]},
- {t:"s",q:"描述动物外形可以说（　）。",o:["唱出来", "It's big. / It's small. / It's cute.", "只说数字", "不说"],a:["B"]},
- {t:"s",q:"「amazing」的意思是（　）。",o:["神奇的、令人惊叹的", "普通的", "难过的", "可怕的"],a:["A"]},
- {t:"s",q:"保护大熊猫，我们应该（　）。",o:["砍竹子", "保护竹林和它们的家园", "扔垃圾", "抓一只养"],a:["B"]},
- {t:"s",q:"「I like animals.」的意思是（　）。",o:["动物在哪里？", "我喜欢动物。", "我有一只动物。", "动物喜欢我。"],a:["B"]},
- {t:"s",q:"去动物园要（　）。",o:["翻越围栏", "大喊大叫", "随便喂食", "遵守规则，不投喂、不拍打玻璃"],a:["D"]}];
+const ALL = [ {t:"s",q:"「I have a cat.」的意思是（　）。",o:["我有一只猫。", "猫是我的。", "我想要一只猫。", "这是一只猫。"],a:["A"],e:"解析：本题正确答案为 A：我有一只猫。。"},
+ {t:"s",q:"询问「你知道哪些宠物？」应该说（　）。",o:["What's your name?", "How are you?", "What pets do you know?", "Where is the cat?"],a:["C"],e:"解析：本题正确答案为 C：What pets do you know?。"},
+ {t:"s",q:"熊猫的英语是（　）。",o:["pig", "panda", "plant", "pencil"],a:["B"],e:"解析：本题正确答案为 B：panda。"},
+ {t:"s",q:"「The panda is black and white.」的意思是（　）。",o:["熊猫会游泳。", "熊猫很大。", "熊猫是黑白色的。", "熊猫爱吃竹子。"],a:["C"],e:"解析：本题正确答案为 C：熊猫是黑白色的。。"},
+ {t:"s",q:"告诉别人你有一只狗，说（　）。",o:["I have a dog.", "I am a dog.", "Dog, go!", "This is a dog food."],a:["A"],e:"解析：本题正确答案为 A：I have a dog.。"},
+ {t:"s",q:"「cute」的意思是（　）。",o:["可爱的", "难看的", "巨大的", "危险的"],a:["A"],e:"解析：本题正确答案为 A：可爱的。"},
+ {t:"s",q:"兔子的英语是（　）。",o:["rubber", "rabbit", "rain", "robot"],a:["B"],e:"解析：本题正确答案为 B：rabbit。"},
+ {t:"s",q:"「Look at the bird!」的意思是（　）。",o:["喂那只鸟。", "鸟飞走了。", "看那只鸟！", "鸟在唱歌。"],a:["C"],e:"解析：本题正确答案为 C：看那只鸟！。"},
+ {t:"s",q:"宠物和野生动物的区别是（　）。",o:["野生动物更小", "宠物在家养，野生动物在大自然", "宠物会说话", "一样"],a:["B"],e:"解析：本题正确答案为 B：宠物在家养，野生动物在大自然。"},
+ {t:"s",q:"「fish」的复数一般说（　）。",o:["fishes 只在少数情况", "fishes 一定不用——常见 fish", "fishes 一定", "fish"],a:["D"],e:"解析：本题正确答案为 D：fish。"},
+ {t:"m",q:"Pets 有（　）。",o:["cat", "dog", "panda（野生动物）", "fish"],a:["A", "B", "D"],e:"解析：本题正确答案为 A、B、D：cat；dog；fish。"},
+ {t:"m",q:"Wild animals 有（　）。",o:["tiger", "elephant", "pet cat", "panda"],a:["A", "B", "D"],e:"解析：本题正确答案为 A、B、D：tiger；elephant；panda。"},
+ {t:"s",q:"「Do you have a pet?」的正确回答是（　）。",o:["Yes, I have a dog.", "Ten.", "I'm fine.", "Yes, it is red."],a:["A"],e:"解析：本题正确答案为 A：Yes, I have a dog.。"},
+ {t:"s",q:"爱护动物要（　）。",o:["投喂零食都行", "捉回家", "吓唬它们", "不打扰、不伤害它们"],a:["D"],e:"解析：本题正确答案为 D：不打扰、不伤害它们。"},
+ {t:"s",q:"「The rabbit has long ears.」的意思是（　）。",o:["兔子有长耳朵。", "兔子有短尾巴。", "兔子跑得快。", "兔子爱吃萝卜。"],a:["A"],e:"解析：本题正确答案为 A：兔子有长耳朵。。"},
+ {t:"s",q:"问别人宠物的名字，说（　）。",o:["What colour is it?", "How old are you?", "What's your pet's name?", "Who are you?"],a:["C"],e:"解析：本题正确答案为 C：What's your pet's name?。"},
+ {t:"s",q:"描述动物外形可以说（　）。",o:["唱出来", "It's big. / It's small. / It's cute.", "只说数字", "不说"],a:["B"],e:"解析：本题正确答案为 B：It's big. / It's small. / It's cute.。"},
+ {t:"s",q:"「amazing」的意思是（　）。",o:["神奇的、令人惊叹的", "普通的", "难过的", "可怕的"],a:["A"],e:"解析：本题正确答案为 A：神奇的、令人惊叹的。"},
+ {t:"s",q:"保护大熊猫，我们应该（　）。",o:["砍竹子", "保护竹林和它们的家园", "扔垃圾", "抓一只养"],a:["B"],e:"解析：本题正确答案为 B：保护竹林和它们的家园。"},
+ {t:"s",q:"「I like animals.」的意思是（　）。",o:["动物在哪里？", "我喜欢动物。", "我有一只动物。", "动物喜欢我。"],a:["B"],e:"解析：本题正确答案为 B：我喜欢动物。。"},
+ {t:"s",q:"去动物园要（　）。",o:["翻越围栏", "大喊大叫", "随便喂食", "遵守规则，不投喂、不拍打玻璃"],a:["D"],e:"解析：本题正确答案为 D：遵守规则，不投喂、不拍打玻璃。"}];
 const PER_ROUND = 10;
 const quiz = document.getElementById("quiz");
 let Q = [];

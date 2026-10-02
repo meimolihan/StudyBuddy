@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>四年级英语上册 自测 · 第三单元 My friends 我的朋友 · 第1课 核心词汇</title>
+<style>
+  :root{
+    --bg:#eef2f7; --card:#ffffff; --ink:#1f2937; --muted:#5b6b7b;
+    --brand:#1565c0; --brand-soft:#e6f0fb; --ok:#2e7d32; --ok-soft:#e9f6ea;
+    --bad:#d32f2f; --bad-soft:#fdecec; --line:#e3e8ef; --warn:#e65100;
+    --head1:#1565c0; --head2:#7b1fa2; --btn-sec:#78909c;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0f1620; --card:#1a2533; --ink:#e6edf3; --muted:#9fb0c0;
+      --brand:#4ea1ff; --brand-soft:#16273c; --ok:#5fbf6a; --ok-soft:#15301c;
+      --bad:#ff6b6b; --bad-soft:#3a1a1a; --line:#2a3a4a; --warn:#ffa040;
+      --head1:#1e3a5f; --head2:#3a1f5f; --btn-sec:#54677a;
+    }
+  }
+  [data-theme="dark"]{
+    --bg:#0f1620; --card:#1a2533; --ink:#e6edf3; --muted:#9fb0c0;
+    --brand:#4ea1ff; --brand-soft:#16273c; --ok:#5fbf6a; --ok-soft:#15301c;
+    --bad:#ff6b6b; --bad-soft:#3a1a1a; --line:#2a3a4a; --warn:#ffa040;
+    --head1:#1e3a5f; --head2:#3a1f5f; --btn-sec:#54677a;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:"Microsoft YaHei","PingFang SC","微软雅黑",sans-serif;line-height:1.6;
+    transition:background .25s ease,color .25s ease;}
+  .wrap{max-width:760px;margin:0 auto;padding:20px 16px 60px;}
+  .head{background:linear-gradient(135deg,var(--head1),var(--head2));color:#fff;
+    border-radius:16px;padding:18px 20px;box-shadow:0 6px 18px rgba(0,0,0,.12);}
+  .topbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;}
+  .head h1{margin:0;font-size:21px;color:#fff;letter-spacing:.5px;}
+  .themebtn{background:rgba(255,255,255,.18);color:#fff;border:1px solid rgba(255,255,255,.4);
+    border-radius:20px;padding:6px 14px;font-size:13px;cursor:pointer;white-space:nowrap;
+    transition:.15s ease;}
+  .themebtn:hover{background:rgba(255,255,255,.32);}
+  .sub{color:rgba(255,255,255,.88);font-size:14px;margin:10px 0 14px;}
+  .meta{display:flex;flex-wrap:wrap;gap:10px;font-size:14px;}
+  .meta .box{background:rgba(255,255,255,.92);border-radius:8px;padding:6px 12px;color:#0d47a1;}
+  .meta .box b{color:#1565c0;}
+  .meta #score.done{background:#fff3e0;color:#e65100;}
+  .bank{font-size:13px;color:#1f2937;background:rgba(255,255,255,.88);border-radius:8px;
+    padding:8px 12px;margin-top:12px;}
+  .tip{background:rgba(255,255,255,.92);border-left:4px solid #ffb300;border-radius:8px;
+    padding:10px 14px;font-size:13px;color:#5d4037;margin-top:12px;}
+  .q{background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:16px 18px;margin-top:16px;box-shadow:0 1px 6px rgba(0,0,0,.04);transition:.2s;}
+  .q.correct{border-color:var(--ok);background:var(--ok-soft);}
+  .q.wrong{border-color:var(--bad);background:var(--bad-soft);}
+  .qtop{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+  .badge{font-size:12px;font-weight:700;color:#fff;border-radius:6px;padding:2px 8px;}
+  .badge.s{background:var(--brand);}
+  .badge.m{background:var(--warn);}
+  .qno{font-weight:700;}
+  .qtop{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .qspk{margin-left:auto;}
+  .spk{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;
+    width:28px;height:28px;border:none;background:var(--brand-soft);color:var(--brand);
+    border-radius:50%;cursor:pointer;font-size:14px;line-height:1;transition:.15s;}
+  .spk:hover{background:var(--brand);color:#fff;}
+  .spk.playing{background:var(--brand);color:#fff;}
+  .otext{margin-right:auto;}
+  .stem{font-size:16px;margin-bottom:10px;}
+  .opt{display:flex;align-items:center;gap:10px;border:1px solid var(--line);
+    border-radius:10px;padding:10px 12px;margin:8px 0;cursor:pointer;
+    font-size:15px;background:var(--card);transition:border-color .15s,background .15s,box-shadow .15s;user-select:none;}
+  .opt:hover{border-color:var(--brand);background:var(--brand-soft);}
+  .opt.sel{border-color:var(--brand);background:var(--brand-soft);font-weight:600;}
+  .opt .tick{width:22px;height:22px;border:2px solid #90a4ae;border-radius:6px;
+    flex:0 0 auto;display:flex;align-items:center;justify-content:center;font-size:15px;color:#fff;}
+  .opt.sel .tick{background:var(--brand);border-color:var(--brand);}
+  .opt.ok{border-color:var(--ok);background:var(--ok-soft);}
+  .opt.ok .tick{background:var(--ok);border-color:var(--ok);}
+  .opt.no{border-color:var(--bad);background:var(--bad-soft);}
+  .opt.no .tick{background:var(--bad);border-color:var(--bad);}
+  .answer{font-size:13px;color:#37474f;margin-top:8px;display:none;}
+  .q.done .answer{display:block;}
+  .btn{display:block;width:100%;margin:22px 0 0;padding:14px;border:none;border-radius:12px;
+    background:var(--brand);color:#fff;font-size:17px;font-weight:700;cursor:pointer;transition:.15s;}
+  .btn:hover{background:#0d47a1;}
+  .btn.sec{background:#90a4ae;margin-top:10px;}
+  .btn.sec:hover{background:#78909c;}
+  .result{background:var(--card);border-radius:14px;padding:16px 20px;margin-top:18px;
+    border:1px solid var(--line);display:none;text-align:center;}
+  .result.show{display:block;}
+  .result .big{font-size:40px;font-weight:800;color:var(--brand);}
+  .bar{height:10px;border-radius:6px;background:#eeeeee;overflow:hidden;margin:10px 0;}
+  .bar > i{display:block;height:100%;background:var(--ok);}
+  .foot{color:#9e9e9e;font-size:12px;text-align:center;margin-top:24px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <div class="topbar">
+      <h1>四年级英语上册 · 自测卷（人教版）</h1>
+      <button class="themebtn" id="themeBtn" onclick="toggleTheme()" title="切换主题：跟随系统 / 明亮 / 暗黑">🔄 跟随系统</button>
+    </div>
+    <div class="sub">第三单元 My friends 我的朋友 · 第1课 核心词汇</div>
+    <div class="meta">
+      <div class="box">姓名：<b>郭奕凡</b></div>
+      <div class="box">日期：<b id="date">—</b></div>
+      <div class="box" id="score">得分：<b>待评定</b></div>
+    </div>
+    <div class="bank">📚 题库共 <b>43</b> 题，每次最多抽取 <b>10</b> 题 · <span id="batch">第 1 批</span></div>
+    <div class="tip" id="broadcast">📣 今日广播：描述朋友用 friendly友好、quiet安静、strong强壮，再加 hair头发、glasses眼镜，画像更生动！</div>
+  </div>
+
+  <div id="quiz"></div>
+
+  <button class="btn" id="submit" onclick="grade()">✅ 提交自测（自动判分）</button>
+  <button class="btn sec" id="reset" onclick="resetAll()" style="display:none;">🔄 重做一遍（同一批）</button>
+  <button class="btn sec" id="continue" onclick="continueTest()" style="display:none;">➡️ 继续测试（换一批新题）</button>
+
+  <div class="result" id="result">
+    <div>本次自测得分</div>
+    <div class="big" id="scoreBig">0</div>
+    <div class="bar"><i id="barFill" style="width:0%"></i></div>
+    <div id="resultText"></div>
+  </div>
+
+  <div class="foot">人教版四年级英语上册 · 每题 10 分，满分 = 本批题数 × 10</div>
+</div>
+
+<script>
+const ALL = [ {t:"s",q:"“friendly”的中文意思是（　）。",o:["强壮的", "安静的", "友好的", "高的"],a:["C"]},
+ {t:"s",q:"“quiet”形容一个人（　）。",o:["友好的", "安静的", "强壮的", "吵闹的"],a:["B"]},
+ {t:"s",q:"“strong”的中文意思是（　）。",o:["高的", "矮的", "强壮的", "虚弱的"],a:["C"]},
+ {t:"s",q:"“glasses”指（　）。",o:["杯子", "玻璃", "班级", "眼镜"],a:["D"]},
+ {t:"s",q:"下列表示“头发”的是（　）。",o:["hair", "hat", "shoe", "glasses"],a:["A"]},
+ {t:"s",q:"下列表示“鞋”的是（　）。",o:["glasses", "hair", "shoe", "bag"],a:["C"]},
+ {t:"s",q:"“He is tall and strong.”描述的是（　）。",o:["他又矮又瘦", "他戴着眼镜", "他又高又强壮", "她安静友好"],a:["C"]},
+ {t:"s",q:"“She is quiet and friendly.”描述的是（　）。",o:["她又高又壮", "她是老师", "他是男孩", "她安静又友好"],a:["D"]},
+ {t:"s",q:"“a friendly boy”意思是（　）。",o:["一个强壮的女孩", "一个安静的老师", "一个高的朋友", "一个友好的男孩"],a:["D"]},
+ {t:"s",q:"想说“他戴着眼镜”，应说（　）。",o:["He is glasses.", "He has glasses.", "He glasses.", "He have glasses."],a:["B"]},
+ {t:"s",q:"“tall”相对（反义）的词是（　）。",o:["long", "short（矮的）", "big", "small"],a:["B"]},
+ {t:"s",q:"“thin”的中文意思是（　）。",o:["高的", "矮的", "瘦的", "胖的"],a:["C"]},
+ {t:"s",q:"选词填空：My friend is ______ and quiet.（我的朋友文静又友好）",o:["friendly", "tall", "strong", "big"],a:["A"]},
+ {t:"s",q:"选词填空：She has long ______.（她有长头发）",o:["hair", "shoe", "bag", "glasses"],a:["A"]},
+ {t:"s",q:"连词成句：is / He / tall / strong / and / . 正确顺序是（　）。",o:["He strong and tall is.", "He is tall and strong.", "Tall he is strong and.", "Is he tall strong."],a:["B"]},
+ {t:"s",q:"连词成句：has / She / glasses / . 正确顺序是（　）。",o:["She has glasses.", "Glasses she has.", "Has she glasses.", "She glasses has."],a:["A"]},
+ {t:"s",q:"辨音归类：下列（　）不是描述人物性格或外貌的词。",o:["apple", "friendly", "strong", "quiet"],a:["A"]},
+ {t:"s",q:"下列（　）不是穿戴或身体部位相关。",o:["window", "hair", "shoe", "glasses"],a:["A"]},
+ {t:"m",q:"下列描述人物性格/外貌的单词有（　）。",o:["quiet", "strong", "soup", "friendly"],a:["A", "B", "D"]},
+ {t:"m",q:"下列属于穿戴/身体部位相关的词有（　）。",o:["glasses", "window", "shoe", "hair"],a:["A", "C", "D"]},
+ {t:"s",q:"“He has short hair.”意思是（　）。",o:["他戴着眼镜", "他穿着鞋", "他有长头发", "他有短头发"],a:["D"]},
+ {t:"s",q:"“Her shoes are red.”意思是（　）。",o:["她的头发是红的", "她的鞋是红色的", "她的眼镜是红的", "她的包是红的"],a:["B"]},
+ {t:"s",q:"语法判断：He ______ tall.（他是高的）应填（　）。",o:["be", "am", "are", "is"],a:["D"]},
+ {t:"s",q:"语法判断：His shoes ______ blue.（他的鞋是蓝色的）应填（　）。",o:["be", "am", "is", "are"],a:["D"]},
+ {t:"s",q:"“a quiet girl”意思是（　）。",o:["一个友好的老师", "一个强壮的男孩", "一个文静的女孩", "一个高大的朋友"],a:["C"]},
+ {t:"s",q:"“友好的”的英文单词是（　）。",o:["friendly", "hat", "long hair", "thin"],a:["A"]},
+ {t:"s",q:"“眼镜”的英文单词是（　）。",o:["friendly", "glasses", "his", "strong"],a:["B"]},
+ {t:"s",q:"“她的”的英文单词是（　）。",o:["thin", "her", "friend", "glasses"],a:["B"]},
+ {t:"s",q:"“长头发”的英文单词是（　）。",o:["quiet", "long hair", "hat", "friend"],a:["B"]},
+ {t:"s",q:"“短头发”的英文单词是（　）。",o:["friend", "long hair", "hat", "short hair"],a:["D"]},
+ {t:"s",q:"“强壮的”的英文单词是（　）。",o:["thin", "glasses", "strong", "quiet"],a:["C"]},
+ {t:"s",q:"“帽子”的英文单词是（　）。",o:["strong", "hat", "her", "quiet"],a:["B"]},
+ {t:"s",q:"“他的”的英文单词是（　）。",o:["long hair", "his", "short hair", "thin"],a:["B"]},
+ {t:"s",q:"“鞋”的英文单词是（　）。",o:["shoe", "long hair", "her", "thin"],a:["A"]},
+ {t:"s",q:"“朋友”的英文单词是（　）。",o:["friend", "shoe", "long hair", "short hair"],a:["A"]},
+ {t:"s",q:"“安静的”的英文单词是（　）。",o:["strong", "glasses", "her", "quiet"],a:["D"]},
+ {t:"s",q:"“瘦的”的英文单词是（　）。",o:["short hair", "friendly", "thin", "quiet"],a:["C"]},
+ {t:"s",q:"— Who's he? — （　）",o:["She's my friend.", "He's my friend.", "It's a book.", "Yes, he is."],a:["B"]},
+ {t:"s",q:"— Do you have a good friend? — （　）",o:["Yes, I do.", "No, I'm not.", "Yes, I am.", "Yes, it is."],a:["A"]},
+ {t:"s",q:"“他留着短头发”应该说（　）。",o:["He has short hairs.", "He is short hair.", "He have short hair.", "He has short hair."],a:["D"]},
+ {t:"s",q:"“她的”英文是（　）。",o:["her", "his", "he", "she"],a:["A"]},
+ {t:"s",q:"“我的朋友戴眼镜”应该说（　）。",o:["My friend is glasses.", "My friend wears glass.", "My friend wears glasses.", "My friend wear glasses."],a:["C"]},
+ {t:"s",q:"“他又高又壮”应该说（　）。",o:["He tall and strong.", "He's tall and strong.", "He's tall and thin.", "He's tall or strong."],a:["B"]}];
+const PER_ROUND = 10;
+const quiz = document.getElementById("quiz");
+let Q = [];
+let seen = new Set();
+let batch = 0;
+
+const THEMES = ["auto", "light", "dark"];
+const THEME_ICON = { auto: "🔄 跟随系统", light: "☀️ 明亮模式", dark: "🌙 暗黑模式" };
+function applyTheme(t){
+  if(t === "dark") document.documentElement.setAttribute("data-theme", "dark");
+  else if(t === "light") document.documentElement.setAttribute("data-theme", "light");
+  else document.documentElement.removeAttribute("data-theme");
+}
+function updateThemeBtn(){
+  const t = localStorage.getItem("sci_theme") || "auto";
+  const btn = document.getElementById("themeBtn");
+  if(btn) btn.textContent = THEME_ICON[t];
+}
+function toggleTheme(){
+  const cur = localStorage.getItem("sci_theme") || "auto";
+  const next = THEMES[(THEMES.indexOf(cur) + 1) % 3];
+  localStorage.setItem("sci_theme", next);
+  applyTheme(next);
+  updateThemeBtn();
+}
+
+function shuffle(a){
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+function pickRound(){
+  // 优先抽取从未做过的题；整库做完后才重新洗牌，保证“续测不重复刷完”
+  let pool = ALL.map((_,i)=>i).filter(i=>!seen.has(i));
+  if(pool.length === 0){ seen = new Set(); pool = ALL.map((_,i)=>i); }
+  shuffle(pool);
+  const n = Math.min(PER_ROUND, pool.length);
+  const chosen = pool.slice(0, n);
+  chosen.forEach(i=>seen.add(i));
+  return chosen.map(i=>{ const o=Object.assign({},ALL[i]); o.pick=[]; return o; });
+}
+function speak(text, btn){
+  if(!('speechSynthesis' in window)){
+    alert('当前浏览器不支持朗读，请用 Chrome 或 Edge 打开。'); return;
+  }
+  try{ window.speechSynthesis.cancel(); }catch(e){}
+  document.querySelectorAll('.spk.playing').forEach(function(b){b.classList.remove('playing');});
+  const u=new SpeechSynthesisUtterance(String(text));
+  u.lang='en-US'; u.rate=0.9; u.pitch=1;
+  if(btn){
+    btn.classList.add('playing');
+    u.onend=function(){ btn.classList.remove('playing'); };
+    u.onerror=function(){ btn.classList.remove('playing'); };
+  }
+  window.speechSynthesis.speak(u);
+}
+function render(){
+  quiz.innerHTML="";
+  Q.forEach((item,i)=>{
+    const wrap=document.createElement("div");
+    wrap.className="q"; wrap.id="q"+i;
+    const qtop=document.createElement("div"); qtop.className="qtop";
+    const badge=document.createElement("span");
+    badge.className="badge "+(item.t==="s"?"s":"m");
+    badge.textContent=item.t==="s"?"单选题":"多选题";
+    const qno=document.createElement("span"); qno.className="qno"; qno.textContent="第 "+(i+1)+" 题";
+    const qspk=document.createElement("button"); qspk.className="spk qspk"; qspk.type="button";
+    qspk.title="读题（朗读题目与选项）"; qspk.textContent="🔊";
+    const full=item.q+"。"+item.o.map((o,j)=>"ABCD"[j]+"："+o).join("，")+"。"
+      +(item.t==="s"?"这是单选题，请选一个答案。":"这是多选题，可以选多个答案。");
+    qspk.addEventListener("click",function(){ speak(full, qspk); });
+    qtop.appendChild(badge); qtop.appendChild(qno); qtop.appendChild(qspk);
+    const stem=document.createElement("div"); stem.className="stem"; stem.textContent=item.q;
+    wrap.appendChild(qtop); wrap.appendChild(stem);
+    item.o.forEach(function(o,j){
+      const opt=document.createElement("div"); opt.className="opt"; opt.id="o"+i+"_"+j;
+      opt.addEventListener("click",function(){ pick(i,j); });
+      const tick=document.createElement("span"); tick.className="tick"; tick.id="tk"+i+"_"+j; tick.textContent="○";
+      const otext=document.createElement("span"); otext.className="otext"; otext.textContent="ABCD"[j]+". "+o;
+      const spk=document.createElement("button"); spk.className="spk"; spk.type="button";
+      spk.title="读出来"; spk.textContent="🔊";
+      spk.addEventListener("click",function(e){ e.stopPropagation(); speak(o, spk); });
+      opt.appendChild(tick); opt.appendChild(otext); opt.appendChild(spk);
+      wrap.appendChild(opt);
+    });
+    const ans=document.createElement("div"); ans.className="answer"; ans.id="ans"+i;
+    wrap.appendChild(ans);
+    quiz.appendChild(wrap);
+  });
+  document.getElementById("batch").textContent = "第 "+batch+" 批";
+}
+function newRound(){
+  if(window.speechSynthesis){ try{ window.speechSynthesis.cancel(); }catch(e){} }
+  batch++;
+  Q = pickRound();
+  render();
+  const sc=document.getElementById("score");
+  sc.innerHTML='得分：<b>待评定</b>'; sc.classList.remove("done");
+  document.getElementById("result").classList.remove("show");
+  document.getElementById("reset").style.display="none";
+  document.getElementById("continue").style.display="none";
+  const sb=document.getElementById("submit"); sb.textContent="✅ 提交自测（自动判分）"; sb.disabled=false;
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function pick(i,j){
+  const item=Q[i];
+  const el=document.getElementById("o"+i+"_"+j);
+  if(item.t==="s"){
+    for(let k=0;k<item.o.length;k++){
+      document.getElementById("o"+i+"_"+k).classList.remove("sel");
+      document.getElementById("tk"+i+"_"+k).textContent="○";
+    }
+    el.classList.add("sel"); document.getElementById("tk"+i+"_"+j).textContent="✔";
+    item.pick=["ABCD"[j]];
+  }else{
+    if(el.classList.contains("sel")){
+      el.classList.remove("sel"); document.getElementById("tk"+i+"_"+j).textContent="○";
+      item.pick=(item.pick||[]).filter(x=>x!=="ABCD"[j]);
+    }else{
+      el.classList.add("sel"); document.getElementById("tk"+i+"_"+j).textContent="✔";
+      item.pick=item.pick||[]; if(!item.pick.includes("ABCD"[j])) item.pick.push("ABCD"[j]);
+    }
+  }
+}
+function grade(){
+  let score=0; let answered=0;
+  Q.forEach((item,i)=>{
+    const sel=(item.pick||[]).slice().sort();
+    const ans=item.a.slice().sort();
+    const right = sel.length===ans.length && sel.every((v,k)=>v===ans[k]);
+    const box=document.getElementById("q"+i);
+    box.classList.add("done");
+    if(sel.length>0) answered++;
+    if(right){ score+=10; box.classList.add("correct"); }
+    else{
+      box.classList.add("wrong");
+      item.a.forEach(L=>{const idx="ABCD".indexOf(L);document.getElementById("o"+i+"_"+idx).classList.add("ok");
+        document.getElementById("tk"+i+"_"+idx).textContent="✔";});
+      (item.pick||[]).forEach(L=>{if(!item.a.includes(L)){const idx="ABCD".indexOf(L);
+        document.getElementById("o"+i+"_"+idx).classList.add("no");
+        document.getElementById("tk"+i+"_"+idx).textContent="✘";}});
+    }
+    document.getElementById("ans"+i).innerHTML =
+      "<b>正确答案："+item.a.join("、")+"</b>" + (right?" ✓ 你答对啦！":"（本题你未答对）");
+  });
+  const maxScore = Q.length * 10;
+  const sc=document.getElementById("score");
+  sc.innerHTML='得分：<b>'+score+'</b> / '+maxScore; sc.classList.add("done");
+  document.getElementById("scoreBig").textContent=score;
+  document.getElementById("barFill").style.width=(maxScore?score/maxScore*100:0)+"%";
+  const msg = score>=80 ? "🎉 通过！可推进到下一节。"
+            : score>=60 ? "⚠️ 部分掌握，建议再巩固一下。"
+            : "❌ 未通过，需重新学习本节。";
+  document.getElementById("resultText").innerHTML =
+    (answered<Q.length?"（注意：有 "+(Q.length-answered)+" 题未作答）<br>":"")+msg;
+  document.getElementById("result").classList.add("show");
+  document.getElementById("reset").style.display="block";
+  document.getElementById("continue").style.display="block";
+  document.getElementById("submit").textContent="已提交 ✔";
+  document.getElementById("submit").disabled=true;
+  window.scrollTo({top:document.getElementById("result").offsetTop-20,behavior:"smooth"});
+}
+function resetAll(){
+  if(window.speechSynthesis){ try{ window.speechSynthesis.cancel(); }catch(e){} }
+  Q.forEach(it=>it.pick=[]);
+  document.querySelectorAll(".opt").forEach(o=>{o.classList.remove("sel","ok","no");
+    o.querySelector(".tick").textContent="○";});
+  document.querySelectorAll(".q").forEach(q=>q.classList.remove("done","correct","wrong"));
+  document.querySelectorAll(".answer").forEach(a=>a.innerHTML="");
+  const sc=document.getElementById("score");sc.innerHTML='得分：<b>待评定</b>';sc.classList.remove("done");
+  document.getElementById("result").classList.remove("show");
+  document.getElementById("reset").style.display="none";
+  document.getElementById("continue").style.display="none";
+  const sb=document.getElementById("submit");sb.textContent="✅ 提交自测（自动判分）";sb.disabled=false;
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function continueTest(){ newRound(); }
+(function(){
+  const d=new Date();
+  const pad=n=>String(n).padStart(2,"0");
+  document.getElementById("date").textContent=`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  applyTheme(localStorage.getItem("sci_theme") || "auto");
+  updateThemeBtn();
+  newRound();
+})();
+</script>
+</body>
+</html>

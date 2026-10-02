@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>高二数学选择性必修第一册 自测 · 第一章 空间向量与立体几何 · 第2课 空间向量基本定理</title>
+<style>
+  :root{
+    --bg:#eef2f7; --card:#ffffff; --ink:#1f2937; --muted:#5b6b7b;
+    --brand:#1565c0; --brand-soft:#e6f0fb; --ok:#2e7d32; --ok-soft:#e9f6ea;
+    --bad:#d32f2f; --bad-soft:#fdecec; --line:#e3e8ef; --warn:#e65100;
+    --head1:#1565c0; --head2:#7b1fa2; --btn-sec:#78909c;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0f1620; --card:#1a2533; --ink:#e6edf3; --muted:#9fb0c0;
+      --brand:#4ea1ff; --brand-soft:#16273c; --ok:#5fbf6a; --ok-soft:#15301c;
+      --bad:#ff6b6b; --bad-soft:#3a1a1a; --line:#2a3a4a; --warn:#ffa040;
+      --head1:#1e3a5f; --head2:#3a1f5f; --btn-sec:#54677a;
+    }
+  }
+  [data-theme="dark"]{
+    --bg:#0f1620; --card:#1a2533; --ink:#e6edf3; --muted:#9fb0c0;
+    --brand:#4ea1ff; --brand-soft:#16273c; --ok:#5fbf6a; --ok-soft:#15301c;
+    --bad:#ff6b6b; --bad-soft:#3a1a1a; --line:#2a3a4a; --warn:#ffa040;
+    --head1:#1e3a5f; --head2:#3a1f5f; --btn-sec:#54677a;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:"Microsoft YaHei","PingFang SC","微软雅黑",sans-serif;line-height:1.6;
+    transition:background .25s ease,color .25s ease;}
+  .wrap{max-width:760px;margin:0 auto;padding:20px 16px 60px;}
+  .head{background:linear-gradient(135deg,var(--head1),var(--head2));color:#fff;
+    border-radius:16px;padding:18px 20px;box-shadow:0 6px 18px rgba(0,0,0,.12);}
+  .topbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;}
+  .head h1{margin:0;font-size:21px;color:#fff;letter-spacing:.5px;}
+  .themebtn{background:rgba(255,255,255,.18);color:#fff;border:1px solid rgba(255,255,255,.4);
+    border-radius:20px;padding:6px 14px;font-size:13px;cursor:pointer;white-space:nowrap;
+    transition:.15s ease;}
+  .themebtn:hover{background:rgba(255,255,255,.32);}
+  .sub{color:rgba(255,255,255,.88);font-size:14px;margin:10px 0 14px;}
+  .meta{display:flex;flex-wrap:wrap;gap:10px;font-size:14px;}
+  .meta .box{background:rgba(255,255,255,.92);border-radius:8px;padding:6px 12px;color:#0d47a1;}
+  .meta .box b{color:#1565c0;}
+  .meta #score.done{background:#fff3e0;color:#e65100;}
+  .bank{font-size:13px;color:#1f2937;background:rgba(255,255,255,.88);border-radius:8px;
+    padding:8px 12px;margin-top:12px;}
+  .tip{background:rgba(255,255,255,.92);border-left:4px solid #ffb300;border-radius:8px;
+    padding:10px 14px;font-size:13px;color:#5d4037;margin-top:12px;}
+  .q{background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:16px 18px;margin-top:16px;box-shadow:0 1px 6px rgba(0,0,0,.04);transition:.2s;}
+  .q.correct{border-color:var(--ok);background:var(--ok-soft);}
+  .q.wrong{border-color:var(--bad);background:var(--bad-soft);}
+  .qtop{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+  .badge{font-size:12px;font-weight:700;color:#fff;border-radius:6px;padding:2px 8px;}
+  .badge.s{background:var(--brand);}
+  .badge.m{background:var(--warn);}
+  .qno{font-weight:700;}
+  .qtop{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .qspk{margin-left:auto;}
+  .spk{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;
+    width:28px;height:28px;border:none;background:var(--brand-soft);color:var(--brand);
+    border-radius:50%;cursor:pointer;font-size:14px;line-height:1;transition:.15s;}
+  .spk:hover{background:var(--brand);color:#fff;}
+  .spk.playing{background:var(--brand);color:#fff;}
+  .otext{margin-right:auto;}
+  .stem{font-size:16px;margin-bottom:10px;}
+  .opt{display:flex;align-items:center;gap:10px;border:1px solid var(--line);
+    border-radius:10px;padding:10px 12px;margin:8px 0;cursor:pointer;
+    font-size:15px;background:var(--card);transition:border-color .15s,background .15s,box-shadow .15s;user-select:none;}
+  .opt:hover{border-color:var(--brand);background:var(--brand-soft);}
+  .opt.sel{border-color:var(--brand);background:var(--brand-soft);font-weight:600;}
+  .opt .tick{width:22px;height:22px;border:2px solid #90a4ae;border-radius:6px;
+    flex:0 0 auto;display:flex;align-items:center;justify-content:center;font-size:15px;color:#fff;}
+  .opt.sel .tick{background:var(--brand);border-color:var(--brand);}
+  .opt.ok{border-color:var(--ok);background:var(--ok-soft);}
+  .opt.ok .tick{background:var(--ok);border-color:var(--ok);}
+  .opt.no{border-color:var(--bad);background:var(--bad-soft);}
+  .opt.no .tick{background:var(--bad);border-color:var(--bad);}
+  .answer{font-size:13px;color:#37474f;margin-top:8px;display:none;}
+  .q.done .answer{display:block;}
+  .btn{display:block;width:100%;margin:22px 0 0;padding:14px;border:none;border-radius:12px;
+    background:var(--brand);color:#fff;font-size:17px;font-weight:700;cursor:pointer;transition:.15s;}
+  .btn:hover{background:#0d47a1;}
+  .btn.sec{background:#90a4ae;margin-top:10px;}
+  .btn.sec:hover{background:#78909c;}
+  .result{background:var(--card);border-radius:14px;padding:16px 20px;margin-top:18px;
+    border:1px solid var(--line);display:none;text-align:center;}
+  .result.show{display:block;}
+  .result .big{font-size:40px;font-weight:800;color:var(--brand);}
+  .bar{height:10px;border-radius:6px;background:#eeeeee;overflow:hidden;margin:10px 0;}
+  .bar > i{display:block;height:100%;background:var(--ok);}
+  .foot{color:#9e9e9e;font-size:12px;text-align:center;margin-top:24px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <div class="topbar">
+      <h1>高二数学选择性必修第一册 · 自测卷（人教版）</h1>
+      <button class="themebtn" id="themeBtn" onclick="toggleTheme()" title="切换主题：跟随系统 / 明亮 / 暗黑">🔄 跟随系统</button>
+    </div>
+    <div class="sub">第一章 空间向量与立体几何 · 第2课 空间向量基本定理</div>
+    <div class="meta">
+      <div class="box">姓名：<b>郭奕凡</b></div>
+      <div class="box">日期：<b id="date">—</b></div>
+      <div class="box" id="score">得分：<b>待评定</b></div>
+    </div>
+    <div class="bank">📚 题库共 <b>24</b> 题，每次最多抽取 <b>10</b> 题 · <span id="batch">第 1 批</span></div>
+    <div class="tip" id="broadcast">📣 三个合适的向量可以表示整个空间。想一想：为什么基向量不能共面？</div>
+  </div>
+
+  <div id="quiz"></div>
+
+  <button class="btn" id="submit" onclick="grade()">✅ 提交自测（自动判分）</button>
+  <button class="btn sec" id="reset" onclick="resetAll()" style="display:none;">🔄 重做一遍（同一批）</button>
+  <button class="btn sec" id="continue" onclick="continueTest()" style="display:none;">➡️ 继续测试（换一批新题）</button>
+
+  <div class="result" id="result">
+    <div>本次自测得分</div>
+    <div class="big" id="scoreBig">0</div>
+    <div class="bar"><i id="barFill" style="width:0%"></i></div>
+    <div id="resultText"></div>
+  </div>
+
+  <div class="foot">人教版高二数学选择性必修第一册 · 每题 10 分，满分 = 本批题数 × 10</div>
+</div>
+
+<script>
+const ALL = [ {t:"s",q:"“空间向量基本定理”的含义是（　）。",o:["由两两垂直且模都为 1 的三个向量组成的基底", "若其中一个向量能由另外两个向量线性表示，则这三个向量共面", "若三个向量 a、b、c 不共面，则对空间任一向量 p，存在唯一的有序实数组 (x, y, z) 使 p=xa+yb+zc", "所选三个向量必须不共面，通常取自同一顶点出发且不共面的三条线段方向"],a:["C"]},
+ {t:"s",q:"“基向量的选取”的含义是（　）。",o:["给定基底后，空间任意向量按该基底分解的方式只有一种", "由两两垂直且模都为 1 的三个向量组成的基底", "常选共顶点的三条棱所在的向量作基底，便于表示几何体中的其他向量", "空间中点 P 在平面 ABC 内的充要条件是存在实数 x、y 使 AP=xAB+yAC"],a:["C"]},
+ {t:"s",q:"“单位正交基底”的含义是（　）。",o:["给定基底后，空间任意向量按该基底分解的方式只有一种", "O 为直线 l 外一点，A 在 l 上，a 为 l 的方向向量，则点 P 在 l 上 ⟺ OP=OA+t·a（t∈R）", "由两两垂直且模都为 1 的三个向量组成的基底", "把空间中的向量统一用三个不共面的基向量表示，使几何问题代数化"],a:["C"]},
+ {t:"s",q:"“分解式的唯一性”的含义是（　）。",o:["把空间中的向量统一用三个不共面的基向量表示，使几何问题代数化", "由两两垂直且模都为 1 的三个向量组成的基底", "所选三个向量必须不共面，通常取自同一顶点出发且不共面的三条线段方向", "给定基底后，空间任意向量按该基底分解的方式只有一种"],a:["D"]},
+ {t:"s",q:"“用基底表示向量的步骤”的含义是（　）。",o:["选定基底，把目标向量沿基向量方向分解，再求出各组系数", "常选共顶点的三条棱所在的向量作基底，便于表示几何体中的其他向量", "空间中点 P 在平面 ABC 内的充要条件是存在实数 x、y 使 AP=xAB+yAC", "所选三个向量必须不共面，通常取自同一顶点出发且不共面的三条线段方向"],a:["A"]},
+ {t:"s",q:"“直线的向量参数方程”的含义是（　）。",o:["O 为直线 l 外一点，A 在 l 上，a 为 l 的方向向量，则点 P 在 l 上 ⟺ OP=OA+t·a（t∈R）", "所选三个向量必须不共面，通常取自同一顶点出发且不共面的三条线段方向", "给定基底后，空间任意向量按该基底分解的方式只有一种", "同一个向量可以选用不同的基底来表示，分解式随基底的不同而不同"],a:["A"]},
+ {t:"s",q:"“基底的选取原则”的含义是（　）。",o:["空间中三个不共面的向量组成的集合，可以用来表示空间中的任意向量", "所选三个向量必须不共面，通常取自同一顶点出发且不共面的三条线段方向", "给定基底后，空间任意向量按该基底分解的方式只有一种", "若其中一个向量能由另外两个向量线性表示，则这三个向量共面"],a:["B"]},
+ {t:"s",q:"“基底的不唯一性”的含义是（　）。",o:["所选三个向量必须不共面，通常取自同一顶点出发且不共面的三条线段方向", "选定基底，把目标向量沿基向量方向分解，再求出各组系数", "由两两垂直且模都为 1 的三个向量组成的基底", "同一个向量可以选用不同的基底来表示，分解式随基底的不同而不同"],a:["D"]},
+ {t:"s",q:"“四点共面的充要条件”的含义是（　）。",o:["常选共顶点的三条棱所在的向量作基底，便于表示几何体中的其他向量", "给定基底后，空间任意向量按该基底分解的方式只有一种", "空间中点 P 在平面 ABC 内的充要条件是存在实数 x、y 使 AP=xAB+yAC", "若三个向量 a、b、c 不共面，则对空间任一向量 p，存在唯一的有序实数组 (x, y, z) 使 p=xa+yb+zc"],a:["C"]},
+ {t:"s",q:"“基底”的含义是（　）。",o:["由两两垂直且模都为 1 的三个向量组成的基底", "同一个向量可以选用不同的基底来表示，分解式随基底的不同而不同", "空间中三个不共面的向量组成的集合，可以用来表示空间中的任意向量", "给定基底后，空间任意向量按该基底分解的方式只有一种"],a:["C"]},
+ {t:"s",q:"“三个向量共面的判断”的含义是（　）。",o:["选定基底，把目标向量沿基向量方向分解，再求出各组系数", "若三个向量 a、b、c 不共面，则对空间任一向量 p，存在唯一的有序实数组 (x, y, z) 使 p=xa+yb+zc", "空间中三个不共面的向量组成的集合，可以用来表示空间中的任意向量", "若其中一个向量能由另外两个向量线性表示，则这三个向量共面"],a:["D"]},
+ {t:"s",q:"“基本定理的意义”的含义是（　）。",o:["把空间中的向量统一用三个不共面的基向量表示，使几何问题代数化", "空间中点 P 在平面 ABC 内的充要条件是存在实数 x、y 使 AP=xAB+yAC", "常选共顶点的三条棱所在的向量作基底，便于表示几何体中的其他向量", "若三个向量 a、b、c 不共面，则对空间任一向量 p，存在唯一的有序实数组 (x, y, z) 使 p=xa+yb+zc"],a:["A"]},
+ {t:"s",q:"“空间中点 P 在平面 ABC 内的充要条件是存在实数 x、y 使 AP=xAB+yAC”指的是（　）。",o:["四点共面的充要条件", "三个向量共面的判断", "基向量的选取", "分解式的唯一性"],a:["A"]},
+ {t:"s",q:"“所选三个向量必须不共面，通常取自同一顶点出发且不共面的三条线段方向”指的是（　）。",o:["基底的不唯一性", "四点共面的充要条件", "分解式的唯一性", "基底的选取原则"],a:["D"]},
+ {t:"s",q:"“选定基底，把目标向量沿基向量方向分解，再求出各组系数”指的是（　）。",o:["空间向量基本定理", "基本定理的意义", "分解式的唯一性", "用基底表示向量的步骤"],a:["D"]},
+ {t:"s",q:"“常选共顶点的三条棱所在的向量作基底，便于表示几何体中的其他向量”指的是（　）。",o:["四点共面的充要条件", "基向量的选取", "空间向量基本定理", "用基底表示向量的步骤"],a:["B"]},
+ {t:"s",q:"“O 为直线 l 外一点，A 在 l 上，a 为 l 的方向向量，则点 P 在 l 上 ⟺ OP=OA+t·a（t∈R）”指的是（　）。",o:["基底", "三个向量共面的判断", "直线的向量参数方程", "基向量的选取"],a:["C"]},
+ {t:"s",q:"“同一个向量可以选用不同的基底来表示，分解式随基底的不同而不同”指的是（　）。",o:["基底的不唯一性", "基向量的选取", "基底", "空间向量基本定理"],a:["A"]},
+ {t:"s",q:"“若三个向量 a、b、c 不共面，则对空间任一向量 p，存在唯一的有序实数组 (x, y, z) 使 p=xa+yb+zc”指的是（　）。",o:["直线的向量参数方程", "三个向量共面的判断", "空间向量基本定理", "四点共面的充要条件"],a:["C"]},
+ {t:"s",q:"“空间中三个不共面的向量组成的集合，可以用来表示空间中的任意向量”指的是（　）。",o:["直线的向量参数方程", "基底", "分解式的唯一性", "基向量的选取"],a:["B"]},
+ {t:"s",q:"“给定基底后，空间任意向量按该基底分解的方式只有一种”指的是（　）。",o:["用基底表示向量的步骤", "分解式的唯一性", "直线的向量参数方程", "基底"],a:["B"]},
+ {t:"s",q:"“把空间中的向量统一用三个不共面的基向量表示，使几何问题代数化”指的是（　）。",o:["单位正交基底", "空间向量基本定理", "基向量的选取", "基本定理的意义"],a:["D"]},
+ {t:"s",q:"“若其中一个向量能由另外两个向量线性表示，则这三个向量共面”指的是（　）。",o:["基向量的选取", "基底的不唯一性", "空间向量基本定理", "三个向量共面的判断"],a:["D"]},
+ {t:"s",q:"“由两两垂直且模都为 1 的三个向量组成的基底”指的是（　）。",o:["基本定理的意义", "单位正交基底", "四点共面的充要条件", "基底的不唯一性"],a:["B"]}];
+const PER_ROUND = 10;
+const quiz = document.getElementById("quiz");
+let Q = [];
+let seen = new Set();
+let batch = 0;
+
+const THEMES = ["auto", "light", "dark"];
+const THEME_ICON = { auto: "🔄 跟随系统", light: "☀️ 明亮模式", dark: "🌙 暗黑模式" };
+function applyTheme(t){
+  if(t === "dark") document.documentElement.setAttribute("data-theme", "dark");
+  else if(t === "light") document.documentElement.setAttribute("data-theme", "light");
+  else document.documentElement.removeAttribute("data-theme");
+}
+function updateThemeBtn(){
+  const t = localStorage.getItem("sci_theme") || "auto";
+  const btn = document.getElementById("themeBtn");
+  if(btn) btn.textContent = THEME_ICON[t];
+}
+function toggleTheme(){
+  const cur = localStorage.getItem("sci_theme") || "auto";
+  const next = THEMES[(THEMES.indexOf(cur) + 1) % 3];
+  localStorage.setItem("sci_theme", next);
+  applyTheme(next);
+  updateThemeBtn();
+}
+
+function shuffle(a){
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+function pickRound(){
+  // 优先抽取从未做过的题；整库做完后才重新洗牌，保证“续测不重复刷完”
+  let pool = ALL.map((_,i)=>i).filter(i=>!seen.has(i));
+  if(pool.length === 0){ seen = new Set(); pool = ALL.map((_,i)=>i); }
+  shuffle(pool);
+  const n = Math.min(PER_ROUND, pool.length);
+  const chosen = pool.slice(0, n);
+  chosen.forEach(i=>seen.add(i));
+  return chosen.map(i=>{ const o=Object.assign({},ALL[i]); o.pick=[]; return o; });
+}
+function speak(text, btn){
+  if(!('speechSynthesis' in window)){
+    alert('当前浏览器不支持朗读，请用 Chrome 或 Edge 打开。'); return;
+  }
+  try{ window.speechSynthesis.cancel(); }catch(e){}
+  document.querySelectorAll('.spk.playing').forEach(function(b){b.classList.remove('playing');});
+  const u=new SpeechSynthesisUtterance(String(text));
+  u.lang='zh-CN'; u.rate=0.9; u.pitch=1;
+  if(btn){
+    btn.classList.add('playing');
+    u.onend=function(){ btn.classList.remove('playing'); };
+    u.onerror=function(){ btn.classList.remove('playing'); };
+  }
+  window.speechSynthesis.speak(u);
+}
+function render(){
+  quiz.innerHTML="";
+  Q.forEach((item,i)=>{
+    const wrap=document.createElement("div");
+    wrap.className="q"; wrap.id="q"+i;
+    const qtop=document.createElement("div"); qtop.className="qtop";
+    const badge=document.createElement("span");
+    badge.className="badge "+(item.t==="s"?"s":"m");
+    badge.textContent=item.t==="s"?"单选题":"多选题";
+    const qno=document.createElement("span"); qno.className="qno"; qno.textContent="第 "+(i+1)+" 题";
+    const qspk=document.createElement("button"); qspk.className="spk qspk"; qspk.type="button";
+    qspk.title="读题（朗读题目与选项）"; qspk.textContent="🔊";
+    const full=item.q+"。"+item.o.map((o,j)=>"ABCD"[j]+"："+o).join("，")+"。"
+      +(item.t==="s"?"这是单选题，请选一个答案。":"这是多选题，可以选多个答案。");
+    qspk.addEventListener("click",function(){ speak(full, qspk); });
+    qtop.appendChild(badge); qtop.appendChild(qno); qtop.appendChild(qspk);
+    const stem=document.createElement("div"); stem.className="stem"; stem.textContent=item.q;
+    wrap.appendChild(qtop); wrap.appendChild(stem);
+    item.o.forEach(function(o,j){
+      const opt=document.createElement("div"); opt.className="opt"; opt.id="o"+i+"_"+j;
+      opt.addEventListener("click",function(){ pick(i,j); });
+      const tick=document.createElement("span"); tick.className="tick"; tick.id="tk"+i+"_"+j; tick.textContent="○";
+      const otext=document.createElement("span"); otext.className="otext"; otext.textContent="ABCD"[j]+". "+o;
+      const spk=document.createElement("button"); spk.className="spk"; spk.type="button";
+      spk.title="读出来"; spk.textContent="🔊";
+      spk.addEventListener("click",function(e){ e.stopPropagation(); speak(o, spk); });
+      opt.appendChild(tick); opt.appendChild(otext); opt.appendChild(spk);
+      wrap.appendChild(opt);
+    });
+    const ans=document.createElement("div"); ans.className="answer"; ans.id="ans"+i;
+    wrap.appendChild(ans);
+    quiz.appendChild(wrap);
+  });
+  document.getElementById("batch").textContent = "第 "+batch+" 批";
+}
+function newRound(){
+  if(window.speechSynthesis){ try{ window.speechSynthesis.cancel(); }catch(e){} }
+  batch++;
+  Q = pickRound();
+  render();
+  const sc=document.getElementById("score");
+  sc.innerHTML='得分：<b>待评定</b>'; sc.classList.remove("done");
+  document.getElementById("result").classList.remove("show");
+  document.getElementById("reset").style.display="none";
+  document.getElementById("continue").style.display="none";
+  const sb=document.getElementById("submit"); sb.textContent="✅ 提交自测（自动判分）"; sb.disabled=false;
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function pick(i,j){
+  const item=Q[i];
+  const el=document.getElementById("o"+i+"_"+j);
+  if(item.t==="s"){
+    for(let k=0;k<item.o.length;k++){
+      document.getElementById("o"+i+"_"+k).classList.remove("sel");
+      document.getElementById("tk"+i+"_"+k).textContent="○";
+    }
+    el.classList.add("sel"); document.getElementById("tk"+i+"_"+j).textContent="✔";
+    item.pick=["ABCD"[j]];
+  }else{
+    if(el.classList.contains("sel")){
+      el.classList.remove("sel"); document.getElementById("tk"+i+"_"+j).textContent="○";
+      item.pick=(item.pick||[]).filter(x=>x!=="ABCD"[j]);
+    }else{
+      el.classList.add("sel"); document.getElementById("tk"+i+"_"+j).textContent="✔";
+      item.pick=item.pick||[]; if(!item.pick.includes("ABCD"[j])) item.pick.push("ABCD"[j]);
+    }
+  }
+}
+function grade(){
+  let score=0; let answered=0;
+  Q.forEach((item,i)=>{
+    const sel=(item.pick||[]).slice().sort();
+    const ans=item.a.slice().sort();
+    const right = sel.length===ans.length && sel.every((v,k)=>v===ans[k]);
+    const box=document.getElementById("q"+i);
+    box.classList.add("done");
+    if(sel.length>0) answered++;
+    if(right){ score+=10; box.classList.add("correct"); }
+    else{
+      box.classList.add("wrong");
+      item.a.forEach(L=>{const idx="ABCD".indexOf(L);document.getElementById("o"+i+"_"+idx).classList.add("ok");
+        document.getElementById("tk"+i+"_"+idx).textContent="✔";});
+      (item.pick||[]).forEach(L=>{if(!item.a.includes(L)){const idx="ABCD".indexOf(L);
+        document.getElementById("o"+i+"_"+idx).classList.add("no");
+        document.getElementById("tk"+i+"_"+idx).textContent="✘";}});
+    }
+    document.getElementById("ans"+i).innerHTML =
+      "<b>正确答案："+item.a.join("、")+"</b>" + (right?" ✓ 你答对啦！":"（本题你未答对）");
+  });
+  const maxScore = Q.length * 10;
+  const sc=document.getElementById("score");
+  sc.innerHTML='得分：<b>'+score+'</b> / '+maxScore; sc.classList.add("done");
+  document.getElementById("scoreBig").textContent=score;
+  document.getElementById("barFill").style.width=(maxScore?score/maxScore*100:0)+"%";
+  const msg = score>=80 ? "🎉 通过！可推进到下一节。"
+            : score>=60 ? "⚠️ 部分掌握，建议再巩固一下。"
+            : "❌ 未通过，需重新学习本节。";
+  document.getElementById("resultText").innerHTML =
+    (answered<Q.length?"（注意：有 "+(Q.length-answered)+" 题未作答）<br>":"")+msg;
+  document.getElementById("result").classList.add("show");
+  document.getElementById("reset").style.display="block";
+  document.getElementById("continue").style.display="block";
+  document.getElementById("submit").textContent="已提交 ✔";
+  document.getElementById("submit").disabled=true;
+  window.scrollTo({top:document.getElementById("result").offsetTop-20,behavior:"smooth"});
+}
+function resetAll(){
+  if(window.speechSynthesis){ try{ window.speechSynthesis.cancel(); }catch(e){} }
+  Q.forEach(it=>it.pick=[]);
+  document.querySelectorAll(".opt").forEach(o=>{o.classList.remove("sel","ok","no");
+    o.querySelector(".tick").textContent="○";});
+  document.querySelectorAll(".q").forEach(q=>q.classList.remove("done","correct","wrong"));
+  document.querySelectorAll(".answer").forEach(a=>a.innerHTML="");
+  const sc=document.getElementById("score");sc.innerHTML='得分：<b>待评定</b>';sc.classList.remove("done");
+  document.getElementById("result").classList.remove("show");
+  document.getElementById("reset").style.display="none";
+  document.getElementById("continue").style.display="none";
+  const sb=document.getElementById("submit");sb.textContent="✅ 提交自测（自动判分）";sb.disabled=false;
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function continueTest(){ newRound(); }
+(function(){
+  const d=new Date();
+  const pad=n=>String(n).padStart(2,"0");
+  document.getElementById("date").textContent=`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  applyTheme(localStorage.getItem("sci_theme") || "auto");
+  updateThemeBtn();
+  newRound();
+})();
+</script>
+</body>
+</html>

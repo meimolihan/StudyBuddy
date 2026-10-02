@@ -127,27 +127,27 @@
 </div>
 
 <script>
-const ALL = [ {t:"s",q:"询问“你想吃什么？”应该说（　）。",o:["What would you like to eat?", "Where do you eat?", "What can you eat?", "What do you eat now?"],a:["A"]},
- {t:"s",q:"“What would you like to drink?”的合适回答是（　）。",o:["Yes, please.", "I'd like some tea.", "It's delicious.", "I like sandwiches."],a:["B"]},
- {t:"s",q:"“I'd like a hamburger.”的意思是（　）。",o:["我想要一个汉堡包。", "我喜欢做汉堡包。", "这个汉堡包很好吃。", "我有一个汉堡包。"],a:["A"]},
- {t:"s",q:"I'd 是（　）的缩写。",o:["I can", "I do", "I had", "I would"],a:["D"]},
- {t:"s",q:"询问对方最喜欢的食物，可以说（　）。",o:["What food do you have?", "Where is your food?", "What's your favourite food?", "Would you drink food?"],a:["C"]},
- {t:"s",q:"回答“What's your favourite food?”可以说（　）。",o:["Noodles. They're delicious.", "I'd like some water.", "It's on the table.", "Yes, I do."],a:["A"]},
- {t:"s",q:"“The vegetables are fresh.”的意思是（　）。",o:["这些蔬菜很辣。", "这些蔬菜不健康。", "这些蔬菜很新鲜。", "这些水果很甜。"],a:["C"]},
- {t:"s",q:"“The salad is healthy.”的意思是（　）。",o:["沙拉很甜。", "沙拉很健康。", "沙拉很烫。", "沙拉很贵。"],a:["B"]},
- {t:"s",q:"描述冰激凌的味道，可以用（　）。",o:["sweet", "strict", "shy", "helpful"],a:["A"]},
- {t:"s",q:"“This fish is delicious.”的意思是（　）。",o:["这条鱼很美味。", "这条鱼很辣。", "我想要鱼。", "这条鱼很新鲜吗？"],a:["A"]},
- {t:"s",q:"礼貌接受食物，可以说（　）。",o:["No food.", "Yes, please.", "I don't care.", "Give me now."],a:["B"]},
- {t:"s",q:"礼貌拒绝食物，可以说（　）。",o:["Take it away!", "No, thanks.", "I hate it!", "No way!"],a:["B"]},
- {t:"m",q:"可以作为饮品的有（　）。",o:["water", "tea", "salad", "milk"],a:["A", "B", "D"]},
- {t:"m",q:"可以描述食物的词有（　）。",o:["delicious", "fresh", "polite", "healthy"],a:["A", "B", "D"]},
- {t:"s",q:"“What would you like?”比“Give me ...”更（　）。",o:["礼貌", "随意", "严厉", "错误"],a:["A"]},
- {t:"s",q:"补全对话：— What would you like? —（　）",o:["Salad likes me.", "I'd like some salad.", "I can salad.", "I am salad."],a:["B"]},
- {t:"s",q:"补全句子：My favourite food（　）fish.",o:["be", "am", "is", "are"],a:["C"]},
- {t:"s",q:"“I love beef noodles.”中的 favourite food 可以是（　）。",o:["fresh", "beef noodles", "eat", "tea"],a:["B"]},
- {t:"s",q:"想要一份三明治和茶，应说（　）。",o:["A sandwich are tea.", "I'd like a sandwich and some tea.", "I like sandwich with tea is.", "Give sandwich tea."],a:["B"]},
- {t:"s",q:"“They're hot.”中的 They 指代（　）。",o:["一个汉堡包", "前面提到的复数食物", "一种饮料", "一个人"],a:["B"]},
- {t:"s",q:"在餐厅点餐时，正确表达是（　）。",o:["I noodles like please.", "I'd noodles some.", "Noodles give me!", "I'd like some noodles, please."],a:["D"]}];
+const ALL = [ {t:"s",q:"询问“你想吃什么？”应该说（　）。",o:["What would you like to eat?", "Where do you eat?", "What can you eat?", "What do you eat now?"],a:["A"],e:"解析：本题正确答案为 A：What would you like to eat?。"},
+ {t:"s",q:"“What would you like to drink?”的合适回答是（　）。",o:["Yes, please.", "I'd like some tea.", "It's delicious.", "I like sandwiches."],a:["B"],e:"解析：本题正确答案为 B：I'd like some tea.。"},
+ {t:"s",q:"“I'd like a hamburger.”的意思是（　）。",o:["我想要一个汉堡包。", "我喜欢做汉堡包。", "这个汉堡包很好吃。", "我有一个汉堡包。"],a:["A"],e:"解析：本题正确答案为 A：我想要一个汉堡包。。"},
+ {t:"s",q:"I'd 是（　）的缩写。",o:["I can", "I do", "I had", "I would"],a:["D"],e:"解析：本题正确答案为 D：I would。"},
+ {t:"s",q:"询问对方最喜欢的食物，可以说（　）。",o:["What food do you have?", "Where is your food?", "What's your favourite food?", "Would you drink food?"],a:["C"],e:"解析：本题正确答案为 C：What's your favourite food?。"},
+ {t:"s",q:"回答“What's your favourite food?”可以说（　）。",o:["Noodles. They're delicious.", "I'd like some water.", "It's on the table.", "Yes, I do."],a:["A"],e:"解析：本题正确答案为 A：Noodles. They're delicious.。"},
+ {t:"s",q:"“The vegetables are fresh.”的意思是（　）。",o:["这些蔬菜很辣。", "这些蔬菜不健康。", "这些蔬菜很新鲜。", "这些水果很甜。"],a:["C"],e:"解析：本题正确答案为 C：这些蔬菜很新鲜。。"},
+ {t:"s",q:"“The salad is healthy.”的意思是（　）。",o:["沙拉很甜。", "沙拉很健康。", "沙拉很烫。", "沙拉很贵。"],a:["B"],e:"解析：本题正确答案为 B：沙拉很健康。。"},
+ {t:"s",q:"描述冰激凌的味道，可以用（　）。",o:["sweet", "strict", "shy", "helpful"],a:["A"],e:"解析：本题正确答案为 A：sweet。"},
+ {t:"s",q:"“This fish is delicious.”的意思是（　）。",o:["这条鱼很美味。", "这条鱼很辣。", "我想要鱼。", "这条鱼很新鲜吗？"],a:["A"],e:"解析：本题正确答案为 A：这条鱼很美味。。"},
+ {t:"s",q:"礼貌接受食物，可以说（　）。",o:["No food.", "Yes, please.", "I don't care.", "Give me now."],a:["B"],e:"解析：本题正确答案为 B：Yes, please.。"},
+ {t:"s",q:"礼貌拒绝食物，可以说（　）。",o:["Take it away!", "No, thanks.", "I hate it!", "No way!"],a:["B"],e:"解析：本题正确答案为 B：No, thanks.。"},
+ {t:"m",q:"可以作为饮品的有（　）。",o:["water", "tea", "salad", "milk"],a:["A", "B", "D"],e:"解析：本题正确答案为 A、B、D：water；tea；milk。"},
+ {t:"m",q:"可以描述食物的词有（　）。",o:["delicious", "fresh", "polite", "healthy"],a:["A", "B", "D"],e:"解析：本题正确答案为 A、B、D：delicious；fresh；healthy。"},
+ {t:"s",q:"“What would you like?”比“Give me ...”更（　）。",o:["礼貌", "随意", "严厉", "错误"],a:["A"],e:"解析：本题正确答案为 A：礼貌。"},
+ {t:"s",q:"补全对话：— What would you like? —（　）",o:["Salad likes me.", "I'd like some salad.", "I can salad.", "I am salad."],a:["B"],e:"解析：本题正确答案为 B：I'd like some salad.。"},
+ {t:"s",q:"补全句子：My favourite food（　）fish.",o:["be", "am", "is", "are"],a:["C"],e:"解析：本题正确答案为 C：is。"},
+ {t:"s",q:"“I love beef noodles.”中的 favourite food 可以是（　）。",o:["fresh", "beef noodles", "eat", "tea"],a:["B"],e:"解析：本题正确答案为 B：beef noodles。"},
+ {t:"s",q:"想要一份三明治和茶，应说（　）。",o:["A sandwich are tea.", "I'd like a sandwich and some tea.", "I like sandwich with tea is.", "Give sandwich tea."],a:["B"],e:"解析：本题正确答案为 B：I'd like a sandwich and some tea.。"},
+ {t:"s",q:"“They're hot.”中的 They 指代（　）。",o:["一个汉堡包", "前面提到的复数食物", "一种饮料", "一个人"],a:["B"],e:"解析：本题正确答案为 B：前面提到的复数食物。"},
+ {t:"s",q:"在餐厅点餐时，正确表达是（　）。",o:["I noodles like please.", "I'd noodles some.", "Noodles give me!", "I'd like some noodles, please."],a:["D"],e:"解析：本题正确答案为 D：I'd like some noodles, please.。"}];
 const PER_ROUND = 10;
 const quiz = document.getElementById("quiz");
 let Q = [];

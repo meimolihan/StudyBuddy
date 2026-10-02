@@ -253,12 +253,12 @@ make dist       # Windows / Linux / macOS × amd64 / arm64
 
 ```bash
 # 单架构
-docker build -f deploy/Dockerfile -t studybuddy:latest .
+docker build -f deploy/Dockerfile -t mobufan/studybuddy:latest .
 docker run -d -p 8080:8080 \
   -v ./content:/app/content:ro \
   -v ./data:/app/data \
   -v ./archive:/app/archive \
-  studybuddy:latest
+  mobufan/studybuddy:latest
 
 # 双架构（amd64 + arm64）
 docker buildx create --use
