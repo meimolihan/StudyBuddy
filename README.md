@@ -328,3 +328,61 @@ go run ./tools/bankcheck -content content -min 10   # -min 调整「题量偏少
   会自动用单选题补足 10 题，不会出现缺题。
 - **密码安全**：bcrypt 加密存储，无明文；Session 校验，未登录无法访问任何业务页面。
 - **数据隔离**：学生只能通过自己的会话访问自己的私有库与归档目录，无法访问他人数据。
+
+
+---
+
+## 工程部署与运维
+
+### 二进制安装（推荐）
+
+使用标准安装脚本：
+
+```bash
+bash scripts/install.sh -p 8082 -d /var/lib/StudyBuddy -y
+```
+
+安装脚本会自动注册 systemd 服务，安装后可使用内置 CLI 命令 `studybuddy` 管理服务。
+
+### 内置 CLI 管理命令
+
+| 命令 | 说明 |
+|------|------|
+| `studybuddy status` | 查看运行方式（systemd / 直接运行）、PID、监听端口、Local/Network 访问地址、运行时长、内存与路径 |
+| `studybuddy start` / `stop` / `restart` | 启动 / 停止 / 重启 systemd 服务 |
+| `studybuddy version` | 查看版本号 |
+
+### 备份与还原
+
+systemd 安装方式提供备份/还原脚本，默认备份目录为 `${APP_DIR}/backup`。
+
+```bash
+# 备份（在线打包、不停服，默认保留最近 6 份）
+bash scripts/studybuddy_backup.sh
+
+# 指定备份目录与保留份数
+bash scripts/studybuddy_backup.sh /data/bak 8
+```
+
+```bash
+# 还原（默认取备份目录中最新一份）
+bash scripts/studybuddy_recover.sh
+
+# 指定备份目录与还原文件
+bash scripts/studybuddy_recover.sh /data/bak StudyBuddy-2026-10-02_12-00-00.tar.gz
+```
+
+### Docker 部署
+
+```bash
+cd deploy
+docker compose up -d
+```
+
+### 一键发布（CI/CD）
+
+```bash
+bash scripts/build-and-push.sh v1.0.0 --yes
+```
+
+推送 tag 后将自动触发 `.github/workflows/release.yml` 完成：编译 Linux amd64/arm64 二进制、创建 GitHub Release 并附带二进制文件、构建并推送 Docker 镜像（Docker Hub + GHCR）。
