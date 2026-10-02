@@ -1,14 +1,20 @@
 # -*- coding: utf-8 -*-
 """StudyBuddy 题库全面审查（只读）。
-严禁修改/覆盖/删除任何 content/ 下 HTML 文件；本脚本只读文件、输出 reports/audit_data.json。
+严禁修改/覆盖/删除任何被扫描目录下的 HTML 文件；本脚本只读文件、输出 JSON 报告。
+
+用法：
+    python scripts/audit_bank.py                      # 扫 content/，写 reports/audit_data.json
+    python scripts/audit_bank.py <content根> <输出json>  # 自测用：指定扫描根与报告落点
+
 审查维度：镜像配对 / 命名规范 / 题库结构与格式 / 题量 / 解析字段 / 重复题 / DOM 模板标记 / 结构统计 / 抽样清单。
+检测器的正确性由 scripts/audit_selftest.py 用注入式用例保证（防假阴性）。
 """
 import json, os, re, sys, hashlib, random
 from collections import defaultdict
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-CONTENT = os.path.join(ROOT, "content")
-OUT = os.path.join(ROOT, "reports", "audit_data.json")
+CONTENT = os.path.abspath(sys.argv[1]) if len(sys.argv) > 1 else os.path.join(ROOT, "content")
+OUT = os.path.abspath(sys.argv[2]) if len(sys.argv) > 2 else os.path.join(ROOT, "reports", "audit_data.json")
 
 STAGES = ["primary", "middle", "high"]
 QTYPES = ["choose", "judge"]
@@ -16,11 +22,15 @@ UNIT_RE = re.compile(r"^(\d{2,3})-([^\\/:*?\"<>|]+)$")
 FILE_RE = re.compile(r"^(\d{2,3})-([^\\/:*?\"<>|]+)\.html$")
 CN_NUM = "一二三四五六七八九十"
 
-issues = defaultdict(list)   # category -> list of {path, ...}
+issues = defaultdict(list)   # category -> list of {path, ...}：需要修的缺陷
+todos = defaultdict(list)    # category -> list of {path, ...}：不致错、可整理项
 stats = defaultdict(int)
 
 def add(cat, **kw):
     issues[cat].append(kw)
+
+def add_todo(cat, **kw):
+    todos[cat].append(kw)
 
 # ---------- 1) 收集文件树 ----------
 def collect(qtype):
@@ -100,24 +110,32 @@ for q in QTYPES:
                 continue
         parsed[q][rel] = info
 
-# 单元目录与课文序号重复检查（语文=册内连续；其余=单元内）
+# 单元目录与课文序号重复检查（课序号唯一性范围 = 单元目录内，与运行时排序键一致）
 for q in QTYPES:
-    seen_unit = defaultdict(set)    # (stage,grade,vol,subject) -> {unit_no}（按目录去重）
-    seen_lesson_chinese = defaultdict(list)  # (stage,grade,vol) -> [(file_no, path)]
-    seen_lesson_other = defaultdict(list)    # (grade,vol,subject,unit) -> [(file_no, path)]
+    # 单元序号 -> 该序号出现过的单元目录名集合。同一 (学段,年级,册,学科) 下
+    # 一个序号只能对应一个单元目录；出现两个不同目录名即为序号重复。
+    seen_unit = defaultdict(lambda: defaultdict(set))   # (stage,grade,vol,subject) -> {unit_no: {unit_name}}
+    seen_lesson_other = defaultdict(list)    # (stage,grade,vol,subject,unit) -> [(file_no, path)]
     for rel, info in parsed[q].items():
         if info["unit"]:
             key = (info["stage"], info["grade"], info["vol"], info["subject"])
-            seen_unit[key].add(info["unit"].split("-")[0])
+            unit_no, unit_name = info["unit"].split("-", 1)
+            seen_unit[key][unit_no].add(unit_name)
             lk = key + (info["unit"],)
             seen_lesson_other[lk].append((info["no"], f"{q}/{rel}"))
-            if info["subject"] == "chinese":
-                seen_lesson_chinese[(info["stage"], info["grade"], info["vol"])].append((info["no"], f"{q}/{rel}"))
-    for key, nos_set in seen_unit.items():
-        nos = sorted(nos_set)
-        dup = sorted({n for n in nos if nos.count(n) > 1})
+    for key, by_no in seen_unit.items():
+        dup = sorted(no for no, names in by_no.items() if len(names) > 1)
         if dup:
-            add("naming_dup_unit", path=f"{q}/{key[0]}/{key[1]}/{key[2]}", detail=f"单元序号重复: {dup}")
+            # 同序号不同名是合法的目录现状：运行时 textbook.Subject.buildUnits 已按
+            # 「序号 + 目录名」复合键聚合，两者并列展示、标题与课文一致（见
+            # internal/textbook/textbook.go 与 tools/unitcheck）。故只登记为待整理
+            # 清单，不计入问题——否则会与 unitcheck 的结论自相矛盾。
+            stats["unit_no_shared_dirs"] += 1
+            for no in dup:
+                add_todo("shared_unit_no_dirs",
+                         path=f"{q}/{key[0]}/{key[1]}/{key[2]}",
+                         detail="同序号多个目录名（运行时并列展示，建议整理编号）: "
+                                "%s -> %s" % (no, sorted(by_no[no])))
     # 同一单元目录内课名重复（不同序号、相同课名 → 疑似重复生成）
     seen_name = defaultdict(lambda: defaultdict(set))  # (stage,g,v,sub,unit) -> 课名 -> {序号}
     for rel, info in parsed[q].items():
@@ -133,13 +151,8 @@ for q in QTYPES:
         dup = sorted({n for n in nos if nos.count(n) > 1})
         if dup:
             files = [p for n, p in lst if n in dup]
-            add("naming_dup_lesson", path=f"{q}/{key[0]}/{key[1]}/{key[2]}/{key[3]}", detail=f"课序号单元内重复: {dup} -> {files}")
-    for key, lst in seen_lesson_chinese.items():
-        nos = [n for n, _ in lst]
-        dup = sorted({n for n in nos if nos.count(n) > 1})
-        if dup:
-            files = [p for n, p in lst if n in dup][:12]
-            add("naming_dup_lesson", path=f"{q}/{key[0]}/{key[1]}/chinese", detail=f"语文册内课序号重复: {dup} -> {files}")
+            add("naming_dup_lesson", path=f"{q}/{key[0]}/{key[1]}/{key[2]}/{key[3]}/{key[4]}",
+                detail=f"课序号单元内重复: {dup} -> {files}")
 
 # ---------- 4) 题库解析（容错） ----------
 def extract_objects(src):
@@ -228,12 +241,14 @@ for q in QTYPES:
             add("file_unreadable", path=f"{q}/{rel}", detail=str(ex))
             bank[q][rel] = None
             continue
-        stats["questions_total_scanned"] += 0
         objs = extract_objects(src)
         if objs is None:
             add("format_no_all", path=f"{q}/{rel}", detail="缺少 const ALL 题库数组")
             bank[q][rel] = None
             continue
+        # 扫描态题量：凡是从 const ALL 里取出的题元组都计入，与解析成功的 questions_* 一起
+        # 构成「扫描数 vs 解析成功数」的可核对比值（解析失败的题元组会被 format_bad_item 记录）。
+        stats["questions_total_scanned"] += len(objs)
         qs, bad = [], 0
         for idx, ot in enumerate(objs, 1):
             item = parse_obj(ot)
@@ -257,16 +272,18 @@ for q in QTYPES:
         n = len(qs)
         if n < 20 or n > 40:
             add("count_out_of_range", path=f"{q}/{rel}", detail=f"题量 {n}（要求 20~40）")
-        stems = {}
+        # 两类重复用两套独立的键空间，避免 md5(题干) 与 md5(题干+选项) 混在同一张表里
+        stem_only = {}    # md5(题干) -> 首次出现的题号
+        stem_opts = {}    # md5(题干+选项) -> 首次出现的题号
         for it in qs:
             no = it["no"]
             t, o, a, e = it["t"], it["o"], it["a"], it["e"]
             qq = unesc(it["q"]) or ""
             sk = hashlib.md5(qq.encode("utf-8")).hexdigest()
-            if sk in stems:
-                add("dup_stem_in_file", path=f"{q}/{rel}", no=no, detail=f"与第 {stems[sk]} 题题干完全重复（选项可不同）")
+            if sk in stem_only:
+                add("dup_stem_in_file", path=f"{q}/{rel}", no=no, detail=f"与第 {stem_only[sk]} 题题干完全重复（选项可不同）")
             else:
-                stems[sk] = no
+                stem_only[sk] = no
             if not qq.strip():
                 add("format_empty_stem", path=f"{q}/{rel}", no=no)
             if len(o) != 4 and q == "choose":
@@ -293,15 +310,16 @@ for q in QTYPES:
             if a and (max(ord(x) for x in a) - 64) > len(o):
                 add("choose_answer", path=f"{q}/{rel}", no=no, detail=f"答案 {a} 超出选项范围")
             key = hashlib.md5((qq + "|" + "|".join(o)).encode("utf-8")).hexdigest()
-            stems.setdefault(key, no)
-        # 文件内重复题
-        seen2 = {}
+            stem_opts.setdefault(key, no)
+        # 文件内重复题：与首次出现位置比对，每组只报一次
+        seen2 = set()
         for it in qs:
             qq = unesc(it["q"]) or ""
             key = hashlib.md5((qq + "|" + "|".join(it["o"])).encode("utf-8")).hexdigest()
-            if key in stems and stems[key] != it["no"] and key not in seen2:
-                seen2[key] = True
-                add("dup_in_file", path=f"{q}/{rel}", no=it["no"], detail=f"与第 {stems[key]} 题题干+选项完全重复")
+            first = stem_opts.get(key)
+            if first is not None and first != it["no"] and key not in seen2:
+                seen2.add(key)
+                add("dup_in_file", path=f"{q}/{rel}", no=it["no"], detail=f"与第 {first} 题题干+选项完全重复")
         stats[f"questions_{q}"] += n
 
 # ---------- 6) 跨文件重复题干（同学段同学科） ----------
@@ -399,6 +417,8 @@ data = {
     "stats": dict(stats),
     "issues": {k: v for k, v in issues.items()},
     "issue_counts": {k: len(v) for k, v in issues.items()},
+    "todos": {k: v for k, v in todos.items()},
+    "todo_counts": {k: len(v) for k, v in todos.items()},
     "cross_dup_total_groups": len(cross_dup),
     "cross_dup_total_questions": sum(len(v) for v in cross_dup.values()),
     "cross_dup_by_size": {str(n): sum(1 for v in cross_dup.values() if len(v) == n)
@@ -416,8 +436,11 @@ with open(OUT, "w", encoding="utf-8") as f:
 print("=== 统计 ===")
 for k, v in sorted(stats.items()):
     print(f"  {k}: {v}")
-print("=== 问题分类计数 ===")
+print("=== 问题分类计数（需要修） ===")
 for k, v in sorted(issues.items()):
+    print(f"  {k}: {len(v)}")
+print("=== 待整理项（不致错） ===")
+for k, v in sorted(todos.items()):
     print(f"  {k}: {len(v)}")
 print(f"跨文件重复题干组: {len(cross_dup)}")
 print(f"抽样对数: {len(sample)}")

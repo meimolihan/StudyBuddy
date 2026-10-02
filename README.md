@@ -49,7 +49,7 @@ StudyBuddy/
 │       └── volume2/         g4-v2-chinese.webp + g4-v2-math.webp
 ├── deploy/                 容器化：Dockerfile、docker-compose.yml、.dockerignore
 ├── scripts/                工程脚本与内容工具：build-and-push.sh 一键发布推送、install.sh / uninstall.sh 一键装卸（systemd）、studybuddy_backup.sh / studybuddy_recover.sh 备份还原、start.bat 一键启动、migrate_content.py 内容规范化、_check_wallpaper.sh 壁纸自检、_shot_topbar.sh 顶栏版式自检、_check_picker.sh 年级/班级滚轮自检
-├── tools/                  自检：smoke 模块级 / e2e 端到端 / bankcheck 题库与内容命名核对
+├── tools/                  自检：smoke 模块级 / e2e 端到端 / bankcheck 题库与内容命名核对 / unitcheck 单元聚合自洽
 ├── .workbuddy/skills/      ★ 交互自测网页生成技能 interactive-quiz-html（加新题库用，见「教材目录命名规则」末节）
 ├── docs/                   文档：CONTENT_LAYOUT.md 教材目录规范
 ├── data/                   运行时生成：global/global.db + students/{id}.db
@@ -316,12 +316,14 @@ docker compose -f deploy/docker-compose.yml up -d
 ## 八、自检工具
 
 ```bash
+go test ./...                # 单元测试（含教材单元聚合的回归用例）
 go run ./tools/smoke      # 教材扫描、题库解析、出题、判分、docx 结构
 go run ./tools/e2e        # 进程内 HTTP 全链路：注册→刷题→判分→归档→管理员→导出 docx
 go run ./tools/bankcheck  # 教材题库自检：逐课统计题数，查解析不出 / 题量偏少 / 答案不合法 / 题干重复 / 被忽略的文件
+go run ./tools/unitcheck  # 单元聚合自洽：查课挂错单元 / 空单元 / 课数不守恒
 ```
 
-三个工具都把数据写到临时目录，不污染项目 `data/` 与 `archive/`。
+这些工具都把数据写到临时目录，不污染项目 `data/` 与 `archive/`。
 
 `bankcheck` 用的是系统自己的 `textbook.Scan` + `ParseBank`，所以它说「识别到了」就一定能在页面里刷到；
 发现必须修的问题（如 HTML 里没有题库、题数为 0）时退出码为 1，可直接串进脚本：
@@ -329,6 +331,32 @@ go run ./tools/bankcheck  # 教材题库自检：逐课统计题数，查解析�
 ```bash
 go run ./tools/bankcheck -content content -min 10   # -min 调整「题量偏少」的阈值
 ```
+
+`unitcheck` 核对的是「课有没有挂到名不副实的单元下」：`content/` 里存在同序号但不同名的单元目录
+（如 `primary/grade1/volume1/chinese` 下的 `01-我上学了` 与 `01-识字（一）`），运行时按
+「序号 + 目录名」复合键并列展示，两者互不吞并（见 `internal/textbook/textbook.go` 的 `buildUnits`，
+回归用例在 `internal/textbook/textbook_test.go`）。这类同序号目录会另外列成待整理清单，不计为缺陷。
+
+### 题库内容深度审查（Python，只读）
+
+```bash
+python scripts/audit_bank.py       # 扫 content/，写 reports/audit_data.json
+python scripts/audit_selftest.py   # 检测器自测：注入式用例，证明「有问题时一定报得出」
+```
+
+`audit_bank.py` 出 20 道以上的格式与规范检查（镜像配对、路径命名、题量区间、答案与解析字段、
+文件内与跨文件重复题、DOM 模板标记、结构统计、抽样清单）。报告分两栏：
+
+- **问题分类计数（需要修）**——真实缺陷，计数应尽量为 0。
+- **待整理项（不致错）**——如上文的同序号单元目录，只提示不影响正确性。
+
+`audit_selftest.py` 是给 `audit_bank.py` 配的保险：它在系统临时目录里造最小课件树，
+逐条注入「完全重复题 / 答案越界 / 缺解析 / 题量越界 / 命名违规 / 坏题元组」等缺陷，
+断言检测器**一定报出**；同时造干净输入，断言**不误报**。
+没有这一层，报告里的「问题 0」无法区分「真的没问题」和「检测器写坏了静默放过」——
+历史上就出现过 `questions_total_scanned += 0`（统计恒为 0）与 `naming_dup_unit`
+用 `set` 累加导致 `count(n) > 1` 永不成立（检测器永远不报）这两类假阴性。
+改动 `audit_bank.py` 的检测逻辑后，请一并跑 `audit_selftest.py`。
 
 ---
 

@@ -10,6 +10,15 @@ dist/
 /studybuddy.exe
 /studybuddy
 
+# 仓库根下的一切可执行二进制与临时产物
+# 逐个枚举易漏：distsbtest.exe、diststudybuddy.new.exe、verify-scratchsbtest.exe 均曾被提交，各 16 MB，
+# 故按扩展名与后缀统一忽略。路径以 / 开头只作用于仓库根，不会误伤 cmd/studybuddy/ 源码目录。
+# dist/ 目录已由上一条整体忽略，此处不再重复枚举。
+/*.exe
+/*.exe~
+/*.old.exe
+/*.new.exe
+
 # 自检临时文件
 smoke-test.docx
 

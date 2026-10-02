@@ -558,22 +558,42 @@ func (l Lesson) FullLabel() string {
 	return l.SubjectCN + " " + l.UnitLabel() + " · " + l.LessonLabel()
 }
 
+// buildUnits 把课按单元聚合。聚合键是「单元序号 + 单元目录名」而不是只按序号：
+// content/ 里存在同序号但不同名的单元目录（如 primary/grade1/volume1/chinese 下的
+// 「01-我上学了」与「01-识字（一）」），只按序号聚合会把它们并成一个单元，
+// 导航里只显示先遇到的那个目录名，另一目录的课挂在名不副实的单元标题下。
+// 用 (No, Name) 复合键后两者各自成单元，标题与课文一致。
+// 排序键：序号升序；序号相同时按目录名升序，保证同一输入的输出稳定可重现。
 func (s *Subject) buildUnits() {
-	m := map[int]*Unit{}
-	order := []int{}
+	m := map[unitKey]*Unit{}
+	var order []unitKey
 	for _, l := range s.Lessons {
-		u, ok := m[l.UnitNo]
+		k := unitKey{No: l.UnitNo, Name: l.Unit}
+		u, ok := m[k]
 		if !ok {
 			u = &Unit{No: l.UnitNo, Name: l.Unit}
-			m[l.UnitNo] = u
-			order = append(order, l.UnitNo)
+			m[k] = u
+			order = append(order, k)
 		}
 		u.Lessons = append(u.Lessons, l)
 	}
-	sort.Ints(order)
-	for _, n := range order {
-		s.Units = append(s.Units, m[n])
+	sort.Slice(order, func(i, j int) bool {
+		if order[i].No != order[j].No {
+			return order[i].No < order[j].No
+		}
+		return order[i].Name < order[j].Name
+	})
+	// 重建前清空，保证重复调用不会把单元追加两遍。
+	s.Units = s.Units[:0]
+	for _, k := range order {
+		s.Units = append(s.Units, m[k])
 	}
+}
+
+// unitKey 单元聚合键：序号 + 目录名。
+type unitKey struct {
+	No   int
+	Name string
 }
 
 // LessonsOf 返回指定题型（choose / judge）的课；qt 为空时返回全部。

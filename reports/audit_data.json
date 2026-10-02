@@ -4,46 +4,13 @@
   "files_judge": 2398,
   "mirror_pairs": 2398,
   "mirror_unpaired": 0,
-  "questions_total_scanned": 0,
+  "unit_no_shared_dirs": 12,
+  "questions_total_scanned": 152618,
   "questions_choose": 56902,
   "questions_judge": 95716,
   "cross_dup_groups": 1517
  },
  "issues": {
-  "naming_dup_lesson": [
-   {
-    "path": "choose/primary/grade1/chinese",
-    "detail": "语文册内课序号重复: ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13'] -> ['choose/primary/grade1/volume1/chinese/01-我上学了/01-我上学了.html', 'choose/primary/grade1/volume1/chinese/01-识字（一）/01-天地人.html', 'choose/primary/grade1/volume1/chinese/01-识字（一）/02-金木水火土.html', 'choose/primary/grade1/volume1/chinese/01-识字（一）/03-口耳目.html', 'choose/primary/grade1/volume1/chinese/01-识字（一）/04-日月水火.html', 'choose/primary/grade1/volume1/chinese/01-识字（一）/05-对韵歌.html', 'choose/primary/grade1/volume1/chinese/02-汉语拼音（一）/01-a o e.html', 'choose/primary/grade1/volume1/chinese/02-汉语拼音（一）/02-i u ü y w.html', 'choose/primary/grade1/volume1/chinese/02-汉语拼音（一）/03-b p m f.html', 'choose/primary/grade1/volume1/chinese/02-汉语拼音（一）/04-d t n l.html', 'choose/primary/grade1/volume1/chinese/02-汉语拼音（一）/05-g k h.html', 'choose/primary/grade1/volume1/chinese/02-汉语拼音（一）/06-j q x.html']"
-   },
-   {
-    "path": "choose/primary/grade1/chinese",
-    "detail": "语文册内课序号重复: ['01', '02', '03', '04', '05', '06', '07', '08'] -> ['choose/primary/grade1/volume2/chinese/01-识字（一）/01-春夏秋冬.html', 'choose/primary/grade1/volume2/chinese/01-识字（一）/02-姓氏歌.html', 'choose/primary/grade1/volume2/chinese/01-识字（一）/03-小青蛙.html', 'choose/primary/grade1/volume2/chinese/01-识字（一）/04-猜字谜.html', 'choose/primary/grade1/volume2/chinese/02-课文（一）/01-吃水不忘挖井人.html', 'choose/primary/grade1/volume2/chinese/02-课文（一）/02-我多想去看看.html', 'choose/primary/grade1/volume2/chinese/02-课文（一）/03-一个接一个.html', 'choose/primary/grade1/volume2/chinese/02-课文（一）/04-四个太阳.html', 'choose/primary/grade1/volume2/chinese/03-课文（二）/05-小公鸡和小鸭子.html', 'choose/primary/grade1/volume2/chinese/03-课文（二）/06-树和喜鹊.html', 'choose/primary/grade1/volume2/chinese/03-课文（二）/07-怎么都快乐.html', 'choose/primary/grade1/volume2/chinese/04-课文（三）/08-静夜思.html']"
-   },
-   {
-    "path": "choose/primary/grade2/chinese",
-    "detail": "语文册内课序号重复: ['01', '02', '03', '04'] -> ['choose/primary/grade2/volume1/chinese/01-阅读/01-小蝌蚪找妈妈.html', 'choose/primary/grade2/volume1/chinese/01-阅读/02-我是什么.html', 'choose/primary/grade2/volume1/chinese/01-阅读/03-植物妈妈有办法.html', 'choose/primary/grade2/volume1/chinese/02-识字/01-场景歌.html', 'choose/primary/grade2/volume1/chinese/02-识字/02-树之歌.html', 'choose/primary/grade2/volume1/chinese/02-识字/03-拍手歌.html', 'choose/primary/grade2/volume1/chinese/02-识字/04-田家四季歌.html', 'choose/primary/grade2/volume1/chinese/03-阅读/04-彩虹.html']"
-   },
-   {
-    "path": "choose/primary/grade2/chinese",
-    "detail": "语文册内课序号重复: ['01', '02', '03', '04'] -> ['choose/primary/grade2/volume2/chinese/01-阅读/01-古诗二首.html', 'choose/primary/grade2/volume2/chinese/01-阅读/02-找春天.html', 'choose/primary/grade2/volume2/chinese/01-阅读/03-开满鲜花的小路.html', 'choose/primary/grade2/volume2/chinese/01-阅读/04-邓小平爷爷植树.html', 'choose/primary/grade2/volume2/chinese/03-识字/01-神州谣.html', 'choose/primary/grade2/volume2/chinese/03-识字/02-传统节日.html', 'choose/primary/grade2/volume2/chinese/03-识字/03-“贝”的故事.html', 'choose/primary/grade2/volume2/chinese/03-识字/04-中国美食.html']"
-   },
-   {
-    "path": "judge/primary/grade1/chinese",
-    "detail": "语文册内课序号重复: ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13'] -> ['judge/primary/grade1/volume1/chinese/01-我上学了/01-我上学了.html', 'judge/primary/grade1/volume1/chinese/01-识字（一）/01-天地人.html', 'judge/primary/grade1/volume1/chinese/01-识字（一）/02-金木水火土.html', 'judge/primary/grade1/volume1/chinese/01-识字（一）/03-口耳目.html', 'judge/primary/grade1/volume1/chinese/01-识字（一）/04-日月水火.html', 'judge/primary/grade1/volume1/chinese/01-识字（一）/05-对韵歌.html', 'judge/primary/grade1/volume1/chinese/02-汉语拼音（一）/01-a o e.html', 'judge/primary/grade1/volume1/chinese/02-汉语拼音（一）/02-i u ü y w.html', 'judge/primary/grade1/volume1/chinese/02-汉语拼音（一）/03-b p m f.html', 'judge/primary/grade1/volume1/chinese/02-汉语拼音（一）/04-d t n l.html', 'judge/primary/grade1/volume1/chinese/02-汉语拼音（一）/05-g k h.html', 'judge/primary/grade1/volume1/chinese/02-汉语拼音（一）/06-j q x.html']"
-   },
-   {
-    "path": "judge/primary/grade1/chinese",
-    "detail": "语文册内课序号重复: ['01', '02', '03', '04', '05', '06', '07', '08'] -> ['judge/primary/grade1/volume2/chinese/01-识字（一）/01-春夏秋冬.html', 'judge/primary/grade1/volume2/chinese/01-识字（一）/02-姓氏歌.html', 'judge/primary/grade1/volume2/chinese/01-识字（一）/03-小青蛙.html', 'judge/primary/grade1/volume2/chinese/01-识字（一）/04-猜字谜.html', 'judge/primary/grade1/volume2/chinese/02-课文（一）/01-吃水不忘挖井人.html', 'judge/primary/grade1/volume2/chinese/02-课文（一）/02-我多想去看看.html', 'judge/primary/grade1/volume2/chinese/02-课文（一）/03-一个接一个.html', 'judge/primary/grade1/volume2/chinese/02-课文（一）/04-四个太阳.html', 'judge/primary/grade1/volume2/chinese/03-课文（二）/05-小公鸡和小鸭子.html', 'judge/primary/grade1/volume2/chinese/03-课文（二）/06-树和喜鹊.html', 'judge/primary/grade1/volume2/chinese/03-课文（二）/07-怎么都快乐.html', 'judge/primary/grade1/volume2/chinese/04-课文（三）/08-静夜思.html']"
-   },
-   {
-    "path": "judge/primary/grade2/chinese",
-    "detail": "语文册内课序号重复: ['01', '02', '03', '04'] -> ['judge/primary/grade2/volume1/chinese/01-阅读/01-小蝌蚪找妈妈.html', 'judge/primary/grade2/volume1/chinese/01-阅读/02-我是什么.html', 'judge/primary/grade2/volume1/chinese/01-阅读/03-植物妈妈有办法.html', 'judge/primary/grade2/volume1/chinese/02-识字/01-场景歌.html', 'judge/primary/grade2/volume1/chinese/02-识字/02-树之歌.html', 'judge/primary/grade2/volume1/chinese/02-识字/03-拍手歌.html', 'judge/primary/grade2/volume1/chinese/02-识字/04-田家四季歌.html', 'judge/primary/grade2/volume1/chinese/03-阅读/04-彩虹.html']"
-   },
-   {
-    "path": "judge/primary/grade2/chinese",
-    "detail": "语文册内课序号重复: ['01', '02', '03', '04'] -> ['judge/primary/grade2/volume2/chinese/01-阅读/01-古诗二首.html', 'judge/primary/grade2/volume2/chinese/01-阅读/02-找春天.html', 'judge/primary/grade2/volume2/chinese/01-阅读/03-开满鲜花的小路.html', 'judge/primary/grade2/volume2/chinese/01-阅读/04-邓小平爷爷植树.html', 'judge/primary/grade2/volume2/chinese/03-识字/01-神州谣.html', 'judge/primary/grade2/volume2/chinese/03-识字/02-传统节日.html', 'judge/primary/grade2/volume2/chinese/03-识字/03-“贝”的故事.html', 'judge/primary/grade2/volume2/chinese/03-识字/04-中国美食.html']"
-   }
-  ],
   "unit_thin": [
    {
     "path": "choose/primary/grade1/volume1/chinese/01-我上学了",
@@ -696,8 +663,70 @@
   ]
  },
  "issue_counts": {
-  "naming_dup_lesson": 8,
   "unit_thin": 162
+ },
+ "todos": {
+  "shared_unit_no_dirs": [
+   {
+    "path": "choose/primary/grade1/volume1",
+    "detail": "同序号多个目录名（运行时并列展示，建议整理编号）: 01 -> ['我上学了', '识字（一）']"
+   },
+   {
+    "path": "choose/primary/grade2/volume1",
+    "detail": "同序号多个目录名（运行时并列展示，建议整理编号）: 04 -> ['厘米和米', '校园小导游（综合实践）']"
+   },
+   {
+    "path": "choose/primary/grade2/volume1",
+    "detail": "同序号多个目录名（运行时并列展示，建议整理编号）: 06 -> ['复习与关联', '身体上的尺子（综合实践）']"
+   },
+   {
+    "path": "choose/primary/grade2/volume2",
+    "detail": "同序号多个目录名（运行时并列展示，建议整理编号）: 01 -> ['时间在哪里（综合实践）', '有余数的除法']"
+   },
+   {
+    "path": "choose/middle/grade1/volume2",
+    "detail": "同序号多个目录名（运行时并列展示，建议整理编号）: 10 -> ['极地地区', '西半球的国家']"
+   },
+   {
+    "path": "choose/middle/grade3/volume1",
+    "detail": "同序号多个目录名（运行时并列展示，建议整理编号）: 01 -> ['绪论单元', '走进化学世界']"
+   },
+   {
+    "path": "choose/middle/grade3/volume2",
+    "detail": "同序号多个目录名（运行时并列展示，建议整理编号）: 10 -> ['I remember meeting all of you in Grade 7', 'Life is full of the unexpected', 'Sad movies make me cry', \"We're trying to save the earth!\"]"
+   },
+   {
+    "path": "judge/primary/grade1/volume1",
+    "detail": "同序号多个目录名（运行时并列展示，建议整理编号）: 01 -> ['我上学了', '识字（一）']"
+   },
+   {
+    "path": "judge/primary/grade2/volume1",
+    "detail": "同序号多个目录名（运行时并列展示，建议整理编号）: 04 -> ['厘米和米', '校园小导游（综合实践）']"
+   },
+   {
+    "path": "judge/primary/grade2/volume1",
+    "detail": "同序号多个目录名（运行时并列展示，建议整理编号）: 06 -> ['复习与关联', '身体上的尺子（综合实践）']"
+   },
+   {
+    "path": "judge/primary/grade2/volume2",
+    "detail": "同序号多个目录名（运行时并列展示，建议整理编号）: 01 -> ['时间在哪里（综合实践）', '有余数的除法']"
+   },
+   {
+    "path": "judge/middle/grade1/volume2",
+    "detail": "同序号多个目录名（运行时并列展示，建议整理编号）: 10 -> ['极地地区', '西半球的国家']"
+   },
+   {
+    "path": "judge/middle/grade3/volume1",
+    "detail": "同序号多个目录名（运行时并列展示，建议整理编号）: 01 -> ['绪论单元', '走进化学世界']"
+   },
+   {
+    "path": "judge/middle/grade3/volume2",
+    "detail": "同序号多个目录名（运行时并列展示，建议整理编号）: 10 -> ['I remember meeting all of you in Grade 7', 'Life is full of the unexpected', 'Sad movies make me cry', \"We're trying to save the earth!\"]"
+   }
+  ]
+ },
+ "todo_counts": {
+  "shared_unit_no_dirs": 14
  },
  "cross_dup_total_groups": 1517,
  "cross_dup_total_questions": 4323,
