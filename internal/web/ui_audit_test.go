@@ -116,16 +116,18 @@ func TestUICoarseHitAreaFallback(t *testing.T) {
 		}
 	}
 
-	// pointer:coarse 段有 6 处，必须定位到**最后一个**（本轮新增的那个），
-	// 用 strings.Index 会取到 1292 行那处，拿不到新加的兜底项。
-	last := strings.LastIndex(css, "@media (pointer:coarse)")
-	if last < 0 {
+	// pointer:coarse 段会随着新功能不断追加（本项目已从 1 段涨到 9 段），
+	// 「取最后一个段」这种定位假设必然随文件增长而失效——曾经就因为末尾
+	// 新增了一段打印样式，这里的 5 个兜底项全部误报缺失。
+	// 正确做法：把所有 pointer:coarse 段的声明**联合**起来看。
+	// 触屏热区本来就是散落在多个段里追加的，不该要求它们同处一段。
+	union := unionMediaBlocks(css, "@media (pointer:coarse)")
+	if union == "" {
 		t.Fatal("缺 @media (pointer:coarse) 段")
 	}
-	block := mediaBlock(css, last)
 	for _, sel := range []string{".topbar .who", ".tb-chip", ".sw-vol", ".mini-select", ".toggle-password"} {
-		if !strings.Contains(block, sel) {
-			t.Errorf("触屏兜底段缺 %s 的 44px 声明", sel)
+		if !strings.Contains(union, sel) {
+			t.Errorf("触屏兜底缺 %s 的 44px 声明（所有 pointer:coarse 段里都没有）", sel)
 		}
 	}
 }

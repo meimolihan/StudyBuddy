@@ -87,6 +87,11 @@ func TestLessonStatGridMobileTwoColumns(t *testing.T) {
 
 // stripCSSComments 剥掉 /* */ 注释，保留其余字符与大致位置关系。
 // 用于在「真实规则」而非「说明文字」上做定位。
+//
+// 同时把 CRLF 归一化成 LF。原因是仓库 core.autocrlf=true，Windows 上
+// checkout 出来的工作区文件是 CRLF、git 仓库里是 LF，同一份断言在
+// 两边跑结果不同——TestToastSingleComponent 就这么假红过一次。
+// CSS 语义与换行符无关，测试也不该关心，所以在这里一次性收口。
 func stripCSSComments(css string) string {
 	var b strings.Builder
 	for i := 0; i < len(css); {
@@ -96,6 +101,12 @@ func stripCSSComments(css string) string {
 				continue
 			}
 			break
+		}
+		// CRLF 只留 LF，否则跨行断言（形如 "a,\nb{"）会因平台而失效
+		if css[i] == '\r' && i+1 < len(css) && css[i+1] == '\n' {
+			b.WriteByte('\n')
+			i += 2
+			continue
 		}
 		b.WriteByte(css[i])
 		i++
@@ -147,9 +158,9 @@ func TestLessonStatGridDOMUnchanged(t *testing.T) {
 		},
 		"Bank":     152618,
 		"Progress": map[string]any{"Attempts": 0, "BestScore": 0, "Status": "new"},
-		"Pass": 80,
-		"Session": nil,
-		"User":    nil,
+		"Pass":     80,
+		"Session":  nil,
+		"User":     nil,
 	}
 
 	var buf bytes.Buffer
@@ -209,4 +220,29 @@ func mediaBlock(css string, start int) string {
 		}
 	}
 	return css[open:]
+}
+
+// unionMediaBlocks 把所有以 at 开头的媒体查询区块的花括号内容拼起来。
+//
+// 为什么需要它：媒体查询段会随新功能不断追加，「取最后一个段」这种定位
+// 假设必然随文件增长而失效（TestUICoarseHitAreaFallback 就这么假红过）。
+// 凡是"这些选择器在触屏/打印等条件下有没有被处理到"的断言，都该在这里
+// 联合查找，而不是赌某一段。
+func unionMediaBlocks(css, at string) string {
+	var b strings.Builder
+	for i := 0; ; {
+		j := strings.Index(css[i:], at)
+		if j < 0 {
+			return b.String()
+		}
+		j += i
+		// 避免 "@media (pointer:coarse)" 命中 "@media (pointer:coarse-x)" 这类前缀重叠
+		if k := j + len(at); k < len(css) && css[k] == '-' {
+			i = k
+			continue
+		}
+		b.WriteString(mediaBlock(css, j))
+		b.WriteByte('\n')
+		i = j + len(at)
+	}
 }

@@ -1,6 +1,10 @@
 {{template "header" .}}
 <h1>试卷归档</h1>
+{{/* 归档目录属于运维/排查信息（磁盘路径），只对管理员暴露；
+     普通学生只需知道"只能看到自己的试卷"，这层信息由页脚与文案保证。 */}}
+{{if .Session.IsAdmin}}
 <p class="muted">归档目录：<code>archive/{{.Session.UserID}}/</code>　·　仅可查看本人试卷</p>
+{{end}}
 
 {{/* 题型分类：选择题 ↔ 判断题。试卷按 lesson_key 里的 choose/judge 段归类，
      切换只影响本页列表筛选，删除等原有操作不受影响；参数 qt=choose|judge。 */}}
