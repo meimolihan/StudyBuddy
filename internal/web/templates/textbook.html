@@ -53,6 +53,44 @@
     <button type="button" class="btn ghost sm" id="tb-next" aria-label="下一页"
             {{if eq .StartPage .Pages}}disabled{{end}}>下一页 ›</button>
     <button type="button" class="btn ghost sm" id="tb-thumb-toggle" aria-pressed="false">缩略图</button>
+
+    {{/* 打印：details/summary 下拉，与顶栏设置菜单同一套交互形态（点击展开、
+         点外部/Esc 收起，summary 自带键盘与无障碍语义）。菜单里三项对应
+         全部页 / 奇数页 / 偶数页，由 print IIFE 接管。放在工具条最右，
+         移动端 flex:1 与其它按钮同权重，不额外占行。 */}}
+    <details class="tb-printpick" id="tb-printpick">
+      <summary class="btn ghost sm" aria-label="打印教材">
+        <span class="setico">{{template "ico_print"}}</span>打印
+      </summary>
+      <div class="tb-printpanel" role="menu" aria-label="打印范围">
+        <div class="tb-printpanel-h">
+          <span class="tb-printpanel-t">打印教材</span>
+          <span class="tb-printpanel-s">共 {{.Pages}} 页</span>
+        </div>
+        <button type="button" class="setrow tb-printopt" role="menuitem" data-print-mode="all">
+          <span class="setico">{{template "ico_print_all"}}</span>
+          <span class="setrow-main">
+            <span class="setrow-t">打印全部页面</span>
+            <span class="setrow-d">{{.Pages}} 页 · 含封面与目录</span>
+          </span>
+        </button>
+        <button type="button" class="setrow tb-printopt" role="menuitem" data-print-mode="odd">
+          <span class="setico">{{template "ico_print_odd"}}</span>
+          <span class="setrow-main">
+            <span class="setrow-t">仅打印奇数页</span>
+            <span class="setrow-d">第 1、3、5…页 · 共 {{.OddPages}} 页</span>
+          </span>
+        </button>
+        <button type="button" class="setrow tb-printopt" role="menuitem" data-print-mode="even">
+          <span class="setico">{{template "ico_print_even"}}</span>
+          <span class="setrow-main">
+            <span class="setrow-t">仅打印偶数页</span>
+            <span class="setrow-d">第 2、4、6…页 · 共 {{.EvenPages}} 页</span>
+          </span>
+        </button>
+        <p class="tb-printhint muted">打印时自动隐藏界面，只保留教材图片</p>
+      </div>
+    </details>
   </div>
 
   {{/* 阅读区：低清图在下做占位與模糊底，高清加载完成后淡入覆盖（blur-up）。
@@ -505,6 +543,119 @@
 
   var startBtn = document.getElementById('tb-start');
   if (startBtn) { startBtn.addEventListener('click', function () { show(cur, true); }); }
+})();
+
+/* 教材打印：把选定范围的页面图片装配进一个离屏容器，再交给浏览器打印。
+   刻意与上面的阅读器 IIFE 分开：阅读器的翻页/缩略图/进度记忆逻辑一行不动，
+   两者只共享服务端渲染出来的页数与图基址（各自独立读取，不互相调用）。 */
+(function () {
+  var pick = document.getElementById('tb-printpick');
+  if (!pick) { return; }
+  var base = "{{.AssetBase}}";
+  var total = {{.Pages}};
+  // 高清未就绪时退回低清：低清每页约 4KB，127 页也能秒开，
+  // 总比 hi 图 404 出一堆裂页强。
+  var hiReady = {{if .HiReady}}true{{else}}false{{end}};
+
+  function pad(n) { return ('00' + n).slice(-3); }
+  function url(n) { return base + '/' + (hiReady ? 'hi' : 'lo') + '/p' + pad(n) + '.webp'; }
+
+  // 依模式取页码：all 全量；odd/even 从 1 起算的真实页码，
+  // 不用「打印张数奇偶」——双面打印时真正的奇数页才是同一面。
+  function pagesOf(mode) {
+    var out = [], n;
+    if (mode === 'odd') {
+      for (n = 1; n <= total; n += 2) { out.push(n); }
+    } else if (mode === 'even') {
+      for (n = 2; n <= total; n += 2) { out.push(n); }
+    } else {
+      for (n = 1; n <= total; n++) { out.push(n); }
+    }
+    return out;
+  }
+
+  // 打印容器挂在 body 末尾：position:fixed + 移出可视区（left:-10000px），
+  // 屏幕上完全看不见，但仍在文档流内参与打印布局。
+  // 不能用 display:none —— 那样浏览器会跳过图片，打出来一片空白。
+  var root = document.createElement('div');
+  root.className = 'tb-printroot';
+  root.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(root);
+
+  // 逐张图片等 onload 再唤起打印：直接 print() 的话，
+  // 浏览器会把还没解码完的页当成空白页，127 页的书会缺页。
+  function printMode(mode) {
+    var list = pagesOf(mode);
+    if (!list.length) { return; }
+
+    pick.open = false;
+    root.textContent = '';
+
+    var frag = document.createDocumentFragment();
+    for (var i = 0; i < list.length; i++) {
+      var p = list[i];
+      var box = document.createElement('div');
+      box.className = 'tb-printpage';
+      var im = document.createElement('img');
+      im.className = 'tb-printimg';
+      im.alt = '第 ' + p + ' 页';
+      im.decoding = 'sync';
+      im.src = url(p);
+      box.appendChild(im);
+      frag.appendChild(box);
+    }
+    root.appendChild(frag);
+
+    var imgs = root.querySelectorAll('img');
+    var left = imgs.length;
+    var fired = false;
+    function done() {
+      if (fired) { return; }
+      fired = true;
+      // 让浏览器先把布局与解码跑完一拍，再开打印预览
+      setTimeout(function () {
+        try { window.print(); } catch (e) {}
+        // 打印对话框是同步阻塞的，返回时已经打印完；保险起见再兜一次
+        clear();
+      }, 60);
+    }
+    function clear() {
+      // 打印结束（或用户取消）后清空容器：127 张图不解引用，
+      // 会把内存压在几十 MB，手机上尤其明显。
+      setTimeout(function () { root.textContent = ''; }, 300);
+      window.removeEventListener('afterprint', done);
+    }
+    for (var j = 0; j < imgs.length; j++) {
+      if (imgs[j].complete) { left--; continue; }
+      (function (im) {
+        im.addEventListener('load', function () { left--; if (left <= 0) { done(); } });
+        im.addEventListener('error', function () { left--; if (left <= 0) { done(); } });
+      })(imgs[j]);
+    }
+    window.addEventListener('afterprint', clear);
+    if (left <= 0) { done(); }
+  }
+
+  // 菜单项点击：读 data-print-mode，走上面的装配流程
+  var opts = pick.querySelectorAll('[data-print-mode]');
+  for (var k = 0; k < opts.length; k++) {
+    opts[k].addEventListener('click', function (e) {
+      e.preventDefault();
+      printMode(this.getAttribute('data-print-mode'));
+    });
+  }
+
+  // 点菜单外部 / 按 Esc 收起：与顶栏设置菜单同一套行为
+  document.addEventListener('click', function (e) {
+    if (pick.open && !pick.contains(e.target)) { pick.open = false; }
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && pick.open) {
+      pick.open = false;
+      var sm = pick.querySelector('summary');
+      if (sm && sm.focus) { sm.focus(); }
+    }
+  });
 })();
 </script>
 

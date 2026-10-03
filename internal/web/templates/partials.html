@@ -9,6 +9,14 @@
 {{define "ico_sun"}}<svg class="ico ico-fab" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.4 5.4l1.6 1.6M17 17l1.6 1.6M18.6 5.4L17 7M7 17l-1.6 1.6"/></svg>{{end}}
 {{define "ico_moon"}}<svg class="ico ico-fab" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.3A8.5 8.5 0 0 1 9.7 3.5a8.5 8.5 0 1 0 10.8 10.8z"/></svg>{{end}}
 {{define "ico_arrow_up"}}<svg class="ico ico-fab" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V6"/><path d="M5.8 12.2L12 6l6.2 6.2"/></svg>{{end}}
+{{/* ---- 教材打印图标（2026-10-04）：打印机 + 三种打印范围，沿用既有线性描边风格 ---- */}}
+{{define "ico_print"}}<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 9V4.5h10V9"/><path d="M7 18H5.5A1.5 1.5 0 0 1 4 16.5v-5A1.5 1.5 0 0 1 5.5 10h13A1.5 1.5 0 0 1 20 11.5v5a1.5 1.5 0 0 1-1.5 1.5H17"/><rect x="7" y="14" width="10" height="6.5" rx="1"/><path d="M17.3 12.3h.01"/></svg>{{end}}
+{{/* 打印全部页：两页叠放 */}}
+{{define "ico_print_all"}}<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5.5" width="12" height="14" rx="1.5"/><path d="M7.5 3.5h11a2 2 0 0 1 2 2v10.5"/><path d="M6.8 9.5h5.4M6.8 13h3.6"/></svg>{{end}}
+{{/* 仅奇数页：单页 + 左侧奇数位标记 */}}
+{{define "ico_print_odd"}}<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="3.5" width="12" height="15" rx="1.5"/><path d="M3.4 6.5h1.2M3.4 10h1.2M3.4 13.5h1.2M3.4 17h1.2"/><path d="M10 7.5h5M10 11h3.4"/></svg>{{end}}
+{{/* 仅偶数页：单页 + 左侧偶数位标记 */}}
+{{define "ico_print_even"}}<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="3.5" width="12" height="15" rx="1.5"/><path d="M3.1 8.3h1.2M3.1 15.7h1.2"/><path d="M10 7.5h5M10 11h3.4"/></svg>{{end}}
 
 {{define "header"}}<!DOCTYPE html>
 <html lang="zh-CN" data-skin="{{.Skin}}"{{if .Theme}} data-theme="{{.Theme}}"{{end}}{{if .Wallpaper}} data-wallpaper="{{.WallpaperName}}"{{end}}>

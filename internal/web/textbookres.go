@@ -596,6 +596,11 @@ func (a *App) textbookPage(c *gin.Context) {
 	hasToc := len(b.Units) > 0
 	inlineToc := hasToc && tocWeight(b.Units) <= 2000
 
+	// 打印菜单用：奇数页 / 偶数页各有多少张，菜单里直接标出来，
+	// 用户点之前就知道会打出多少页（127 页的书只印一半时尤其需要）。
+	oddPages := (pages + 1) / 2
+	evenPages := pages / 2
+
 	a.html(c, "textbook.html", gin.H{
 		"Title":     b.Title + " " + b.SubTitle,
 		"Book":      b,
@@ -605,6 +610,8 @@ func (a *App) textbookPage(c *gin.Context) {
 		"LoReady":   meta != nil && meta.LoReady,
 		"HiReady":   meta != nil && meta.HiReady,
 		"Pages":     pages,
+		"OddPages":  oddPages,
+		"EvenPages": evenPages,
 		"StartPage": start,
 		"Ratio":     ratio,
 		"AssetBase": "/textbook/asset/" + b.Key,
