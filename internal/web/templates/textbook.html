@@ -71,24 +71,24 @@
           <span class="setico">{{template "ico_print_all"}}</span>
           <span class="setrow-main">
             <span class="setrow-t">打印全部页面</span>
-            <span class="setrow-d">{{.Pages}} 页 · 含封面与目录</span>
+            <span class="setrow-d">封面 + 正文全部，共 {{.Pages}} 张</span>
           </span>
         </button>
         <button type="button" class="setrow tb-printopt" role="menuitem" data-print-mode="odd">
           <span class="setico">{{template "ico_print_odd"}}</span>
           <span class="setrow-main">
             <span class="setrow-t">仅打印奇数页</span>
-            <span class="setrow-d">第 1、3、5…页 · 共 {{.OddPages}} 页</span>
+            <span class="setrow-d">封面 + 正文第 1、3、5…页 · 共 {{.OddPages}} 张</span>
           </span>
         </button>
         <button type="button" class="setrow tb-printopt" role="menuitem" data-print-mode="even">
           <span class="setico">{{template "ico_print_even"}}</span>
           <span class="setrow-main">
             <span class="setrow-t">仅打印偶数页</span>
-            <span class="setrow-d">第 2、4、6…页 · 共 {{.EvenPages}} 页</span>
+            <span class="setrow-d">封面 + 正文第 2、4、6…页 · 共 {{.EvenPages}} 张</span>
           </span>
         </button>
-        <p class="tb-printhint muted">打印时自动隐藏界面，只保留教材图片</p>
+        <p class="tb-printhint muted">封面始终打印且不计入页码；打印时自动隐藏界面，只保留教材图片</p>
       </div>
     </details>
   </div>
@@ -560,16 +560,26 @@
   function pad(n) { return ('00' + n).slice(-3); }
   function url(n) { return base + '/' + (hiReady ? 'hi' : 'lo') + '/p' + pad(n) + '.webp'; }
 
-  // 依模式取页码：all 全量；odd/even 从 1 起算的真实页码，
-  // 不用「打印张数奇偶」——双面打印时真正的奇数页才是同一面。
+  /* 页码规则（2026-10-04 调整）：
+     图集里的第 1 张 p001 是**封面/书皮**（实测 305KB，全目录最大；正文首页多为
+     纯文字才 31KB），它只在「打印全部页面」时出现，不参与奇偶计数 ——
+     封面本身没有「正文的第几页」这层含义，把它算进奇数会让内页全部错位。
+     正文从 p002 起重新编号为 1，即：正文第 k 页 = 图片 p(k+1)。
+     奇偶按**正文编号**判：正文第 1、3、5…页为奇数，第 2、4、6…页为偶数，
+     这样双面打印时同一面的才是真正的同一面。 */
+  var COVER = 1;   // 封面在图集里的位置（图片下标）
+
+  // 依模式取图片下标数组（注意返回的是「图片下标」，不是正文页码）
   function pagesOf(mode) {
-    var out = [], n;
-    if (mode === 'odd') {
-      for (n = 1; n <= total; n += 2) { out.push(n); }
-    } else if (mode === 'even') {
-      for (n = 2; n <= total; n += 2) { out.push(n); }
-    } else {
+    var out = [], n, body;   // body = 正文页码（1 起）
+    if (mode === 'all') {
       for (n = 1; n <= total; n++) { out.push(n); }
+      return out;
+    }
+    // odd / even：封面先入列，再按正文奇偶追加
+    out.push(COVER);
+    for (body = 1; COVER + body <= total; body++) {
+      if ((body % 2 === 1) === (mode === 'odd')) { out.push(COVER + body); }
     }
     return out;
   }
@@ -598,7 +608,8 @@
       box.className = 'tb-printpage';
       var im = document.createElement('img');
       im.className = 'tb-printimg';
-      im.alt = '第 ' + p + ' 页';
+      // alt 用真实语义：封面就叫封面，正文才带页码（与 pagesOf 的编号口径一致）
+      im.alt = p === COVER ? '封面' : ('第 ' + (p - COVER) + ' 页');
       im.decoding = 'sync';
       im.src = url(p);
       box.appendChild(im);

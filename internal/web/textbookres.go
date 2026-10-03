@@ -596,10 +596,16 @@ func (a *App) textbookPage(c *gin.Context) {
 	hasToc := len(b.Units) > 0
 	inlineToc := hasToc && tocWeight(b.Units) <= 2000
 
-	// 打印菜单用：奇数页 / 偶数页各有多少张，菜单里直接标出来，
-	// 用户点之前就知道会打出多少页（127 页的书只印一半时尤其需要）。
-	oddPages := (pages + 1) / 2
-	evenPages := pages / 2
+	// 打印菜单用：奇数页 / 偶数页各有多少张。
+	// 图集第 1 张是封面（书皮），**不参与奇偶计数** —— 封面没有「正文第几页」
+	// 这层含义，算进去会让内页错位。正文从第 2 张起编号为 1，即共 pages-1 页。
+	// 奇/偶两种模式都会**额外附上封面**，所以实际打印张数 = 正文半数 + 1。
+	bodyPages := pages - 1
+	if bodyPages < 0 {
+		bodyPages = 0
+	}
+	oddPages := (bodyPages+1)/2 + 1  // +1 = 封面
+	evenPages := bodyPages / 2 + 1    // +1 = 封面
 
 	a.html(c, "textbook.html", gin.H{
 		"Title":     b.Title + " " + b.SubTitle,
