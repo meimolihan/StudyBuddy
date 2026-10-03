@@ -1,0 +1,91 @@
+{{template "header" .}}
+
+{{/* 教材库：一次列出清单里全部教材（小学 111 / 初中 75 / 高中 97）。
+     筛选走 URL 参数，服务端先过滤再渲染，首屏不会出现 283 张卡片。
+     封面全部 loading="lazy" + 网格容器自身懒加载卡片，避免一次性打满请求。 */}}
+<div class="card tb-lib-head">
+  <div class="tb-lib-title">
+    <h1>教材库</h1>
+    <span class="muted">共 {{.Total}} 册 · 人民教育出版社 / 教育部统编版 · 在线翻阅，进度自动记忆</span>
+  </div>
+
+  {{/* 筛选链接一律显式带上三个参数（空值即「不筛」）。
+       不要写成 {{if .Grade}}&amp;grade={{.Grade}}{{end}} —— 条件分支里的 URL
+       上下文会让 html/template 判定 {{.Grade}} 歧义并直接报错 500。 */}}
+  <form class="tb-filters" method="get" action="/textbook">
+    <div class="tb-fg">
+      <span class="tb-fg-label">学段</span>
+      <div class="tb-chips">
+        <a class="tb-chip{{if eq .Stage ""}} is-on{{end}}"
+           href="/textbook?stage=&amp;grade={{.Grade}}&amp;subject={{.Subject}}">全部</a>
+        {{range .StageList}}
+        <a class="tb-chip{{if eq $.Stage .}} is-on{{end}}"
+           href="/textbook?stage={{.}}&amp;grade={{$.Grade}}&amp;subject={{$.Subject}}">{{index $.StageName .}}</a>
+        {{end}}
+      </div>
+    </div>
+
+    {{if .GradeList}}
+    <div class="tb-fg">
+      <span class="tb-fg-label">年级</span>
+      <div class="tb-chips">
+        <a class="tb-chip{{if eq .Grade 0}} is-on{{end}}"
+           href="/textbook?stage={{.Stage}}&amp;grade=&amp;subject={{.Subject}}">全部</a>
+        {{range .GradeList}}
+        <a class="tb-chip{{if eq $.Grade .}} is-on{{end}}"
+           href="/textbook?stage={{$.Stage}}&amp;grade={{.}}&amp;subject={{$.Subject}}">
+          {{if eq . 0}}其他{{else if eq . 10}}高一{{else if eq . 11}}高二{{else if eq . 12}}高三{{else}}{{.}}{{end}}
+        </a>
+        {{end}}
+      </div>
+    </div>
+    {{end}}
+
+    {{if .SubjectList}}
+    <div class="tb-fg">
+      <span class="tb-fg-label">学科</span>
+      <div class="tb-chips">
+        <a class="tb-chip{{if eq .Subject ""}} is-on{{end}}"
+           href="/textbook?stage={{.Stage}}&amp;grade={{.Grade}}&amp;subject=">全部</a>
+        {{range .SubjectList}}
+        <a class="tb-chip{{if eq $.Subject .}} is-on{{end}}"
+           href="/textbook?stage={{$.Stage}}&amp;grade={{$.Grade}}&amp;subject={{.}}">{{index $.SubjectName .}}</a>
+        {{end}}
+      </div>
+    </div>
+    {{end}}
+  </form>
+</div>
+
+<div class="tb-lib-grid" id="tb-lib">
+  {{range .Books}}
+  <a class="tb-lb" href="/textbook?key={{.Key}}{{if .ReadPage}}&p={{.ReadPage}}{{end}}"
+     title="{{.Title}} {{.Sub}}">
+    <span class="tb-lb-cover">
+      {{if .HasAsset}}
+      <img src="{{.Cover}}" alt="{{.Title}} {{.Sub}} 封面" loading="lazy" decoding="async">
+      {{else}}
+      <span class="tb-cover-ph sm">{{.Sub}}</span>
+      {{end}}
+      {{if not .HiReady}}<span class="tb-lb-tag" title="高清分页图按需补齐中，当前为快速版">快速版</span>{{end}}
+    </span>
+    <span class="tb-lb-info">
+      <b class="tb-lb-name">{{.Title}}</b>
+      <span class="muted tb-lb-meta">{{.SubjectCN}} · {{.Sub}}{{if .Version}} · {{.Version}}{{end}}</span>
+      <span class="tb-lb-foot">
+        {{if and .ReadPage (gt .ReadPage 0)}}<span class="badge warn">读到第 {{.ReadPage}} 页</span>
+        {{else}}<span class="badge new">未开始</span>{{end}}
+        <span class="muted">{{.Pages}} 页</span>
+      </span>
+    </span>
+  </a>
+  {{else}}
+  <p class="muted tb-lib-empty">这个筛选条件下没有教材。换一个学段或学科看看。</p>
+  {{end}}
+</div>
+
+{{if .Books}}<p class="muted tb-lib-foot">共 {{len .Books}} 册符合条件的教材</p>{{end}}
+
+
+
+{{template "footer" .}}

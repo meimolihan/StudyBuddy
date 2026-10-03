@@ -46,7 +46,24 @@ type App struct {
 
 // New 构建应用并注册路由。
 func New(cfg *config.Config, g *db.Global, tree *textbook.Tree) (*App, error) {
-	funcMap := template.FuncMap{
+	tmpl, err := template.New("").Funcs(newFuncMap()).ParseFS(assetsFS, "templates/*.html")
+	if err != nil {
+		return nil, fmt.Errorf("解析模板失败: %w", err)
+	}
+	a := &App{
+		Cfg: cfg, Global: g, Tree: tree, assets: assetsFS,
+		Sess: auth.NewStore(12 * time.Hour),
+		tmpl: tmpl, studs: map[int64]*db.Student{},
+	}
+	return a, nil
+}
+
+// newFuncMap 模板自定义函数集。
+//
+// 独立成包级函数（而不是写在 New 里），是为了让测试能拿到**与线上完全一致**的
+// 这份函数集去单独解析模板——手抄一份近似的会漏函数，测试就成假绿。
+func newFuncMap() template.FuncMap {
+	return template.FuncMap{
 		"stageCN":     textbook.StageCN,
 		"publisherCN": textbook.PublisherCN,
 		"add":         func(a, b int) int { return a + b },
@@ -83,16 +100,6 @@ func New(cfg *config.Config, g *db.Global, tree *textbook.Tree) (*App, error) {
 		// splashVerse 每次渲染随机抽一句《唐诗三百首》诗句，用于学习主页开屏动画。
 		"splashVerse": func() SplashVerse { return RandomSplashVerse() },
 	}
-	tmpl, err := template.New("").Funcs(funcMap).ParseFS(assetsFS, "templates/*.html")
-	if err != nil {
-		return nil, fmt.Errorf("解析模板失败: %w", err)
-	}
-	a := &App{
-		Cfg: cfg, Global: g, Tree: tree, assets: assetsFS,
-		Sess: auth.NewStore(12 * time.Hour),
-		tmpl: tmpl, studs: map[int64]*db.Student{},
-	}
-	return a, nil
 }
 
 // st 取（并缓存）某学生的私有库。
@@ -159,6 +166,12 @@ func (a *App) Routes() *gin.Engine {
 	{
 		auth2.GET("/study", a.studyPage)
 		auth2.GET("/lesson", a.lessonPage)
+		// 官方教材：详情页 + 图集分发 + 源 PDF 兜底（图集未预渲染时可下载原书）
+		auth2.GET("/textbook", a.textbookPage)
+		auth2.GET("/textbook/asset/*path", a.textbookAsset)
+		auth2.GET("/textbook/raw", a.textbookRaw)
+		// 目录懒加载：详情页首屏不内联 3 万条课目，改由前端按需拉这个接口
+		auth2.GET("/textbook/toc", a.textbookToc)
 		auth2.GET("/quiz", a.quizPage)
 		auth2.POST("/quiz/submit", a.quizSubmit)
 		auth2.GET("/result", a.resultPage)
@@ -415,24 +428,44 @@ func (a *App) studyPage(c *gin.Context) {
 		menu = buildNavMenu(a.Tree)
 	}
 
+	// 官方教材封面墙：只给「当前导航视图的学段 / 年级 / 学期」下的教材——
+	// 学生这学期在读上册就只给上册，下册同理，学科不限、不跨年级、不铺全库。
+	// nav 为 nil（连年级都定不出来）时 TbGrade / TbVolume 都为空，模板据此走
+	// 空状态提示而不是整块消失，也不报错。volume 传 0 时 tbHomeCards 退化为
+	// 该年级全部教材，不会因为学期缺失就整块空掉。
+	var tbCards []gin.H
+	tbGrade, tbVolume := "", ""
+	if nav != nil {
+		tbCards = a.tbHomeCards(nav.Stage, nav.Grade, nav.Volume)
+		tbGrade = textbook.GradeLabel(nav.Stage, nav.Grade)
+		// 学期没定出来（档案缺 volume）时留空，标题就不写「全一册」这种
+		// 对学生没意义的词，直接只显示年级。
+		if nav.Volume > 0 {
+			tbVolume = tbVolumeLabel(nav.Volume)
+		}
+	}
+
 	a.html(c, "study.html", gin.H{
-		"Title":   "学习主页",
-		"Tree":    a.Tree,
-		"User":    u,
-		"Session": s,
-		"Current": cur,
+		"Title":        "学习主页",
+		"Tree":         a.Tree,
+		"User":         u,
+		"Session":      s,
+		"Current":      cur,
 		"SubjectCards": subjCards,
-		"Prog":    pmap,
-		"Total":   total,
-		"Passed":  passed,
-		"Avg":     avg,
-		"Recent":  recent,
-		"Pass":    a.Cfg.PassScore,
-		"QT":      qt,
-		"QTCN":    textbook.QTypeCN(qt),
-		"CurTwin": twinOf(a.Tree, cur),
-		"NavView": nav,
-		"NavMenu": menu,
+		"Prog":         pmap,
+		"Total":        total,
+		"Passed":       passed,
+		"Avg":          avg,
+		"Recent":       recent,
+		"Pass":         a.Cfg.PassScore,
+		"QT":           qt,
+		"QTCN":         textbook.QTypeCN(qt),
+		"CurTwin":      twinOf(a.Tree, cur),
+		"NavView":      nav,
+		"NavMenu":      menu,
+		"TbCards":      tbCards,
+		"TbGrade":      tbGrade,
+		"TbVolume":     tbVolume,
 	})
 }
 
@@ -536,6 +569,7 @@ type subjectCard struct {
 //     但该课已达标时不再停留，顺延到下一门未达标课；
 //  2. 无指针时按课程顺序取第一门未达标课（练习中 / 未开始均可）；
 //  3. 全部达标 → done，入口链接指回该科第一课。
+//
 // 只统计学生档案（学段 / 年级 / 册别）所在视图、且当前题型下的课。
 func (a *App) subjectCards(st *db.Student, u *db.User, qt string, pmap map[string]*db.Progress) []*subjectCard {
 	if qt == "" {
@@ -803,7 +837,7 @@ func resolveNav(t *textbook.Tree, s *auth.Session, cur *textbook.Lesson, qGrade,
 }
 
 // buildNavMenu 组装「切换年级」菜单：按 小学/初中/高中 分组，只列树中实际存在的年级与册别
-//（含高考复习虚拟册别 VolReview）。
+// （含高考复习虚拟册别 VolReview）。
 func buildNavMenu(t *textbook.Tree) []swStage {
 	if t == nil {
 		return nil
@@ -1486,6 +1520,10 @@ func (a *App) html(c *gin.Context, name string, data gin.H) {
 	if _, ok := data["Session"]; !ok {
 		data["Session"] = sess
 	}
+	// 头像：没上传时不下发 <img src="/avatar/me">，避免每次刷新都在控制台记一条 404。
+	if _, ok := data["HasAvatar"]; !ok {
+		data["HasAvatar"] = a.hasAvatar(sess)
+	}
 	if _, ok := data["Title"]; !ok {
 		data["Title"] = "StudyBuddy"
 	}
@@ -1567,6 +1605,8 @@ func navSection(p string) string {
 	switch {
 	case p == "/study" || p == "/lesson" || p == "/quiz" || p == "/result":
 		return "study"
+	case p == "/textbook" || strings.HasPrefix(p, "/textbook/"):
+		return "textbook" // 顶栏独立高亮「教材」
 	case p == "/archive" || strings.HasPrefix(p, "/archive/"):
 		return "archive"
 	case p == "/admin" || strings.HasPrefix(p, "/admin/"):

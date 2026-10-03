@@ -1,6 +1,9 @@
 package textbook
 
-import "testing"
+import (
+	"reflect"
+	"testing"
+)
 
 // 单元聚合的回归测试。
 //
@@ -119,5 +122,71 @@ func TestBuildUnits_NoUnitKeepsLesson(t *testing.T) {
 	}
 	if total != 2 {
 		t.Fatalf("无单元课的总量应为 2，实际 %d（单元数 %d）", total, len(s.Units))
+	}
+}
+
+// 扁平课程顺序（nextLesson 推进下一课用的顺序）必须与页面按单元展开的顺序完全一致。
+//
+// 背景：content/ 里存在同序号不同名的单元目录。真实案例是小学一年级语文上册的
+// 「01-我上学了」和「01-识字（一）」——两者单元序号都是 1，课程序号又都是 1，
+// 排序一旦退化到只按课名比较，「天地人」会排到「我上学了」前面（「天」的码点小于「我」），
+// 于是入学教育那课被推到第 2 位，达标后推进的下一课也就跟着指错。
+//
+// 这类错位不会让页面报错：导航按单元分组展示时看起来是对的，只有走扁平列表的
+// 「推进下一课」会悄悄跳错单元，因此必须靠单元级断言守住。
+func TestSortLessons_FlatOrderMatchesUnitGrouping(t *testing.T) {
+	s := &Subject{Key: "chinese", Name: "语文"}
+	mk := func(unit string, unitNo, lessonNo int, title string) {
+		s.Lessons = append(s.Lessons, &Lesson{Unit: unit, UnitNo: unitNo, LessonNo: lessonNo, Title: title})
+	}
+	// 刻意打乱输入顺序，确保测试测的是排序本身而不是输入顺序。
+	mk("识字（一）", 1, 2, "金木水火土")
+	mk("我上学了", 1, 1, "我上学了")
+	mk("识字（一）", 1, 1, "天地人")
+	mk("汉语拼音（一）", 2, 1, "a o e")
+
+	sortLessons(s.Lessons) // 复用 Scan 用的真实排序，不在测试里复刻规则
+	s.buildUnits()
+
+	var grouped, flat []string
+	for _, u := range s.Units {
+		for _, l := range u.Lessons {
+			grouped = append(grouped, l.Title)
+		}
+	}
+	for _, l := range s.Lessons {
+		flat = append(flat, l.Title)
+	}
+
+	if !reflect.DeepEqual(grouped, flat) {
+		t.Fatalf("扁平顺序与单元展开顺序不一致：\n  分组=%v\n  扁平=%v", grouped, flat)
+	}
+	// 同序号的两单元里，「我上学了」必须整课排在「识字（一）」之前。
+	want := []string{"我上学了", "天地人", "金木水火土", "a o e"}
+	if !reflect.DeepEqual(flat, want) {
+		t.Fatalf("教材顺序应为 %v，实际 %v", want, flat)
+	}
+}
+
+// 同序号的不同单元，各自的课不能交错混排（否则推进下一课会跨单元乱跳）。
+func TestSortLessons_SameUnitNoDoesNotInterleave(t *testing.T) {
+	s := &Subject{Key: "english", Name: "英语"}
+	mk := func(unit string, lessonNo int, title string) {
+		s.Lessons = append(s.Lessons, &Lesson{Unit: unit, UnitNo: 10, LessonNo: lessonNo, Title: title})
+	}
+	mk("10-Life is full of the unexpected", 1, "Life-1")
+	mk("10-I remember meeting all of you in Grade 7", 1, "Remember-1")
+	mk("10-Life is full of the unexpected", 2, "Life-2")
+	mk("10-I remember meeting all of you in Grade 7", 2, "Remember-2")
+
+	sortLessons(s.Lessons)
+
+	want := []string{"Remember-1", "Remember-2", "Life-1", "Life-2"}
+	got := make([]string, 0, len(s.Lessons))
+	for _, l := range s.Lessons {
+		got = append(got, l.Title)
+	}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("同序号单元应按单元聚拢而不是按课程序号交错：\n  期望=%v\n  实际=%v", want, got)
 	}
 }

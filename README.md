@@ -310,6 +310,8 @@ docker compose -f deploy/docker-compose.yml up -d
 | `STUDYBUDDY_PASS` | 达标分数线 | `80` |
 | `STUDYBUDDY_PER_ROUND` | 每套题数 | `10` |
 | `STUDYBUDDY_SINGLE` / `STUDYBUDDY_MULTI` | 单选 / 多选题数 | `6` / `4` |
+| `STUDYBUDDY_TEXTBOOK_ASSETS` | 官方教材图集目录（离线预渲染产物） | `$DATA/textbook` |
+| `STUDYBUDDY_TEXTBOOK_DIR` | 源教材 PDF 根目录（供「下载原书 PDF」） | `D:\ChinaTextbook` |
 
 ---
 
@@ -323,7 +325,30 @@ go run ./tools/bankcheck  # 教材题库自检：逐课统计题数，查解析�
 go run ./tools/unitcheck  # 单元聚合自洽：查课挂错单元 / 空单元 / 课数不守恒
 ```
 
-这些工具都把数据写到临时目录，不污染项目 `data/` 与 `archive/`。
+### 官方教材模块（`/textbook`）
+
+官方教材 PDF 采用**离线预渲染**：用脚本把整册 PDF 转成 WebP 分页图后，
+服务端只做静态分发，因此 **Windows / fnOS / Docker 都无需安装 poppler、mupdf 之类的渲染依赖**。
+
+```bash
+# 1) 生成图集（产物落在 data/textbook/<key>/：cover.webp + hi/ + lo/ + meta.json）
+pip install pymupdf pillow
+python tools/textbook-prerender/prerender.py \
+  --src "D:/ChinaTextbook/小学/语文/统编版/义务教育教科书·语文一年级上册.pdf" \
+  --key primary-pep-grade1-volume1-chinese \
+  --out data/textbook
+
+# 2) 在 internal/web/textbookres.go 的 tbBooks 里登记这一册（书名、介绍、目录页码）
+# 3) 重启服务，学习主页顶部即出现「官方教材」卡片，顶栏出现「教材」入口
+```
+
+性能设计：低清缩略图约 4KB/页（懒加载，用于首屏铺底与缩略图条），
+高清图约 110KB/页（只加载当前页并预取相邻 2 页），图集带一年强缓存，二次打开零请求。
+图集未生成时详情页自动降级为「下载原书 PDF」，不会白屏也不会 500。
+
+这些工具都把数据写到临时目录，不污染项目 `data/` 与 `archive/`。（工具列表见上）
+教材图集是运行时产物，放在 `data/textbook/` 下，不入库；换机器重跑上面的脚本即可，
+Docker 部署时它随 `./data:/app/data` 挂载一起持久化。
 
 `bankcheck` 用的是系统自己的 `textbook.Scan` + `ParseBank`，所以它说「识别到了」就一定能在页面里刷到；
 发现必须修的问题（如 HTML 里没有题库、题数为 0）时退出码为 1，可直接串进脚本：

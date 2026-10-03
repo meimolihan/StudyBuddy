@@ -28,6 +28,17 @@ func (a *App) avatarFile(uid int64) string {
 	return filepath.Join(a.Cfg.DataDir, "avatars", "u"+strconv.FormatInt(uid, 10)+".png")
 }
 
+// hasAvatar 当前用户是否已上传头像。
+// 模板据此决定是否输出 <img src="/avatar/me">：没头像时干脆不发这个请求，
+// 免得浏览器控制台每条页面都记一次 404（onerror 只是兜底，不该当正常路径）。
+func (a *App) hasAvatar(s *auth.Session) bool {
+	if s == nil {
+		return false
+	}
+	fi, err := os.Stat(a.avatarFile(s.UserID))
+	return err == nil && !fi.IsDir()
+}
+
 // avatarMe GET /avatar/me：输出当前用户头像（no-store，上传后立即生效）。
 func (a *App) avatarMe(c *gin.Context) {
 	s := auth.Current(c)

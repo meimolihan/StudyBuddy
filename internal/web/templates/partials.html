@@ -1,6 +1,8 @@
 {{/* ============ 线性 SVG 图标（stroke 描边、fill 无色，统一 2D 扁平风格） ============
      尺寸与颜色由 CSS 的 .ico 统一控制，跟随 currentColor，深浅色自动适配。 */}}
 {{define "ico_book"}}<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H19v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 5.5v15"/><path d="M9 7.5h7M9 11h5"/></svg>{{end}}
+{{/* 教材入口图标：翻开的书 + 右侧书签，与 ico_book 区分开 */}}
+{{define "ico_textbook"}}<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H19v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 5.5v15"/><path d="M9 7.5h5M9 11h3"/><path d="M14.5 3v6.2l2-1.6 2 1.6V3z"/></svg>{{end}}
 {{define "ico_archive"}}<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7.5A1.5 1.5 0 0 1 4.5 6h15A1.5 1.5 0 0 1 21 7.5V18a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18z"/><path d="M3 10.5h18"/><path d="M9.5 14h5"/></svg>{{end}}
 {{define "ico_gear"}}<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 14.5a1.6 1.6 0 0 0 .32 1.77l.06.06a1.9 1.9 0 1 1-2.69 2.69l-.06-.06a1.6 1.6 0 0 0-1.77-.32 1.6 1.6 0 0 0-.97 1.47V21a1.9 1.9 0 1 1-3.8 0v-.1a1.6 1.6 0 0 0-1.05-1.47 1.6 1.6 0 0 0-1.77.32l-.06.06a1.9 1.9 0 1 1-2.69-2.69l.06-.06a1.6 1.6 0 0 0 .32-1.77 1.6 1.6 0 0 0-1.47-.97H3a1.9 1.9 0 1 1 0-3.8h.1a1.6 1.6 0 0 0 1.47-1.05 1.6 1.6 0 0 0-.32-1.77l-.06-.06a1.9 1.9 0 1 1 2.69-2.69l.06.06a1.6 1.6 0 0 0 1.77.32H9a1.6 1.6 0 0 0 .97-1.47V3a1.9 1.9 0 1 1 3.8 0v.1a1.6 1.6 0 0 0 .97 1.47 1.6 1.6 0 0 0 1.77-.32l.06-.06a1.9 1.9 0 1 1 2.69 2.69l-.06.06a1.6 1.6 0 0 0-.32 1.77V9a1.6 1.6 0 0 0 1.47.97H21a1.9 1.9 0 1 1 0 3.8h-.1a1.6 1.6 0 0 0-1.47.97z"/></svg>{{end}}
 {{define "ico_chevron"}}<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5l6 6 6-6"/></svg>{{end}}
@@ -52,9 +54,10 @@
   <nav>
     {{if .Session}}
       <a class="tnav{{if eq .Nav "study"}} is-on{{end}}" href="/study"><span class="tnav-ico">{{template "ico_book"}}</span>学习主页</a>
+      <a class="tnav{{if eq .Nav "textbook"}} is-on{{end}}" href="/textbook" title="浏览全年级全学科官方教材"><span class="tnav-ico">{{template "ico_textbook"}}</span>教材</a>
       <a class="tnav{{if eq .Nav "archive"}} is-on{{end}}" href="/archive"><span class="tnav-ico">{{template "ico_archive"}}</span>试卷归档</a>
       <button type="button" class="who" id="who-btn" aria-haspopup="dialog" title="点击查看个人信息与头像">
-        <span class="avatar">{{initial .Session.Name}}<img class="avatar-pic" src="/avatar/me" alt="" onerror="this.remove()"></span><span class="whotxt">{{.Session.Name}}{{if .Session.IsAdmin}}<span class="tag">管理员</span>{{end}}</span>
+        <span class="avatar">{{initial .Session.Name}}{{if .HasAvatar}}<img class="avatar-pic" src="/avatar/me" alt="" onerror="this.remove()">{{end}}</span><span class="whotxt">{{.Session.Name}}{{if .Session.IsAdmin}}<span class="tag">管理员</span>{{end}}</span>
       </button>
       {{template "settings_menu" .}}
     {{else}}
@@ -161,7 +164,7 @@
       <div class="pm-side">
         <span class="avatar pm-avatar">
           {{initial .Session.Name}}
-          <img class="avatar-pic" id="pm-avatar-img" src="/avatar/me" alt="" onerror="this.remove()">
+          {{if .HasAvatar}}<img class="avatar-pic" id="pm-avatar-img" src="/avatar/me" alt="" onerror="this.remove()">{{end}}
         </span>
         <input type="file" id="pm-file" accept="image/png,image/jpeg,image/webp" hidden>
         <button type="button" class="btn sec sm" id="pm-pick">选择头像图片</button>
@@ -547,7 +550,7 @@
 <div class="sb-modal-mask" id="wl-mask" hidden>
   <div class="sb-modal welcome-modal" role="dialog" aria-modal="true" aria-labelledby="wl-title">
     <h3 id="wl-title">新的学习开始啦 ✨</h3>
-    <span class="avatar wl-avatar">{{initial .Session.Name}}<img class="avatar-pic" src="/avatar/me" alt="" onerror="this.remove()"></span>
+    <span class="avatar wl-avatar">{{initial .Session.Name}}{{if .HasAvatar}}<img class="avatar-pic" src="/avatar/me" alt="" onerror="this.remove()">{{end}}</span>
     <p class="wl-hello">欢迎<b>{{.Session.Name}}</b>同学</p>
     <p class="wl-line">努力学习，天天向上</p>
     <p class="wl-line">每份付出，终有回报</p>
@@ -740,7 +743,11 @@
 
 {{define "footer"}}</main>
 {{template "fab_dock"}}
-<footer class="foot">StudyBuddy · 每个学生独立数据库，学习数据完全隔离</footer>
+{{/* 页脚：项目名链到 GitHub 仓库。target=_blank + rel="noopener noreferrer" 是外链标准做法
+     ——noreferrer 顺带挡住 Referer 泄漏（不把学生的访问路径带给 GitHub），
+     noopener 防止目标页用 window.opener 反向操纵本页。链接文字保持页脚的灰，
+     不继承全局 a 的品牌蓝，否则页脚一半灰一半蓝会显得突兀。 */}}
+<footer class="foot"><a class="foot-repo" href="https://github.com/meimolihan/StudyBuddy" target="_blank" rel="noopener noreferrer">StudyBuddy</a> · 每个学生独立数据库，学习数据完全隔离</footer>
 <script src="/static/vendor/sal.js"></script>
 <script>
 /* 开屏入场动画（Sal.js）：给学习主页 / 试卷归档的卡片、列表项依次挂上

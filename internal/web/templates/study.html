@@ -138,6 +138,39 @@
   <div class="notice">教材目录里还没有可展示的课程。请把课程 HTML 按规则放入 <code>content/…</code> 目录后重启服务。</div>
   {{end}}
 </div>
+{{/* 官方教材封面墙：只展示「当前登录学生所在年级 + 当前学期」的教材，全学科都收。
+     每张卡只渲染封面图（+ 教材名小字），点封面进该教材详情页。
+     .TbGrade 为空说明连年级都没定出来（题库还没初始化），.TbCards 为空说明该
+     年级该学期暂无教材，两种情况都落到下面的空状态提示，页面不报错、其余模块不受影响。
+     位置：整页最底部（教材导航之后、footer 之前）。项目定位以刷题为主，
+     所有刷题相关模块（统计、当前进度、最近自测、教材导航）都在上方，
+     教材阅读属于辅助查阅，按信息优先级沉到末尾。 */}}
+<div class="card tb-home">
+  <div class="tb-home-head">
+    <h2>官方教材</h2>
+    <span class="muted">{{if .TbGrade}}{{.TbGrade}}{{if .TbVolume}} · {{.TbVolume}}{{end}} · 共 {{len .TbCards}} 册{{else}}按当前年级自动匹配{{end}}</span>
+  </div>
+  {{if .TbCards}}
+  <div class="tb-covers">
+    {{range .TbCards}}
+    <a class="tb-cover-card" href="/textbook?key={{.Key}}" title="打开《{{.Alt}}》">
+      <span class="tb-cover-frame">
+        {{if .HasAssets}}
+        <img src="{{.Cover}}" alt="{{.Alt}}" loading="lazy" decoding="async" width="120" height="170">
+        {{else}}
+        <span class="tb-cover-ph">{{.Alt}}</span>
+        {{end}}
+      </span>
+      <span class="tb-cover-name">{{.Name}}</span>
+    </a>
+    {{end}}
+  </div>
+  {{else}}
+  <div class="notice">
+    {{if .TbGrade}}{{.TbGrade}}{{if .TbVolume}}{{.TbVolume}}的{{end}}教材暂未收录，我们正在整理中；也可以点顶部<b>教材</b>浏览全年级全学科。{{else}}还没能识别到你的年级，补充年级信息后这里会自动显示对应教材。{{end}}
+  </div>
+  {{end}}
+</div>
 {{template "study_nav_js"}}
 {{template "splash" .}}
 {{template "welcome_modal" .}}

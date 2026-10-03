@@ -290,15 +290,7 @@ func Scan(root string) (*Tree, error) {
 				sort.Strings(subs)
 				for _, s := range subs {
 					ls := byStage[st][g][v][s]
-					sort.Slice(ls, func(i, j int) bool {
-						if ls[i].UnitNo != ls[j].UnitNo {
-							return ls[i].UnitNo < ls[j].UnitNo
-						}
-						if ls[i].LessonNo != ls[j].LessonNo {
-							return ls[i].LessonNo < ls[j].LessonNo
-						}
-						return ls[i].Title < ls[j].Title
-					})
+					sortLessons(ls)
 					sn := &Subject{
 						Key: s, Name: subjectCN[s], Lessons: ls,
 						Grade: g, Volume: v,
@@ -442,6 +434,36 @@ func parseLessonLegacy(parts []string) *Lesson {
 		Unit: unit, UnitNo: unitNo,
 		Title: title, LessonNo: lessonNo,
 	}
+}
+
+// sortLessons 课程排序：单元序号 → 单元目录名 → 课程序号 → 课名。
+//
+// 单元目录名这一级不能省：content/ 里存在同序号不同名的单元目录
+// （如一年级语文上册的「01-我上学了」与「01-识字（一）」，初中英语九年级下册更是
+// 有四个「10-」开头的单元）。若只按单元序号 + 课程序号排，不同单元的课会按课程序号
+// 交错混排（A 单元第 1 课、B 单元第 1 课、A 单元第 2 课……）。
+//
+// 这个扁平顺序会被 nextLesson 用来推进「达标后的下一课」，一旦交错，学生学完一课
+// 就会跳到另一个单元去。加上单元目录名后，排序键与 buildUnits 的聚合键 (No, Name)
+// 完全对齐，从而保证一个不变量：
+//
+//	扁平课程顺序 恒等于 页面按单元分组展开后的顺序
+//
+// 抽成函数是为了让单元测试直接测到真实排序代码，而不是在测试里复刻一份比较规则
+// （复刻会让「实现改了、测试没跟着改」的假阴性溜过去）。
+func sortLessons(ls []*Lesson) {
+	sort.Slice(ls, func(i, j int) bool {
+		if ls[i].UnitNo != ls[j].UnitNo {
+			return ls[i].UnitNo < ls[j].UnitNo
+		}
+		if ls[i].Unit != ls[j].Unit {
+			return ls[i].Unit < ls[j].Unit
+		}
+		if ls[i].LessonNo != ls[j].LessonNo {
+			return ls[i].LessonNo < ls[j].LessonNo
+		}
+		return ls[i].Title < ls[j].Title
+	})
 }
 
 // parseSeqName 解析「NN-名称」形式：返回序号与名称；无数字前缀时序号为 0。

@@ -1,0 +1,494 @@
+{{template "header" .}}
+{{/* 官方教材详情页：封面 + 介绍 + 目录 + 阅读器。
+     性能要点：首屏只输出当前一页的高清图（带 fetchpriority=high），
+     缩略图条由 JS 生成并 IntersectionObserver 懒加载，翻页不刷新页面。 */}}
+
+<div class="card tb-hero">
+  <div class="tb-cover">
+    {{if .HasAssets}}
+    <img src="{{.AssetBase}}/cover.webp" alt="{{.Book.Title}} {{.Book.SubTitle}} 封面"
+         width="270" height="382" decoding="async" fetchpriority="high">
+    {{else}}
+    <div class="tb-cover-ph">{{.Book.SubTitle}}</div>
+    {{end}}
+  </div>
+  <div class="tb-meta">
+    <h1>{{.Book.Title}}</h1>
+    <p class="tb-sub">{{.Book.SubTitle}}</p>
+    <p class="muted">
+      {{.Book.Publisher}} · {{.Book.Series}}<br>
+      {{.Book.Editor}}
+    </p>
+    <p class="row tb-tags">
+      <span class="badge info">共 {{.Pages}} 页</span>
+      {{if .HasAssets}}
+      <span class="badge ok">已预渲染 · 秒开</span>
+      {{else}}
+      <span class="badge warn">图集未生成</span>
+      {{end}}
+      <a class="btn ghost sm" href="/study">返回学习主页</a>
+      <a class="btn ghost sm" href="/textbook/raw?key={{.Book.Key}}" target="_blank" rel="noopener">下载原书 PDF</a>
+    </p>
+    {{if .HasAssets}}
+    <p class="row">
+      <a class="btn primary" href="#tb-reader" id="tb-start">
+        {{if .Progress}}继续阅读 · 第 {{.Progress}} 页{{else}}开始阅读{{end}}
+      </a>
+      {{if .Progress}}<a class="btn sec sm" href="/textbook?key={{.Book.Key}}&p=1">从第 1 页重读</a>{{end}}
+    </p>
+    {{end}}
+  </div>
+</div>
+
+{{if .HasAssets}}
+<div class="card tb-reader" id="tb-reader">
+  <div class="tb-bar">
+    <button type="button" class="btn ghost sm" id="tb-prev" aria-label="上一页"
+            {{if eq .StartPage 1}}disabled{{end}}>‹ 上一页</button>
+    <span class="tb-pos">
+      <input type="number" id="tb-input" min="1" max="{{.Pages}}" value="{{.StartPage}}"
+             aria-label="页码" inputmode="numeric">
+      <span class="muted">/ {{.Pages}}</span>
+    </span>
+    <button type="button" class="btn ghost sm" id="tb-next" aria-label="下一页"
+            {{if eq .StartPage .Pages}}disabled{{end}}>下一页 ›</button>
+    <button type="button" class="btn ghost sm" id="tb-thumb-toggle" aria-pressed="false">缩略图</button>
+  </div>
+
+  {{/* 阅读区：低清图在下做占位與模糊底，高清加载完成后淡入覆盖（blur-up）。
+       aspect-ratio 由 meta.json 的高宽比给出，图片没到之前高度就已确定，不会跳版。 */}}
+  <div class="tb-stage" id="tb-stage" style="aspect-ratio:{{.Ratio}}">
+    <img class="tb-lo" id="tb-lo" alt="" aria-hidden="true" decoding="async">
+    <img class="tb-hi" id="tb-hi" alt="教材第 {{.StartPage}} 页" decoding="async" fetchpriority="high">
+    <div class="tb-loading" id="tb-loading">加载中…</div>
+
+    {{/* 悬浮翻页键：贴在图片左右两侧、垂直居中，触屏热区 48px。
+         不参与图片加载，只调现有的 show()；首/末页服务端先置灰，
+         避免 JS 执行前的一瞬间显示成可点，之后由 updateNav() 接管。 */}}
+    <button type="button" class="tb-nav tb-nav-prev" id="tb-arrow-prev"
+            aria-label="上一页" title="上一页（←）" {{if eq .StartPage 1}}disabled{{end}}>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7"/></svg>
+    </button>
+    <button type="button" class="tb-nav tb-nav-next" id="tb-arrow-next"
+            aria-label="下一页" title="下一页（→）" {{if eq .StartPage .Pages}}disabled{{end}}>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+    </button>
+  </div>
+  <p class="muted tb-hint">键盘 ← → 翻页 · Home / End 首尾页 · 手机左右滑动翻页 · 进度自动记忆
+    {{if not .HiReady}}<span class="tb-hint-tip">当前为清晰加速版（低清），高清分页图按需补齐中</span>{{end}}</p>
+
+  <div class="tb-thumbs" id="tb-thumbs" hidden></div>
+</div>
+{{else}}
+<div class="card">
+  <div class="notice">
+    这本教材的分页图集还没生成，在线翻页暂不可用。跑一次预渲染脚本即可开启：
+    <code>python tools/textbook-prerender/prerender.py --src "&lt;教材PDF&gt;" --key {{.Book.Key}} --out &lt;图集目录&gt;</code>
+    。在此之前可直接下载原书 PDF 阅读。
+  </div>
+</div>
+{{end}}
+
+<div class="card">
+  <h2>教材介绍</h2>
+  {{if .Book.Intro}}
+  <p class="tb-intro">{{.Book.Intro}}</p>
+  {{else}}
+  <p class="muted">本册教材的介绍整理中。</p>
+  {{end}}
+  {{if .Book.Publisher}}
+  <p class="muted tb-meta-line">{{.Book.Publisher}}{{if .Book.Series}} · {{.Book.Series}}{{end}}{{if .Book.Editor}} · {{.Book.Editor}}{{end}}</p>
+  {{end}}
+</div>
+
+<div class="card" id="tb-toc-card">
+  <h2>目录</h2>
+  {{if .HasToc}}
+  <p class="muted">点击任意一课可直接翻到对应页。</p>
+  {{else}}
+  <p class="muted">本册教材的目录整理中。</p>
+  {{end}}
+
+  {{/* 目录渲染。结构与样式沿用原有 .tb-unit / .tb-lessons，不新增类。
+       InlineToc 为真时服务端已渲染好（小册子直接内联，首屏即可点）；
+       否则先显示占位，前端异步拉 /textbook/toc 后填充同一段结构。 */}}
+  <div id="tb-toc"
+       data-src="{{.TocURL}}"
+       data-inline="{{if .InlineToc}}1{{else}}0{{end}}"
+       data-key="{{.Book.Key}}"
+       {{if not .InlineToc}}hidden{{end}}>
+    {{if .InlineToc}}{{template "tb-toc-body" .}}{{end}}
+  </div>
+  <p class="muted" id="tb-toc-status"{{if .InlineToc}} hidden{{end}}>
+    正在加载目录…
+  </p>
+  <noscript>
+    <p class="muted">目录需要开启 JavaScript 才能加载，或
+      <a href="/textbook/raw?key={{.Book.Key}}">下载原书 PDF</a> 查看。</p>
+  </noscript>
+</div>
+
+{{define "tb-toc-body"}}
+{{range .Book.Units}}
+<details class="tb-unit">
+  <summary>{{.Name}}{{if .Start}} <span class="muted">第 {{.Start}} 页起</span>{{end}}</summary>
+  <ul class="tb-lessons">
+    {{range .Lessons}}
+    <li>
+      <a href="/textbook?key={{$.Book.Key}}&p={{.Page}}" data-p="{{.Page}}">
+        {{if .No}}<b>{{.No}}</b> {{end}}{{.Title}}
+      </a>
+      <span class="muted">P{{.Page}}</span>
+    </li>
+    {{end}}
+  </ul>
+</details>
+{{end}}
+{{end}}
+
+<script>
+/* 教材阅读器：单页切换 + 相邻页预取 + 缩略图懒加载 + 进度记忆。
+   所有 DOM 交互都包在 IIFE 里，不占用任何全局变量，也不会影响页面其它脚本。 */
+(function () {
+  var base = "{{.AssetBase}}";
+  // 高清图集是否已渲染完（批量预渲染按需补齐）。没就绪时只发低清请求，
+  // 否则每翻一页都会打一条注定 404 的高清请求，控制台全是红字。
+  var hiReady = {{if .HiReady}}true{{else}}false{{end}};
+  var total = {{.Pages}};
+  var cur = {{.StartPage}};
+  var key = "{{.Book.Key}}";
+  var cookieName = "tbp_" + key;
+
+  var stage = document.getElementById('tb-stage');
+  var imgLo = document.getElementById('tb-lo');
+  var imgHi = document.getElementById('tb-hi');
+  var loading = document.getElementById('tb-loading');
+  var input = document.getElementById('tb-input');
+  var thumbs = document.getElementById('tb-thumbs');
+  var toggle = document.getElementById('tb-thumb-toggle');
+  var arrPrev = document.getElementById('tb-arrow-prev');
+  var arrNext = document.getElementById('tb-arrow-next');
+  if (!stage || !imgHi) { return; }
+
+  // pad 页码补零到三位，与预渲染脚本产出的文件名保持一致（p001.webp）。
+  function pad(n) { return ('00' + n).slice(-3); }
+  function hiURL(n) { return base + '/hi/p' + pad(n) + '.webp'; }
+  function loURL(n) { return base + '/lo/p' + pad(n) + '.webp'; }
+  function clamp(n) { return Math.min(total, Math.max(1, n | 0)); }
+
+  // ---- 预取：把相邻几页的高清图提前拉进浏览器缓存，翻页时几乎瞬时 ----
+  var prefetched = {};
+  function prefetch(n) {
+    if (!hiReady || n < 1 || n > total || prefetched[n]) { return; }
+    prefetched[n] = 1;
+    var im = new Image();
+    im.decoding = 'async';
+    im.src = hiURL(n);
+  }
+  function prefetchAround(n) {
+    // 前后各 2 页；正在看第 1 页时不会去预取第 0 页
+    prefetch(n + 1); prefetch(n + 2);
+    prefetch(n - 1); prefetch(n - 2);
+  }
+
+  // ---- 进度记忆：cookie 供服务端渲染主页横幅卡，localStorage 供本机快速恢复 ----
+  var saveTimer = null;
+  function saveProgress() {
+    if (saveTimer) { clearTimeout(saveTimer); }
+    saveTimer = setTimeout(function () {
+      var exp = new Date(Date.now() + 31536000000).toUTCString();
+      document.cookie = cookieName + '=' + cur + '; path=/; expires=' + exp + '; samesite=lax';
+      try { localStorage.setItem(cookieName, String(cur)); } catch (e) {}
+      // 地址栏同步页码，刷新或分享链接都能停在当页
+      if (window.history && history.replaceState) {
+        history.replaceState(null, '', '/textbook?key=' + key + '&p=' + cur);
+      }
+      markThumb(cur);
+    }, 800);
+  }
+
+  // ---- 边界状态：第 1 页禁用上一页、最后一页禁用下一页 ----
+  // 工具条按钮与悬浮箭头同步置灰，避免两套入口表现不一致。
+  function updateNav() {
+    var atFirst = cur <= 1, atLast = cur >= total;
+    var ps = [prev, arrPrev], ns = [next, arrNext];
+    for (var i = 0; i < ps.length; i++) {
+      if (!ps[i]) { continue; }
+      ps[i].disabled = atFirst;
+      ps[i].setAttribute('aria-disabled', atFirst ? 'true' : 'false');
+    }
+    for (var j = 0; j < ns.length; j++) {
+      if (!ns[j]) { continue; }
+      ns[j].disabled = atLast;
+      ns[j].setAttribute('aria-disabled', atLast ? 'true' : 'false');
+    }
+  }
+
+  // ---- 翻页主逻辑 ----
+  var hiToken = 0; // 防止快速连翻时旧的高清图后到、把新页盖掉
+  function show(n, noSave) {
+    n = clamp(n);
+    cur = n;
+    if (input && input.value !== String(n)) { input.value = n; }
+
+    var lo = loURL(n), hi = hiURL(n);
+    imgLo.src = lo;                       // 低清先铺底（约 4KB，缓存命中时几乎零延迟）
+    imgHi.classList.remove('is-on');      // 高清未就绪前保持透明
+    imgHi.alt = '教材第 ' + n + ' 页';
+    loading.hidden = false;
+
+    if (hiReady) {
+      var token = ++hiToken;
+      var probe = new Image();
+      probe.decoding = 'async';
+      probe.onload = function () {
+        if (token !== hiToken) { return; }  // 已经翻到别的页，丢弃这次结果
+        imgHi.src = hi;
+        imgHi.classList.add('is-on');
+        loading.hidden = true;
+      };
+      probe.onerror = function () {
+        if (token !== hiToken) { return; }
+        loading.hidden = true;            // 高清取不到时保留低清，不至于白屏
+      };
+      probe.src = hi;
+    } else {
+      // 只有低清：等低清 onload 到位就收起加载提示，不去打注定 404 的高清请求
+      hiToken++;
+      imgHi.classList.remove('is-on');
+      imgHi.removeAttribute('src');
+      var loImg = new Image();
+      loImg.onload = loImg.onerror = function () { loading.hidden = true; };
+      loImg.src = lo;
+    }
+
+    prefetchAround(n);
+    updateNav();
+    if (!noSave) { saveProgress(); }
+    else { markThumb(n); }
+    // 缩略图条滚到当页，方便对照上下文
+    var active = thumbs && thumbs.querySelector('.tb-thumb.is-on');
+    if (active && thumbs && !thumbs.hidden) {
+      var r = active.getBoundingClientRect(), c = thumbs.getBoundingClientRect();
+      if (r.left < c.left || r.right > c.right) {
+        thumbs.scrollLeft += (r.left - c.left) - (c.width - r.width) / 2;
+      }
+    }
+  }
+
+  // ---- 缩略图条：127 个小图，进入视口才加载低清，首屏不产生 127 个请求 ----
+  var thumbBuilt = false;
+  var io = null;
+  function buildThumbs() {
+    if (thumbBuilt) { return; }
+    thumbBuilt = true;
+    var frag = document.createDocumentFragment();
+    for (var i = 1; i <= total; i++) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'tb-thumb';
+      b.setAttribute('data-p', String(i));
+      b.title = '第 ' + i + ' 页';
+      var num = document.createElement('span');
+      num.className = 'tb-thumb-n';
+      num.textContent = String(i);
+      var im = document.createElement('img');
+      im.alt = '';
+      im.decoding = 'async';
+      im.loading = 'lazy';
+      im.setAttribute('data-src', loURL(i)); // 真正的 src 由观察器填入
+      b.appendChild(im);
+      b.appendChild(num);
+      frag.appendChild(b);
+    }
+    thumbs.appendChild(frag);
+
+    if (window.IntersectionObserver) {
+      io = new IntersectionObserver(function (entries) {
+        for (var k = 0; k < entries.length; k++) {
+          if (!entries[k].isIntersecting) { continue; }
+          var im = entries[k].target;
+          if (!im.src && im.getAttribute('data-src')) { im.src = im.getAttribute('data-src'); }
+          io.unobserve(im);
+        }
+      }, { root: thumbs, rootMargin: '120px' });
+      var imgs = thumbs.querySelectorAll('img');
+      for (var j = 0; j < imgs.length; j++) { io.observe(imgs[j]); }
+    } else {
+      // 老浏览器兜底：直接全部加载（低清总量约 500KB，可接受）
+      var all = thumbs.querySelectorAll('img');
+      for (var m = 0; m < all.length; m++) { all[m].src = all[m].getAttribute('data-src'); }
+    }
+    markThumb(cur);
+  }
+
+  function markThumb(n) {
+    if (!thumbBuilt) { return; }
+    var on = thumbs.querySelector('.tb-thumb.is-on');
+    if (on) { on.classList.remove('is-on'); }
+    var t = thumbs.querySelector('.tb-thumb[data-p="' + n + '"]');
+    if (t) { t.classList.add('is-on'); }
+  }
+
+  // ---- 事件绑定 ----
+  var prev = document.getElementById('tb-prev');
+  var next = document.getElementById('tb-next');
+  if (prev) { prev.addEventListener('click', function () { show(cur - 1); }); }
+  if (next) { next.addEventListener('click', function () { show(cur + 1); }); }
+  if (arrPrev) { arrPrev.addEventListener('click', function () { show(cur - 1); }); }
+  if (arrNext) { arrNext.addEventListener('click', function () { show(cur + 1); }); }
+  if (input) {
+    input.addEventListener('change', function () { show(parseInt(input.value, 10) || 1); });
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); show(parseInt(input.value, 10) || 1); }
+    });
+  }
+  if (toggle) {
+    toggle.addEventListener('click', function () {
+      buildThumbs();
+      thumbs.hidden = !thumbs.hidden;
+      toggle.setAttribute('aria-pressed', thumbs.hidden ? 'false' : 'true');
+      if (!thumbs.hidden) { markThumb(cur); }
+    });
+  }
+  if (thumbs) {
+    thumbs.addEventListener('click', function (e) {
+      var b = e.target.closest ? e.target.closest('.tb-thumb') : null;
+      if (b) { show(parseInt(b.getAttribute('data-p'), 10)); }
+    });
+  }
+
+  // 目录里的课：无刷新跳页（href 保留给未启用 JS 的情况）
+  // 抽成函数是因为目录可能懒加载完才出现，那时还要再绑一次。
+  function bindTocLinks(root) {
+    var links = (root || document).querySelectorAll('a[data-p]');
+    Array.prototype.forEach.call(links, function (a) {
+      if (a.getAttribute('data-bound')) { return; }
+      a.setAttribute('data-bound', '1');
+      a.addEventListener('click', function (e) {
+        if (e.metaKey || e.ctrlKey || e.shiftKey) { return; }
+        e.preventDefault();
+        show(parseInt(a.getAttribute('data-p'), 10));
+        if (stage && stage.scrollIntoView) { stage.scrollIntoView({ block: 'start' }); }
+      });
+    });
+  }
+  bindTocLinks(document);
+
+  // 目录懒加载：目录大的教材不在首屏内联，页面就绪后拉 /textbook/toc 填充。
+  // 用 textContent 拼 DOM（不拼 innerHTML），标题里带符号也不会被当成标签。
+  (function loadToc() {
+    var box = document.getElementById('tb-toc');
+    if (!box || box.getAttribute('data-inline') === '1') { return; }
+    var status = document.getElementById('tb-toc-status');
+    var src = box.getAttribute('data-src');
+    if (!src) { return; }
+
+    function fill(units) {
+      if (!units || !units.length) {
+        box.removeAttribute('hidden');
+        if (status) {
+          status.textContent = '本册教材的目录整理中。';
+          status.removeAttribute('hidden');
+        }
+        return;
+      }
+      var frag = document.createDocumentFragment();
+      units.forEach(function (u) {
+        var d = document.createElement('details');
+        d.className = 'tb-unit';
+        var sm = document.createElement('summary');
+        sm.appendChild(document.createTextNode(u.Name || ''));
+        if (u.start) {
+          var s = document.createElement('span');
+          s.className = 'muted';
+          s.textContent = ' 第 ' + u.start + ' 页起';
+          sm.appendChild(s);
+        }
+        d.appendChild(sm);
+
+        var lessons = u.lessons || [];
+        if (lessons.length) {
+          var ul = document.createElement('ul');
+          ul.className = 'tb-lessons';
+          lessons.forEach(function (ls) {
+            var li = document.createElement('li');
+            var a = document.createElement('a');
+            a.href = '/textbook?key=' + encodeURIComponent(box.getAttribute('data-key'))
+              + '&p=' + ls.page;
+            a.setAttribute('data-p', ls.page);
+            if (ls.no) {
+              var b = document.createElement('b');
+              b.textContent = ls.no;
+              a.appendChild(b);
+              a.appendChild(document.createTextNode(' '));
+            }
+            a.appendChild(document.createTextNode(ls.title || ''));
+            li.appendChild(a);
+            var sp = document.createElement('span');
+            sp.className = 'muted';
+            sp.textContent = 'P' + ls.page;
+            li.appendChild(sp);
+            ul.appendChild(li);
+          });
+          d.appendChild(ul);
+        }
+        frag.appendChild(d);
+      });
+      box.textContent = '';
+      box.appendChild(frag);
+      box.removeAttribute('hidden');
+      if (status) { status.setAttribute('hidden', ''); }
+      bindTocLinks(box);
+    }
+
+    fetch(src, { credentials: 'same-origin' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) { fill(j && j.units); })
+      .catch(function () {
+        box.removeAttribute('hidden');
+        if (status) {
+          status.textContent = '目录加载失败，可刷新页面重试或下载原书 PDF。';
+          status.removeAttribute('hidden');
+        }
+      });
+  })();
+
+  // 键盘翻页：输入框获得焦点时不抢按键
+  document.addEventListener('keydown', function (e) {
+    var t = e.target || e.srcElement;
+    if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) { return; }
+    if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); show(cur - 1); }
+    else if (e.key === 'ArrowRight' || e.key === 'PageDown') { e.preventDefault(); show(cur + 1); }
+    else if (e.key === 'Home') { e.preventDefault(); show(1); }
+    else if (e.key === 'End') { e.preventDefault(); show(total); }
+  });
+
+  // 触摸滑动翻页：只认横向位移明显大于纵向的滑动，避免和页面滚动打架
+  var tx = 0, ty = 0, tracking = false;
+  stage.addEventListener('touchstart', function (e) {
+    if (!e.touches || e.touches.length !== 1) { return; }
+    tx = e.touches[0].clientX; ty = e.touches[0].clientY; tracking = true;
+  }, { passive: true });
+  stage.addEventListener('touchend', function (e) {
+    if (!tracking) { return; }
+    tracking = false;
+    var t = e.changedTouches && e.changedTouches[0];
+    if (!t) { return; }
+    var dx = t.clientX - tx, dy = t.clientY - ty;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+      show(dx < 0 ? cur + 1 : cur - 1); // 左滑看下一页
+    }
+  }, { passive: true });
+
+  // 首屏：URL 带了 p 参数时按参数走，否则按服务端算好的起始页（含 cookie 记忆）
+  var q = new URLSearchParams(location.search).get('p');
+  var start = q ? (parseInt(q, 10) || cur) : cur;
+  show(start, true);
+
+  var startBtn = document.getElementById('tb-start');
+  if (startBtn) { startBtn.addEventListener('click', function () { show(cur, true); }); }
+})();
+</script>
+
+{{template "footer" .}}

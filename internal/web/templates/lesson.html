@@ -8,7 +8,10 @@
     {{.Lesson.Grade}} 年级{{.Lesson.VolumeLabel}} ·
     {{.Lesson.UnitLabel}} · {{.Lesson.LessonLabel}}
   </p>
-  <div class="grid" style="margin-bottom:14px">
+  {{/* stat-grid：桌面单行 4 列，移动端 2×2。样式见 style.css 末尾 stat-grid 段。
+       全站 .grid 是共用的（admin.html 的新建账号表单也用它），所以这里加专用类，
+       不去动 .grid 本身，避免把表单挤成两列。DOM 结构与文字内容保持原样。 */}}
+  <div class="grid stat-grid" style="margin-bottom:14px">
     <div class="stat"><div class="num">{{.Bank}}</div><div class="cap">本题库题数</div></div>
     <div class="stat"><div class="num">{{.Progress.Attempts}}</div><div class="cap">已自测次数</div></div>
     <div class="stat"><div class="num">{{.Progress.BestScore}}</div><div class="cap">历史最高分</div></div>

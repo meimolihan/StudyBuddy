@@ -35,6 +35,39 @@ func check(cond bool, msg string) {
 	}
 }
 
+// sliceTBHome 从整页 HTML 中切出「官方教材」横幅卡（.tb-home）区块。
+// 找不到时返回空串，让调用方的断言失败而不是假绿。
+func sliceTBHome(page string) string {
+	i := strings.Index(page, `<div class="card tb-home">`)
+	if i < 0 {
+		return ""
+	}
+	rest := page[i:]
+	// 卡片是平级结构，遇到下一个 card 起始即为终点
+	if j := strings.Index(rest[1:], `<div class="card `); j >= 0 {
+		return rest[:j+1]
+	}
+	return rest
+}
+
+// sliceTBLib 切出教材库页的**教材卡片网格**区块。
+// 必须切区块再断言：学段筛选条本身就会渲染「小学/初中/高中」三个可点 chip，
+// 直接在整页里搜「小学」必然命中筛选项，而不是教材内容。
+func sliceTBLib(page string) string {
+	i := strings.Index(page, `<div class="tb-lib-grid`)
+	if i < 0 {
+		return ""
+	}
+	rest := page[i:]
+	if j := strings.Index(rest[1:], `<div class="tb-lib-grid`); j >= 0 {
+		return rest[:j+1]
+	}
+	if j := strings.Index(rest[1:], `<script`); j >= 0 {
+		return rest[:j+1]
+	}
+	return rest
+}
+
 func main() {
 	tmp, err := os.MkdirTemp("", "studybuddy-e2e")
 	if err != nil {
@@ -46,6 +79,18 @@ func main() {
 	cfg.Content = abs("content")
 	cfg.DataDir = filepath.Join(tmp, "data")
 	cfg.Archive = filepath.Join(tmp, "archive")
+
+	// 教材图集：项目里已生成预渲染产物就指过去，跑「图集可用」的正常路径；
+	// 没生成则留在临时目录，自动走「图集未生成」的降级路径。两条分支都要验证。
+	tbAssets := os.Getenv("STUDYBUDDY_TEXTBOOK_ASSETS")
+	if tbAssets == "" {
+		real := abs(filepath.Join("data", "textbook"))
+		if st, err := os.Stat(real); err == nil && st.IsDir() {
+			os.Setenv("STUDYBUDDY_TEXTBOOK_ASSETS", real)
+			tbAssets = real
+		}
+	}
+
 
 	g, err := db.OpenGlobal(cfg.GlobalDBPath())
 	if err != nil {
@@ -952,6 +997,149 @@ func main() {
 		check(jstr(m, "subject") == "" && jstr(m, "name") == nested, "非法学科名被忽略，退化为册别匹配")
 
 		rmWP(mathWP)
+	}
+
+
+	// ---- 官方教材模块（/textbook）----
+	fmt.Println("\n[G] 官方教材模块：教材库、详情页、图集分发与越权防护")
+
+	// 未登录一律跳登录
+	tbNoAuth, _ := do("GET", "/textbook", nil, "")
+	check(tbNoAuth.Code == 303, fmt.Sprintf("未登录访问 /textbook 跳登录页（得到 %d）", tbNoAuth.Code))
+
+	// 教材库页：全学段全年级全学科
+	lw, lbody := do("GET", "/textbook", nil, ck)
+	check(lw.Code == 200, fmt.Sprintf("GET /textbook 教材库 -> %d", lw.Code))
+	check(strings.Contains(lbody, "教材库"), "教材库页渲染标题")
+	check(strings.Contains(lbody, "tb-lib-grid") && strings.Contains(lbody, "tb-lb"), "教材库页渲染教材卡片网格")
+	check(strings.Contains(lbody, `class="tb-chip is-on"`), "教材库页筛选条有选中态")
+	check(!strings.Contains(lbody, "tb-arrow-prev"), "教材库页不渲染阅读器（阅读器只在详情页）")
+
+	// 筛选：初中 + 数学，卡片网格里不该再出现小学 / 语文教材。
+	// 只切 tb-lib-grid 区块——学段筛选 chip 本身就写着「小学」，整页搜索会误判。
+	fw, fbody := do("GET", "/textbook?stage=middle&subject=math", nil, ck)
+	check(fw.Code == 200, fmt.Sprintf("GET /textbook?stage=middle&subject=math -> %d", fw.Code))
+	fLib := sliceTBLib(fbody)
+	check(fLib != "", "教材库页可正确定位卡片网格区块")
+	check(!strings.Contains(fLib, "小学"), "按学段筛选后卡片网格不再出现小学教材")
+	check(!strings.Contains(fLib, "语文"), "按学科筛选后卡片网格不再出现语文教材")
+	check(strings.Contains(fLib, "数学"), "筛选后仍能看到目标学科教材")
+
+	// 非法学段 / 年级参数要被忽略，不能进到查询里
+	sw, _ := do("GET", "/textbook?stage=../../etc&grade=abc", nil, ck)
+	check(sw.Code == 200, "非法学段/年级参数被忽略，页面仍 200")
+
+	// 未登记的 key 一律 404，不能悄悄落到某一本书上
+	for _, bad := range []string{"primary-chinese-g1-v1-x", "no-such-book", "PRIMARY-CHINESE-G1-V1"} {
+		bw, _ := do("GET", "/textbook?key="+bad, nil, ck)
+		check(bw.Code == 404, fmt.Sprintf("未登记 key %s -> %d 期望 404", bad, bw.Code))
+	}
+
+	// 详情页（小学语文一年级上册，key 来自清单）
+	const tbKey = "primary-chinese-g1-v1"
+	tbPage, tbBody := do("GET", "/textbook?key="+tbKey, nil, ck)
+	check(tbPage.Code == 200, fmt.Sprintf("GET /textbook?key=%s -> %d", tbKey, tbPage.Code))
+	check(strings.Contains(tbBody, "语文"), "详情页渲染书名")
+	check(strings.Contains(tbBody, "教材介绍"), "详情页含教材介绍区块")
+	check(strings.Contains(tbBody, "目录"), "详情页含目录区块")
+
+	// 教材介绍与目录补全：介绍要真出内容，目录容器要带懒加载所需属性
+	check(strings.Contains(tbBody, `class="tb-intro"`), "教材介绍有正文内容")
+	check(strings.Contains(tbBody, `id="tb-toc"`), "目录容器存在")
+	check(strings.Contains(tbBody, `data-src="/textbook/toc?key=`),
+		"目录容器带懒加载数据源")
+	check(strings.Contains(tbBody, `data-key="`), "目录容器带教材 key")
+
+	// 目录接口：已登记 key 返回 200 + 结构化单元；非法 key 与缺 key 分别 404/400，
+	// 不能让这个接口变成任意 key 的探测入口。
+	tocResp, tocBody := do("GET", "/textbook/toc?key="+tbKey, nil, ck)
+	check(tocResp.Code == 200, "目录接口对已登记教材返回 200")
+	check(strings.Contains(tocBody, `"units"`), "目录接口返回 units 字段")
+	check(strings.Contains(tocBody, `"page"`), "目录条目含页码字段")
+	badToc, _ := do("GET", "/textbook/toc?key=not-a-real-key", nil, ck)
+	check(badToc.Code == 404, "目录接口对未登记 key -> 404")
+	noKey, _ := do("GET", "/textbook/toc", nil, ck)
+	check(noKey.Code == 400, "目录接口缺 key -> 400")
+
+	// 悬浮翻页键：左右各一个，且必须排在 tb-stage 内、图片之后（保证浮在上层）
+	check(strings.Contains(tbBody, `id="tb-arrow-prev"`), "阅读区含左侧悬浮上一页按钮")
+	check(strings.Contains(tbBody, `id="tb-arrow-next"`), "阅读区含右侧悬浮下一页按钮")
+	si := strings.Index(tbBody, `id="tb-stage"`)
+	li := strings.Index(tbBody, `id="tb-loading"`)
+	pi := strings.Index(tbBody, `id="tb-arrow-prev"`)
+	ni := strings.Index(tbBody, `id="tb-arrow-next"`)
+	check(si >= 0 && li > si && pi > li && ni > pi, "两个悬浮翻页键位于 tb-stage 内且排在图与提示层之后")
+	check(strings.Contains(tbBody, "arrPrev") && strings.Contains(tbBody, "updateNav"), "翻页键接入现有翻页方法与边界置灰逻辑")
+	check(strings.Contains(tbBody, `id="tb-input"`), "详情页含页码输入框")
+
+	if tbAssets != "" {
+		check(strings.Contains(tbBody, "tb-reader"), "图集可用时渲染阅读器")
+		check(!strings.Contains(tbBody, "图集未生成"), "图集可用时不出现降级提示")
+
+		// 图集分发：封面 / 低清都应 200，且带一年强缓存（二次打开零请求）
+		for _, name := range []string{"cover.webp", "lo/p001.webp"} {
+			aw, _ := do("GET", "/textbook/asset/"+tbKey+"/"+name, nil, ck)
+			check(aw.Code == 200, fmt.Sprintf("图集 %s -> %d", name, aw.Code))
+			cc := aw.Header().Get("Cache-Control")
+			check(strings.Contains(cc, "immutable"), fmt.Sprintf("图集 %s 带强缓存头（%s）", name, cc))
+		}
+
+		// 目录跳转：带 p 参数时起始页跟着走
+		tw, tbody := do("GET", "/textbook?key="+tbKey+"&p=59", nil, ck)
+		check(tw.Code == 200 && strings.Contains(tbody, `value="59"`), "目录跳转参数 p=59 生效")
+
+		// 越权与非法路径：一律 404，不能读到图集目录之外的任何文件
+		for _, bad := range []string{
+			"/textbook/asset/" + tbKey + "/../../go.mod",
+			"/textbook/asset/" + tbKey + "/meta.json", // meta 不在白名单内，不对外暴露
+			"/textbook/asset/not-a-key/cover.webp",
+			"/textbook/asset/" + tbKey + "/hi/p999.webp",
+		} {
+			bw, _ := do("GET", bad, nil, ck)
+			check(bw.Code == 404, fmt.Sprintf("越权路径 %s -> %d 期望 404", bad, bw.Code))
+		}
+
+		// 主页封面墙：只给「当前年级 + 当前学期」的教材（本次请求 volume=1 即上册），
+		// 不跨年级、不跨学期、不铺全库
+		pw, pbody := do("GET", "/study?grade=4&volume=1", nil, ck+"; tbp_"+tbKey+"=12")
+		check(pw.Code == 200, "带进度 cookie 访问学习主页正常")
+		check(strings.Contains(pbody, "官方教材"), "学习主页出现「官方教材」封面墙")
+
+		// 页脚仓库链接：真实 HTTP 渲染验证，不只靠模板单测。
+		// footer 是 9 个页面共用的 partial，任一页渲染出来都应带这个链接。
+		check(strings.Contains(pbody, `href="https://github.com/meimolihan/StudyBuddy"`),
+			"页脚「StudyBuddy」链到 GitHub 仓库")
+		check(strings.Contains(pbody, `rel="noopener noreferrer"`),
+			"页脚外链带 noopener noreferrer")
+		check(strings.Contains(pbody, ">StudyBuddy</a> · 每个学生"),
+			"页脚链接只包住项目名，说明文案保持在链接外")
+		check(strings.Contains(pbody, `href="/textbook`), "顶栏出现教材入口")
+		check(!strings.Contains(pbody, `src="/avatar/me"`), "未上传头像时不下发头像请求")
+		// 主页是当前年级 + 当前学期视图，卡片里只该出现该年级该学期的教材。
+		// 注意：必须只切 tb-home 区块再断言——整页 HTML 里「一年级上册」是存在的，
+		// 但它来自顶栏「切换年级」菜单（grade-switcher），与教材卡无关。
+		tbHome := sliceTBHome(pbody)
+		check(strings.Contains(tbHome, "四年级"), "封面墙标注当前年级（四年级）")
+		check(strings.Contains(tbHome, "上册"), "封面墙标注当前学期（上册）")
+		check(!strings.Contains(tbHome, "上册 / 下册"), "封面墙不再同时标注上下册")
+		check(!strings.Contains(tbHome, "一年级上册"), "封面墙不混入其它年级教材")
+		// 学期过滤的关键回归：volume=1 时下册教材（下册封面 alt 里的「下册」）不得出现。
+		// 封面名小字形如「语文 · 上册」，只要出现「· 下册」就是漏了另一学期。
+		check(!strings.Contains(tbHome, "· 下册"), "上册视图不混入下册教材")
+		// 只渲染封面卡，不留旧横版详情卡的痕迹
+		check(strings.Contains(tbHome, `class="tb-cover-card"`), "封面墙渲染封面卡片")
+		check(strings.Contains(tbHome, `href="/textbook?key=`), "封面卡链接指向教材详情页")
+		for _, dead := range []string{"tb-book-desc", "tb-book-foot", "tb-home-grid"} {
+			check(!strings.Contains(tbHome, dead), "封面墙不再渲染旧横版教材卡: "+dead)
+		}
+		// 回归护栏：切出的区块不能为空，否则上面的断言会假绿
+		check(len(tbHome) > 200, "封面墙区块可被正确定位")
+	} else {
+		// 图集缺失时详情页降级为「下载原书 PDF」，不能白屏也不能 500
+		check(strings.Contains(tbBody, "分页图集还没生成"), "图集缺失时详情页给出降级说明")
+		check(strings.Contains(tbBody, "/textbook/raw?key="), "图集缺失时提供原书 PDF 入口")
+		rr, _ := do("GET", "/textbook/raw?key=../../go.mod", nil, ck)
+		check(rr.Code == 404, "原书 PDF 越权路径 -> 404")
 	}
 
 	// 清理测试壁纸，避免影响真实使用（BaseDir 已指向临时目录，真实 wallpapers/ 未被触碰）。
