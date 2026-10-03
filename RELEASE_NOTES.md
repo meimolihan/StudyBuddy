@@ -1,17 +1,17 @@
-日常更新
+feat: 新增教材页面与模板
 
 ```bash
 docker pull mobufan/studybuddy:latest
 ```
 ```bash
-docker pull mobufan/studybuddy:v0.0.3
+docker pull mobufan/studybuddy:v0.0.4
 ```
 
 ```bash
 docker pull ghcr.io/meimolihan/studybuddy:latest
 ```
 ```bash
-docker pull ghcr.io/meimolihan/studybuddy:v0.0.3
+docker pull ghcr.io/meimolihan/studybuddy:v0.0.4
 ```
 
 ## 二进制安装
