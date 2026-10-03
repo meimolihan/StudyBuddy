@@ -21,7 +21,7 @@
   <h2>邀请码（{{len .Invites}}）</h2>
   {{if .Invites}}
   <table>
-    <tr><th>邀请码</th><th>创建时间</th><th>状态</th><th>操作</th></tr>
+    <tr><th scope="col">邀请码</th><th scope="col">创建时间</th><th scope="col">状态</th><th scope="col">操作</th></tr>
     {{range .Invites}}
     <tr>
       <td><code>{{.Code}}</code></td>
@@ -90,7 +90,7 @@
 <div class="card" data-stages="{{.StageJSON}}">
   <h2>全部用户（{{len .Users}}）</h2>
   <table>
-    <tr><th>ID</th><th>用户名</th><th>姓名</th><th>性别</th><th>班级</th><th>学段/年级/册别</th><th>角色</th><th>主题</th><th>注册时间</th><th>操作</th></tr>
+    <tr><th scope="col">ID</th><th scope="col">用户名</th><th scope="col">姓名</th><th scope="col">性别</th><th scope="col">班级</th><th scope="col">学段/年级/册别</th><th scope="col">角色</th><th scope="col">主题</th><th scope="col">注册时间</th><th scope="col">操作</th></tr>
     {{range .Users}}
     {{$u := .}}
     <tr>
@@ -261,6 +261,38 @@
       var stageSel = form.querySelector('.edit-stage');
       if (stageSel) { stageSel.addEventListener('change', function () { rebuild(form); }); }
     })(forms[i]);
+  }
+})();
+</script>
+<script>
+/* 窄屏表格卡片化：把表头列名注入每个单元格的 data-label。
+   CSS 侧（style.css 方案 B-3 段）在 max-width:760px 下把表格转成卡片，
+   用 td::before{content:attr(data-label)} 显示列名。这里负责填这个属性。
+
+   为什么用 JS 读表头而不是在 HTML 里手写 data-label：
+   本项目表格是裸 <table><tr> 结构（无 thead），列名只存在于第一行的 <th>，
+   由 JS 一次性对齐可保证「改了列名或列顺序，标签自动跟着走」，
+   不会出现两处维护不同步。
+
+   跨断点：这段在所有宽度下都跑一次。桌面端虽然用不到 data-label，
+   但多写一个属性成本可忽略，换来的是旋转屏幕时无需重跑逻辑。 */
+(function () {
+  var tables = document.querySelectorAll('.card table');
+  for (var i = 0; i < tables.length; i++) {
+    var rows = tables[i].querySelectorAll('tr');
+    if (!rows.length) { continue; }
+    var headCells = rows[0].querySelectorAll('th');
+    if (!headCells.length) { continue; }
+    var labels = [];
+    for (var h = 0; h < headCells.length; h++) {
+      labels.push((headCells[h].textContent || '').trim());
+    }
+    for (var r = 1; r < rows.length; r++) {
+      var cells = rows[r].querySelectorAll('td');
+      for (var c = 0; c < cells.length; c++) {
+        if (labels[c]) { cells[c].setAttribute('data-label', labels[c]); }
+      }
+    }
   }
 })();
 </script>

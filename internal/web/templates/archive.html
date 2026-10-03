@@ -4,12 +4,14 @@
 
 {{/* 题型分类：选择题 ↔ 判断题。试卷按 lesson_key 里的 choose/judge 段归类，
      切换只影响本页列表筛选，删除等原有操作不受影响；参数 qt=choose|judge。 */}}
-<div class="qtype-tabs" role="tablist" aria-label="试卷题型筛选">
-  <a class="qtab{{if eq .QT "choose"}} is-on{{end}}" role="tab"
-     aria-selected="{{if eq .QT "choose"}}true{{else}}false{{end}}"
+<div class="qtype-tabs" role="navigation" aria-label="试卷题型筛选">
+  {{/* 不用 role=tablist/tab：这两个 <a> 带 href，是整页跳转而非同页Tab 面板。
+       ARIA 规范要求 tab 必须归属 tabpanel 且支持键盘方向键切换，
+       本项目是导航链接，套tab 语义会让读屏用户以为同页切换内容却发现页面整跳了。
+       改用 navigation + aria-current 表达"当前选中项"，语义与实际行为一致。 */}}
+  <a class="qtab{{if eq .QT "choose"}} is-on{{end}}" aria-current="{{if eq .QT "choose"}}page{{else}}false{{end}}"
      href="/archive?qt=choose" title="只看选择题试卷">选择题 {{index .QTCount "choose"}}</a>
-  <a class="qtab{{if eq .QT "judge"}} is-on{{end}}" role="tab"
-     aria-selected="{{if eq .QT "judge"}}true{{else}}false{{end}}"
+  <a class="qtab{{if eq .QT "judge"}} is-on{{end}}" aria-current="{{if eq .QT "judge"}}page{{else}}false{{end}}"
      href="/archive?qt=judge" title="只看判断题试卷">判断题 {{index .QTCount "judge"}}</a>
   <span class="qtype-hint muted">当前显示 {{len .Exams}} 份{{if lt (len .Exams) .AllCount}}（共 {{.AllCount}} 份）{{end}}</span>
 </div>
@@ -27,8 +29,8 @@
 </div>
 <table id="sb-examtable">
   <tr>
-    <th class="sb-col-check"><span class="sr-only">选择</span></th>
-    <th>编号</th><th>题型</th><th>时间</th><th>课程</th><th>题数</th><th>得分</th><th>结果</th><th>操作</th>
+    <th scope="col" class="sb-col-check"><span class="sr-only">选择</span></th>
+    <th scope="col">编号</th><th scope="col">题型</th><th scope="col">时间</th><th scope="col">课程</th><th scope="col">题数</th><th scope="col">得分</th><th scope="col">结果</th><th scope="col">操作</th>
   </tr>
   {{range .Exams}}
   <tr>
@@ -131,28 +133,38 @@
     toastTimer = setTimeout(function () { toast.hidden = true; }, 2600);
   }
 
-  /* ---- 确认弹窗（Esc 可关） ---- */
+  /* ---- 确认弹窗（Esc 可关）----
+     焦点管理接入统一 helper（方案 B-4）：本页原本已有「记住来源 + 还焦 +
+     打开聚焦确认按钮」，但**没有焦点陷阱**，Tab 会跑到弹窗外的页面元素上。
+     现在把 Tab 循环也交给 helper，四处弹层行为统一。 */
+  var okHandler = null;
+  var modalCtl = window.sbBindModal
+    ? window.sbBindModal({
+        mask: modal,
+        panel: modal.querySelector('.sb-modal'),
+        close: closeModal
+      })
+    : null;
   function openModal(msg, onOk) {
     modalMsg.textContent = msg;
-    lastFocus = document.activeElement;
-    modal.hidden = false;
+    okHandler = onOk;
     okBtn.disabled = false;
     okBtn.classList.remove('is-loading');
     okBtn.textContent = '确认删除';
-    okBtn.focus();
-    okHandler = onOk;
+    if (modalCtl) { modalCtl.open(); } else {
+      lastFocus = document.activeElement;
+      modal.hidden = false;
+      okBtn.focus();
+    }
   }
-  var okHandler = null;
   function closeModal() {
     modal.hidden = true;
-    if (lastFocus && lastFocus.focus) { lastFocus.focus(); }
+    if (modalCtl) { modalCtl.restoreFocus(); }
+    else if (lastFocus && lastFocus.focus) { lastFocus.focus(); }
     okHandler = null;
   }
   cancelBtn.addEventListener('click', closeModal);
   modal.addEventListener('click', function (e) { if (e.target === modal) { closeModal(); } });
-  document.addEventListener('keydown', function (e) {
-    if ((e.key === 'Escape' || e.keyCode === 27) && !modal.hidden) { closeModal(); }
-  });
 
   /* ---- 删除请求（带 loading 状态） ---- */
   function doDelete(ids) {

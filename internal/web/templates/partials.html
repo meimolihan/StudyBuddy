@@ -52,6 +52,90 @@
     <span class="brandtxt">StudyBuddy</span>
   </a>
   <nav>
+{{/* 弹窗焦点管理统一helper（方案 B-4，2026-10-03 追加）
+     修复前的真实问题：三处弹层里只有 archive 的删除确认做了焦点管理，
+     profile（个人信息）和 welcome（欢迎弹窗）都只做了"显示/隐藏 + Esc"，
+     键盘用户会遇到：
+       · 弹窗打开后焦点仍留在触发按钮上，Tab 要按很多次才进到弹窗里
+       · Tab 能走到遮罩后面的页面元素上（弹窗没有焦点陷阱）
+       · 关闭后焦点丢失，回不到原来的位置
+     现在三处统一走这个 helper，行为一致：
+       打开 → 记住来源元素 + 焦点移入弹窗内第一个可聚焦元素
+       Tab / Shift+Tab → 在弹窗内循环（焦点陷阱）
+       Esc → 关闭
+       关闭 → 焦点还给来源元素
+     用法：window.sbBindModal({mask, panel, close, onOpen, onClose})
+       mask遮罩容器（控制 hidden），panel弹窗主体，close 关闭函数，
+       onOpen/onClose 可选钩子。函数挂 window 上是因为三处弹窗分属
+       不同 define 块，彼此拿不到对方的局部作用域。 */}}
+<script>
+window.sbBindModal = function (opt) {
+  var mask = opt.mask, panel = opt.panel, close = opt.close;
+  if (!mask || !panel || !close) { return; }
+  var lastFocus = null;
+
+  /* 弹窗内可聚焦元素：按钮 / 链接 / 输入 / select / textarea / summary，
+     排除 disabled 与 tabindex="-1"的元素 */
+  function focusables() {
+    var sel = 'a[href],button:not([disabled]),input:not([disabled]),' +
+              'select:not([disabled]),textarea:not([disabled]),summary,[tabindex]';
+    var all = panel.querySelectorAll(sel);
+    var out = [];
+    for (var i = 0; i < all.length; i++) {
+      var el = all[i];
+      if (el.getAttribute('tabindex') === '-1') { continue; }
+      if (el.offsetParent === null && el !== document.activeElement) {
+        /* 元素不可见（display:none 的父级）时跳过；但 fixed 定位元素
+           offsetParent 恒为 null，故额外用 getClientRects 兜底 */
+        if (!el.getClientRects().length) { continue; }
+      }
+      out.push(el);
+    }
+    return out;
+  }
+
+  function open() {
+    if (!mask.hidden) { return; }
+    lastFocus = document.activeElement;
+    if (typeof opt.onOpen === 'function') { opt.onOpen(); }
+    var f = focusables();
+    if (f.length) { f[0].focus(); }
+    else { panel.focus(); }   /* 无可聚焦元素时退到面板本身 */
+  }
+
+  function onKey(e) {
+    if (mask.hidden) { return; }
+    if (e.key === 'Escape' || e.keyCode === 27) {
+      close();
+      return;
+    }
+    if (e.key !== 'Tab' && e.keyCode !== 9) { return; }
+    var f = focusables();
+    if (!f.length) { e.preventDefault(); return; }
+    var first = f[0], last = f[f.length - 1];
+    var cur = document.activeElement;
+    /* 焦点陷阱：Tab 在弹窗内循环，不会跑到遮罩后面的页面内容上 */
+    if (e.shiftKey && (cur === first || !panel.contains(cur))) {
+      e.preventDefault(); last.focus();
+    } else if (!e.shiftKey && (cur === last || !panel.contains(cur))) {
+      e.preventDefault(); first.focus();
+    }
+  }
+
+  document.addEventListener('keydown', onKey);
+  /* 把焦点还给来源元素，让键盘用户不会"丢失位置" */
+  return {
+    open: open,
+    restoreFocus: function () {
+      if (lastFocus && lastFocus.focus && document.contains(lastFocus)) {
+        try { lastFocus.focus(); } catch (e) { /* 忽略 */ }
+      }
+    },
+    getLastFocus: function () { return lastFocus; }
+  };
+};
+</script>
+
     {{if .Session}}
       <a class="tnav{{if eq .Nav "study"}} is-on{{end}}" href="/study"><span class="tnav-ico">{{template "ico_book"}}</span>学习主页</a>
       <a class="tnav{{if eq .Nav "textbook"}} is-on{{end}}" href="/textbook" title="浏览全年级全学科官方教材"><span class="tnav-ico">{{template "ico_textbook"}}</span>教材</a>
@@ -109,11 +193,12 @@
       {{/* 这一行只留「已开启 / 已关闭」，不再显示命中目录那行副标题（面板更清爽）；
            命中信息没丢，挪到整行的 title 里，鼠标悬停即可看到「语文 · primary/pep/grade4/volume1」这类说明。 */}}
       <a class="setrow" href="/wallpaper/toggle?on={{if .WallpaperOff}}1{{else}}0{{end}}&amp;back={{urlquery .Path}}"
+         role="switch" aria-checked="{{if .WallpaperOff}}false{{else}}true{{end}}"
          title="{{if .WallpaperOff}}点击开启背景壁纸{{else}}点击关闭背景壁纸{{end}}{{if .WallpaperLabel}} · {{.WallpaperLabel}}{{end}}">
         <span class="setrow-main">
           <span class="setrow-t">背景壁纸{{if .WallpaperOff}}已关闭{{else}}已开启{{end}}</span>
         </span>
-        <span class="sw{{if not .WallpaperOff}} is-on{{end}}"><span class="sw-k"></span></span>
+        <span class="sw{{if not .WallpaperOff}} is-on{{end}}" aria-hidden="true"><span class="sw-k"></span></span>
       </a>
       {{else}}
       <div class="setrow is-static" title="建议放置：wallpapers/{{.WallpaperWant}}">
@@ -121,7 +206,7 @@
           <span class="setrow-t">背景壁纸未匹配</span>
           <span class="setrow-d">按年级（首页）/ 学科（自测页）自动匹配，放好图刷新即可</span>
         </span>
-        <span class="sw"><span class="sw-k"></span></span>
+        <span class="sw" aria-hidden="true"><span class="sw-k"></span></span>
       </div>
       {{end}}
     </div>
@@ -218,14 +303,22 @@
     msg.style.color = ok ? 'var(--ok, #2f9e6b)' : 'var(--bad, #d64545)';
   }
 
-  function open() { mask.hidden = false; showMsg(''); }
-  function close() { mask.hidden = true; }
+  /* 焦点管理走统一 helper（方案 B-4）：打开移焦、Tab 循环、关闭还焦。
+     遮罩点击与按钮点击仍走本处的 close()，helper 只管键盘与焦点。 */
+  function close() { mask.hidden = true; if (modalCtl) { modalCtl.restoreFocus(); } }
+  var panel = mask.querySelector('.sb-modal');
+  var modalCtl = window.sbBindModal
+    ? window.sbBindModal({ mask: mask, panel: panel, close: close,
+                            onOpen: function () { showMsg(''); } })
+    : null;
+  /* helper 不可用时（极老浏览器）退回原来的直接显示，功能不丢 */
+  function open() {
+    if (modalCtl) { modalCtl.open(); }
+    else { showMsg(''); mask.hidden = false; }
+  }
   $('who-btn').addEventListener('click', open);
   $('pm-close').addEventListener('click', close);
   mask.addEventListener('click', function (e) { if (e.target === mask) { close(); } });
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && !mask.hidden) { close(); }
-  });
 
   /* ---- 裁剪器 ---- */
   function cover() { return img ? Math.max(SIZE / img.width, SIZE / img.height) : 1; }
@@ -297,7 +390,14 @@
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ image: data })
-    }).then(function (r) { return r.json(); }).then(function (res) {
+    }).then(function (r) {
+      /* 必须查 r.ok：服务端 500 返回的不是合法 JSON，r.json() 会 reject，
+         落到 catch 显示「网络异常」，把服务端的错误说成网络问题，诊断方向被带偏。
+         同时兜住 body 非 JSON 的情况（用 text 兜底解析失败）。 */
+      return r.text().then(function (t) {
+        try { return JSON.parse(t); } catch (e) { return { ok: false, error: '服务异常（HTTP ' + r.status + '）' }; }
+      });
+    }).then(function (res) {
       btn.disabled = false;
       if (!res.ok) { showMsg(res.error || '上传失败', false); return; }
       showMsg('头像已更新', true);
@@ -567,16 +667,22 @@
   try { shown = sessionStorage.getItem('sb-welcome-shown') === '1'; } catch (e) {}
   if (shown) { mask.parentNode.removeChild(mask); return; } /* 本会话已弹过：整块移除，刷新不弹 */
   try { sessionStorage.setItem('sb-welcome-shown', '1'); } catch (e) {}
-  function close() { mask.hidden = true; }
+  function close() { mask.hidden = true; if (modalCtl) { modalCtl.restoreFocus(); } }
+  /* 焦点管理统一走 helper（方案 B-4），与 profile 弹窗行为一致。 */
+  var panel = mask.querySelector('.sb-modal');
+  var modalCtl = window.sbBindModal
+    ? window.sbBindModal({ mask: mask, panel: panel, close: close })
+    : null;
   document.getElementById('wl-close').addEventListener('click', close);
   mask.addEventListener('click', function (e) { if (e.target === mask) { close(); } });
-  document.addEventListener('keydown', function (e) {
-    if ((e.key === 'Escape' || e.keyCode === 27) && !mask.hidden) { close(); }
-  });
   /* 开屏星光动画优先：监听 sb-splash-done 后再弹；无开屏 550ms 直弹，
      有开屏则 9s 超时兜底，动画异常也不会吞掉弹窗 */
   function openWl() {
-    setTimeout(function () { mask.hidden = false; }, 150);
+    /* 延后 150ms 是等开屏雾幕散开；焦点也一并延后，
+       否则焦点会在不可见的遮罩上短暂停留，键盘用户会觉得"焦点丢了" */
+    setTimeout(function () {
+      if (modalCtl) { modalCtl.open(); } else { mask.hidden = false; }
+    }, 150);
   }
   var splash = document.getElementById('splash');
   if (splash) {
@@ -1200,4 +1306,37 @@
   window.addEventListener('pagehide', function () { cancelAnimationFrame(rafId); });
 })();
 </script>
+{{end}}
+
+{{/* 密码输入框（方案 B-6代码去重，2026-10-03 追加）
+     login.html 与 register.html 原本各写一份近30 行的完整区块：
+     label + input-wrap + input + 眼睛按钮 + 两个 SVG 路径。
+     两份只有3 个参数不同（label 文案 / autocomplete / placeholder），
+     其余一字不差—— 这种重复最危险：改一处忘另一处，
+     就会出现"登录页眼睛图标能点、注册页不能点"这类难查的不一致。
+
+     抽成 partial 后只剩一份实现，参数化传入即可。
+     调用：{{template "password_field" dict
+       "Label" "密码" "Autocomplete" "current-password" "Placeholder" "请输入密码"}}
+     —— Go 模板没有具名参数，用 dict 传参是标准做法。 */}}
+{{define "password_field"}}
+        <div class="fg">
+          <label for="password">{{.Label}}</label>
+          <div class="input-wrap">
+            <input type="password" id="password" name="password" required
+                   autocomplete="{{.Autocomplete}}" placeholder="{{.Placeholder}}">
+            <button type="button" class="toggle-password" id="toggle-password" aria-label="显示或隐藏密码">
+              <svg id="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+              <svg id="eye-off-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                <line x1="1" y1="1" x2="23" y2="23"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
 {{end}}

@@ -58,9 +58,17 @@
   {{/* 阅读区：低清图在下做占位與模糊底，高清加载完成后淡入覆盖（blur-up）。
        aspect-ratio 由 meta.json 的高宽比给出，图片没到之前高度就已确定，不会跳版。 */}}
   <div class="tb-stage" id="tb-stage" style="aspect-ratio:{{.Ratio}}">
-    <img class="tb-lo" id="tb-lo" alt="" aria-hidden="true" decoding="async">
+    {{/* 低清底图加 onerror：LoReady 与 HasAssets 在 textbookres.go 里是两个独立判据，
+         存在「标记了有图集但低清文件缺失」的状态，此时不加 onerror 会留下一个破图占位。 */}}
+    <img class="tb-lo" id="tb-lo" alt="" aria-hidden="true" decoding="async"
+         onerror="this.style.visibility='hidden'">
     <img class="tb-hi" id="tb-hi" alt="教材第 {{.StartPage}} 页" decoding="async" fetchpriority="high">
-    <div class="tb-loading" id="tb-loading">加载中…</div>
+    {{/* 加载态：骨架屏（呼吸微光）+ 文案。role=status + aria-live 让读屏器
+         在高清图到位时能播报状态变化，而不是静默换图。 */}}
+    <div class="tb-loading" id="tb-loading" role="status" aria-live="polite">
+      <span class="tb-skel" aria-hidden="true"></span>
+      <span class="tb-loading-txt">加载中…</span>
+    </div>
 
     {{/* 悬浮翻页键：贴在图片左右两侧、垂直居中，触屏热区 48px。
          不参与图片加载，只调现有的 show()；首/末页服务端先置灰，
@@ -442,16 +450,25 @@
       bindTocLinks(box);
     }
 
+    /* 三态区分：成功有数据 / 成功但为空 / 请求失败。
+       原写法 r.ok ? r.json() : null 会把 500 也变成 fill(null)，
+       于是「目录加载失败，可刷新页面重试」那句永远显示不出来——
+       服务端出错和「目录整理中」被混成同一个空状态。 */
+    function fail() {
+      box.removeAttribute('hidden');
+      if (status) {
+        status.textContent = '目录加载失败，可刷新页面重试或下载原书 PDF。';
+        status.removeAttribute('hidden');
+      }
+    }
+
     fetch(src, { credentials: 'same-origin' })
-      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (r) {
+        if (!r.ok) { throw new Error('HTTP ' + r.status); }
+        return r.json();
+      })
       .then(function (j) { fill(j && j.units); })
-      .catch(function () {
-        box.removeAttribute('hidden');
-        if (status) {
-          status.textContent = '目录加载失败，可刷新页面重试或下载原书 PDF。';
-          status.removeAttribute('hidden');
-        }
-      });
+      .catch(fail);
   })();
 
   // 键盘翻页：输入框获得焦点时不抢按键

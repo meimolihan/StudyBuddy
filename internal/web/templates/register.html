@@ -135,25 +135,7 @@
           </div>
         </div>
 
-        <div class="fg">
-          <label for="password">登录密码（至少 6 位）</label>
-          <div class="input-wrap">
-            <input type="password" id="password" name="password" required
-                   autocomplete="new-password" placeholder="至少 6 位">
-            <button type="button" class="toggle-password" id="toggle-password" aria-label="显示或隐藏密码">
-              <svg id="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                <circle cx="12" cy="12" r="3"></circle>
-              </svg>
-              <svg id="eye-off-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
-                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
-                <line x1="1" y1="1" x2="23" y2="23"></line>
-              </svg>
-            </button>
-          </div>
-        </div>
+        {{template "password_field" dict "Label" "登录密码（至少 6 位）" "Autocomplete" "new-password" "Placeholder" "至少 6 位"}}
 
         <div class="fg-row">
           <div class="fg">
@@ -679,12 +661,22 @@
   // 后端只按「学段 + 年级」查一次（首页壁纸同一年级上下册共用），命中就返回可直接放进 <img src> 的路径。
   function fetchNow() {
     var seq = ++reqSeq;
+    /* 请求发出前先把状态文案重置为「正在匹配…」。
+       原实现只在首屏静态 HTML 里出现过一次「正在匹配…」，
+       之后改年级 / 册别时旧文案（如「已匹配到壁纸：三年级」）会一直停留到
+       请求返回（可能几百 ms～数秒），用户以为选择没生效。 */
+    stateEl.textContent = '正在匹配…';
     var q = '/api/wallpaper?stage=' + encodeURIComponent(stageKey()) +
             '&grade=' + gradeNo() + '&volume=' + volumeNo();
     fetch(q, { headers: { Accept: 'application/json' } })
-      .then(function (r) { return r.json(); })
-      .then(function (d) { if (seq === reqSeq) { render(d); } })
-      .catch(function () { if (seq === reqSeq) { render(null); } });
+      .then(function (r) {
+        /* 必须查 r.ok：服务端 500 返回的不是合法 JSON，r.json() 会 reject，
+           落到 catch 后原本会显示成「你没有放壁纸」。显式区分二者。 */
+        if (!r.ok) { throw new Error('HTTP ' + r.status); }
+        return r.json();
+      })
+      .then(function (d) { if (seq === reqSeq) { render(d, false); } })
+      .catch(function () { if (seq === reqSeq) { render(null, true); } });
   }
 
   function stageInput() { return form.querySelector('input[name="stage"]:checked'); }
@@ -718,8 +710,19 @@
     return stageKey() + '/pep/grade' + gradeNo() + '/wallpaper.webp';
   }
 
-  function render(data) {
+  function render(data, failed) {
     var combo = gradeComboText() || '该年级';
+    if (failed) {
+      /* 请求失败要和「确实没有壁纸」分开说。原实现 fetchNow 的 catch 也走
+         render(null)，于是服务端 500 会显示成「把图片命名为 xxx，放进 wallpapers/」，
+         引导用户去检查一个根本不存在的问题。 */
+      thumb.hidden = true;
+      thumb.removeAttribute('src');
+      card.classList.remove('is-on');
+      stateEl.textContent = '预览加载失败，请稍后重试';
+      tipEl.textContent = '这不影响注册，注册后可在设置里随时重新预览。';
+      return;
+    }
     if (data && data.url) {
       thumb.src = data.url;
       thumb.hidden = false;

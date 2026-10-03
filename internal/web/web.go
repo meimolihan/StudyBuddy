@@ -67,6 +67,23 @@ func newFuncMap() template.FuncMap {
 		"stageCN":     textbook.StageCN,
 		"publisherCN": textbook.PublisherCN,
 		"add":         func(a, b int) int { return a + b },
+		// dict 构造一个 map，供 partial 参数化传参使用。
+		// Go 模板没有具名参数，多值入参的标准做法就是 dict：
+		//   {{template "password_field" dict "Label" "密码" "Autocomplete" "current-password"}}
+		// 参数为 key/value 交替的字符串列表；个数为奇数时忽略末尾那个孤立的 key。
+		// 只接受 string 值——目前所有 partial 参数都是文案，不引入反射。
+		"dict": func(kv ...any) map[string]string {
+			m := make(map[string]string, len(kv)/2)
+			for i := 0; i+1 < len(kv); i += 2 {
+				k, ok1 := kv[i].(string)
+				v, ok2 := kv[i+1].(string)
+				if !ok1 || !ok2 {
+					continue
+				}
+				m[k] = v
+			}
+			return m
+		},
 		"letter":      func(i int) string { return string(rune('A' + i)) },
 		"chr":         func(i int) string { return string(rune('A' + i)) },
 		"mul10":       func(i int) int { return i * 10 },

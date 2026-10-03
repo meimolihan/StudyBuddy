@@ -3,12 +3,14 @@
 
 {{/* 题型切换：选择题 ↔ 判断题。两套题库目录互为镜像，切换后目录、当前进度、
      自测与归档都只在该题型内进行；参数 qt=choose|judge，默认选择题。 */}}
-<div class="qtype-tabs" role="tablist" aria-label="题型切换">
-  <a class="qtab{{if eq .QT "choose"}} is-on{{end}}" role="tab"
-     aria-selected="{{if eq .QT "choose"}}true{{else}}false{{end}}"
+<div class="qtype-tabs" role="navigation" aria-label="题型切换">
+  {{/* 不用 role=tablist/tab：这两个 <a> 带 href，是整页跳转而非同页Tab 面板。
+       ARIA 规范要求 tab 必须归属 tabpanel 且支持键盘方向键切换，
+       本项目是导航链接，套tab 语义会让读屏用户以为同页切换内容却发现页面整跳了。
+       改用 navigation + aria-current 表达"当前选中项"，语义与实际行为一致。 */}}
+  <a class="qtab{{if eq .QT "choose"}} is-on{{end}}" aria-current="{{if eq .QT "choose"}}page{{else}}false{{end}}"
      href="/study?qt=choose" title="浏览选择题库（choose 目录）">选择题</a>
-  <a class="qtab{{if eq .QT "judge"}} is-on{{end}}" role="tab"
-     aria-selected="{{if eq .QT "judge"}}true{{else}}false{{end}}"
+  <a class="qtab{{if eq .QT "judge"}} is-on{{end}}" aria-current="{{if eq .QT "judge"}}page{{else}}false{{end}}"
      href="/study?qt=judge" title="浏览判断题库（judge 目录）">判断题</a>
   <span class="qtype-hint muted">{{.QTCN}}题库</span>
 </div>
@@ -59,7 +61,7 @@
 <div class="card">
   <h2>最近自测</h2>
   <table>
-    <tr><th>时间</th><th>课程</th><th>得分</th><th>结果</th></tr>
+    <tr><th scope="col">时间</th><th scope="col">课程</th><th scope="col">得分</th><th scope="col">结果</th></tr>
     {{range .Recent}}
     <tr>
       <td>{{.CreatedAt}}</td>
@@ -101,10 +103,15 @@
   </div>
 
   {{if and .NavView .NavView.V}}
+  {{/* anyCount 累计本册别在当前题型下有课的学科数。若为 0（切题型后该年级
+       尚无对应题库），下面的 range 会一条details 都不输出，整张卡片只剩标题
+       和一句 muted，看起来像坏了。这里先记 0，range 结束后再兜底提示。 */}}
+  {{$anyCount := 0}}
   <p class="muted">当前展示：<b>{{.NavView.Title}}</b> · {{.QTCN}}。换其他年级请点右上角「切换年级」。</p>
   {{range $s := $.NavView.V.Subjects}}
   {{$cnt := $s.CountOf $.QT}}
   {{if $cnt}}
+  {{$anyCount = 1}}
   <details>
     <summary>{{$s.Name}} · {{$cnt}} 课</summary>
     <div class="tree-body">
@@ -124,7 +131,7 @@
             <input type="hidden" name="qt" value="{{$.QT}}">
             <input type="hidden" name="grade" value="{{$.NavView.Grade}}">
             <input type="hidden" name="volume" value="{{$.NavView.Volume}}">
-            <button class="linkbtn" style="color:var(--brand)" type="submit">设为当前</button>
+            <button class="linkbtn nav-set-current" type="submit">设为当前</button>
           </form>
         </li>
         {{end}}
@@ -133,6 +140,11 @@
     </div>
   </details>
   {{end}}
+  {{end}}
+  {{if not $anyCount}}
+  <div class="notice">
+    {{.NavView.Title}}暂无{{.QTCN}}题库。可切到另一题型，或点右上角「切换年级」看看其他年级册别。
+  </div>
   {{end}}
   {{else}}
   <div class="notice">教材目录里还没有可展示的课程。请把课程 HTML 按规则放入 <code>content/…</code> 目录后重启服务。</div>

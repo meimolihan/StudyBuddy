@@ -2385,3 +2385,456 @@ main{flex:1 0 auto}          /* 吃掉剩余高度，把页脚压到视口底部
   .stat-grid .stat{padding:12px 11px}
   .stat-grid .num{font-size:21px; line-height:1.25}
 }
+
+/* =========================================================
+   UI 整改第一批（2026-10-03 追加）：修复 hidden 属性被作者样式顶掉
+   .tb-thumbs 是教材详情页的缩略图条，textbook.html:80 初始带 hidden，
+   但 .tb-thumbs 自己设了 display:flex（作者样式 0,1,0），
+   与 UA 的 [hidden]{display:none} 同为 0,1,0 —— 作者样式胜出，
+   于是 hidden 失效，首屏就渲染出一条空的横向条带
+   （border-top + padding，看起来像一条没内容的分隔条）。
+   项目已在 .fab / .sheetscrim / .sb-modal-mask / .sb-toast 四处踩过同一个坑，
+   唯独漏了 .tb-thumbs。这里补齐，纯新增，不改 .tb-thumbs 任何既有声明。
+   ========================================================= */
+.tb-thumbs[hidden]{display:none !important}
+
+/* =========================================================
+   UI 整改第一批（续）：修顶栏触屏热区兜底失效
+
+   缺陷：@media(pointer:coarse) 段里写的是 .tnav{min-height:44px}（优先级 0,1,0），
+   但文件前部第 87 行是 .topbar nav .tnav{min-height:34px}（优先级 0,2,1），
+   0,2,1 > 0,1,0 —— 兜底被基础规则压过，触屏下顶栏主导航实际只有 34px，
+   比 44px 标准差 10px。.topbar .setpick>summary 与 summary 的冲突同理。
+
+   修法：用与基础规则同等的选择器重新声明（.topbar nav .tnav / .topbar .setpick>summary），
+   让兜底真正生效。不删除、不修改 pointer:coarse 段里的任何原声明——
+   那里是全站 44px 兜底的统一入口，保留可读性。
+   同时把 .who（个人信息弹窗入口，partials.html:59 是 <button>）补进兜底名单，
+   它原先完全不在名单里，触屏恒为 34px。
+   ========================================================= */
+@media (pointer:coarse){
+  /* 与第 87 行基础规则同等特异性，确保兜底不被压过 */
+  .topbar nav .tnav{min-height:44px}
+  /* 与第 880 行基础规则同等特异性 */
+  .topbar .setpick>summary{min-height:44px}
+  /* 新增：个人信息弹窗入口，原先不在名单内 */
+  .topbar .who{min-height:44px}
+  /* 教材库筛选胶囊：桌面 28px / 原触屏 32px，抬到 44px 标准 */
+  .tb-chip{min-height:44px}
+  /* 年级切换面板的上下册胶囊（原先约 24.8px） */
+  .sw-vol{min-height:44px; display:inline-flex; align-items:center}
+  /* admin 表格内紧凑下拉（原先约 30.8px） */
+  .mini-select{min-height:44px}
+  /* 登录/注册页的显示密码眼睛按钮，原为固定 36×36 */
+  .toggle-password{width:44px; height:44px}
+}
+
+/* =========================================================
+   UI 整改第一批（续）：把 study.html 里内联的 nav-set-current 样式落地
+   原写法是 <button class="linkbtn" style="color:var(--brand)">，
+   内联色值把「设为当前」渲染成比课程标题还跳的品牌蓝，一屏里几十个
+   「设为当前」全是蓝字，视觉噪声极大，且内联样式无法被 hover 规则接住。
+   现在改为类：默认 muted（与课程标题拉开层级），hover 才提亮加下划线，
+   与第 1769-1770 行既有的 .linkbtn 规则保持同一套交互语言。
+   纯新增规则，不改既有 .linkbtn 声明。
+   ========================================================= */
+.nav-card ul.lessons li .linkbtn.nav-set-current{color:var(--muted)}
+.nav-card ul.lessons li .linkbtn.nav-set-current:hover,
+.nav-card ul.lessons li .linkbtn.nav-set-current:focus-visible{
+  color:var(--brand); text-decoration:underline;
+}
+
+/* =========================================================
+   UI 整改第一批（续）：补 3 处暗色模式失效
+
+   这三处都写死了浅色调，且没有任何暗色覆盖规则，在深色主题下会失效：
+
+1. .avatar（第 112 行）白→浅蓝渐变底+ 深蓝字。它被三处复用：顶栏 .who、
+   开屏欢迎弹窗 .wl-avatar（84px 大图）、个人信息弹窗 .pm-avatar。
+   后两处弹窗底色是 var(--card)（暗色 #1c222b），白底渐变头像在上面是刺眼白块。
+
+2. .tb-thumb-n（2107 行）序号牌 rgba(31,41,55,.62) 半透明深底 + 白字。
+   暗色下卡片底 #1c222b 上叠 rgba(31,41,55,.62) 亮度几乎不变，
+   序号牌与背景糊在一起看不清。
+
+3. .tb-lb-tag（2222 行）教材库「快速版」角标，同 rgba(31,41,55,.58) 问题。
+
+   纯新增暗色覆盖，不动浅色规则。A/B 两段选择器并列，与文件里
+   .wp-veil（1209-1212）的写法保持一致——那是全站最干净的暗色覆盖范式。
+   ========================================================= */
+html:not([data-theme="light"]) .avatar,
+html[data-theme="dark"] .avatar{
+  background:linear-gradient(135deg,#3b4a63,#2c374b);
+  color:#cfdcf2;
+}
+html:not([data-theme="light"]) .tb-thumb-n,
+html[data-theme="dark"] .tb-thumb-n{background:rgba(8,12,20,.78)}
+html:not([data-theme="light"]) .tb-lb-tag,
+html[data-theme="dark"] .tb-lb-tag{background:rgba(8,12,20,.74)}
+
+/* =========================================================
+   UI 整改第二批（2026-10-03 追加）：教材阅读器加载骨架 + 全站动画令牌
+
+   一、骨架屏
+   原 .tb-loading 只是一枚居中的「加载中…」文字胶囊，图片没到时整块阅读区
+   是一张空白卡片（只有 var(--card) 底色），观感像加载失败。
+   现在叠一层极简骨架条 + 呼吸微光，图片铺上来时自动被盖住。
+   微光用 transform 驱动（只触发合成，不触发重排/重绘），对低配安卓机友好；
+   动画总时长 1.4s 属叙事性循环，与 0.2~0.3s 的交互动效分属两类，已在注释标明豁免。
+   骨架本身尊重 prefers-reduced-motion（微光关闭，只留静态色块）。
+
+   二、动画令牌（收口 0.2~0.3s ease）
+   全站此前时长从 .15s 到 .9s 共 16 种，缓动 6 种。逐处改既有声明违反
+   append-only 约定，因此这里定义令牌并对**尚无过渡或时长越界**的元素补齐，
+   不覆盖任何已存在的 transition。--dur / --ease 已有的地方保持原样。
+   ========================================================= */
+:root{
+  --dur:.25s;         /* 通用过渡（hover / 状态切换） */
+  --dur-fast:.2s;     /* 入场、透明度 */
+  --dur-slow:.3s;     /* 弹层、抽屉 */
+  --ease:ease;
+}
+
+/* ---- 骨架屏 ---- */
+.tb-skel{
+  display:block; width:56%; height:8px; margin:0 auto 8px;
+  border-radius:999px; background:var(--line);
+}
+.tb-loading{
+  display:flex; flex-direction:column; align-items:center;
+  background:var(--card);
+}
+.tb-loading-txt{font-size:13px; color:var(--muted)}
+@keyframes tb-skel-pulse{
+  0%,100%{opacity:.55}
+  50%{opacity:1}
+}
+.tb-skel{animation:tb-skel-pulse 1.4s ease-in-out infinite}  /* 叙事性循环，豁免 --dur 区间 */
+
+@media (prefers-reduced-motion:reduce){
+  .tb-skel{animation:none; opacity:.75}
+}
+
+/* ---- 补齐尚无过渡的交互元素（不覆盖既有 transition）---- */
+/* 学习主页学科卡：已有 hover 态，补 focus-visible 让键盘用户看到同等反馈 */
+.subj-tile:focus-within{
+  box-shadow:var(--shadow-lg);
+  transform:translateY(-2px);
+  transition:box-shadow var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+/* 教材库 / 阅读器图块：补键盘焦点环，与鼠标 hover 反馈对齐 */
+.tb-cover-card:focus-visible,
+.tb-book:focus-visible,
+.tb-thumb:focus-visible{
+  outline:2px solid var(--brand);
+  outline-offset:3px;
+  border-radius:10px;
+}
+
+/* 二、hidden 兜底（自己刚踩的坑，必须补）
+   上面给 .tb-loading 加了 display:flex，会把 UA 的 [hidden]{display:none} 顶掉
+   （同优先级下作者样式胜出）——这正是本文件第2094 行 .tb-thumbs 的同一个坑。
+   而 JS 靠 loading.hidden = true（3 处）来收起加载态，一旦失效，
+   骨架屏会永久盖在教材页面上，整块阅读区不可用。
+   凡是本轮由我新增 display 的元素，都要配一条 [hidden] 兜底。 */
+.tb-loading[hidden]{display:none !important}
+
+/* =========================================================
+   方案 B-1：z-index 层级令牌化 + Toast 单一组件（2026-10-03追加）
+
+   一、层级断层与被吞掉的错误提示
+   修复前全站有 20+ 个 z-index 散落取值，90 → 200 之间完全空缺，
+   且 90 → 200 → 2000 → 1900 交错，具体后果是**两个 Toast 被遮罩吞掉**：
+     · .sb-toast  z-index:90  （第 1318 行，批量删除反馈）
+     · .sheetscrim z-index:200 （第 1087 行，注册页年级选择抽屉）
+   批量删除后弹出「已删除 N 份试卷」，若此时任何 sheet 打开，
+   toast 会被盖住 2.6 秒后自动消失——用户完全感知不到操作成功。
+
+   层级令牌（6 档，语义命名，新代码只允许用变量不写裸值）：
+     --z-base     1     常规文档流内装饰（.subj-tile 遮罩、.unitname 粘性头）
+     --z-panel    1000  顶栏内下拉面板（.setpanel / .sw-body，必须压住顶栏）
+     --z-dock     2000  悬浮球 dock（.fab-dock）
+     --z-mask     3000  弹窗遮罩（.sheetscrim / .sb-modal-mask）
+     --z-toast    4000  轻提示 Toast（**必须高于一切遮罩**）
+     --z-splash   5000  开屏动画（.splash）与题型切换 Toast（.qt-toast）
+
+   采用「令牌定义 + 末尾重声明」而不是改写原行：项目约定 CSS append-only，
+   原始声明保留在原处可追溯，末尾用同等特异性重声明实际生效值。
+
+   注意 --z-toast(4000) 与 --z-splash(5000) 的分工：
+   开屏 .splash 是全屏独占层，独占最高档；
+   题型切换 Toast（.qt-toast）是开屏的**替代**反馈（切题型时不播开屏，改 Toast），
+   与开屏互斥，因此归入 --z-toast 档（4000），这样它同样高于一切遮罩。
+   如果两者未来不再互斥，才需要把 .qt-toast 提回 --z-splash。
+
+   二、Toast 合并为单一组件
+   修复前有两个 Toast，职责完全相同（都是操作成功/失败反馈）：
+     · .sb-toast  底部左侧色条卡片，第 1318 行
+     · .qt-toast  顶部居中胶囊，第 1998 行
+   差20 倍z-index、位置相反、样式两套、动效两套。
+   现在统一为 .sb-toast 单一实现：
+     · .qt-toast 保留为**别名**（追加 sb-toast 全部基础样式），
+       现有 JS 与class 名一行不改即可工作，零回归风险；
+     · 差异仅保留「位置」一项参数化：默认底部；.qt-toast 定位顶部
+       （切题型提示在顶部更靠近视线起点，且不与开屏诗句打架）。
+   两个 Toast 现在共享同一 z-index 令牌，遮罩无法再吞掉任何一个。
+   ========================================================= */
+:root{
+  --z-base:1;
+  --z-panel:1000;
+  --z-dock:2000;
+  --z-mask:3000;
+  --z-toast:4000;
+  --z-splash:5000;
+}
+
+/* ---- 令牌落地：仅重声明 z-index，不动任何其他属性 ---- */
+.topbar{z-index:var(--z-panel)}                 /* 原 70 */
+.sw-body{z-index:var(--z-panel)}                /* 原 40 */
+.setpanel{z-index:var(--z-panel)}               /* 原 60 */
+.fab-dock{z-index:var(--z-dock)}                /* 原 70 */
+.sheetscrim{z-index:var(--z-mask)}              /* 原 200 */
+.sb-modal-mask{z-index:var(--z-mask)}           /* 原 80 */
+.sb-toast{z-index:var(--z-toast)}               /* 原 90  ← 修复被吞 */
+.splash{z-index:var(--z-splash)}               /* 原 2000 */
+/* .qt-toast 的 z-index 在下方「Toast 单一组件」段统一给，此处不再声明，
+   避免两处取值打架（后写的赢，前面的就成了误导）。 */
+
+/* ---- Toast 单一组件：.qt-toast 复用 .sb-toast 的基础层---------
+   .qt-toast 保留自己的「顶部胶囊」外观与 is-in 入场动效（JS 依赖
+   opacity/transform 过渡与 .is-in 类，不能动），但基础层
+   （定位方式 / 阴影 / 字号 / 无障碍可见性 / 层级）统一走 .sb-toast 口径，
+   消除两套实现的漂移。原第 1998-2005 行声明保留在上方不动。 */
+.sb-toast,
+.qt-toast{
+  position:fixed; left:50%;
+  font-size:14px; max-width:86vw;
+  z-index:var(--z-toast);
+  /* 统一键盘可达性：Toast 出现时不抢焦点，但必须能被读屏宣告
+     （role=status + aria-live 已在两处模板里写好，这里只兜视觉对比度） */
+  -webkit-font-smoothing:antialiased;
+}
+
+/* 位置参数化：默认底部（操作结果），qt-toast 走顶部（切题型反馈，
+   位置靠近视线起点，且不与开屏诗句区域打架） */
+.sb-toast{bottom:34px; transform:translateX(-50%)}
+.qt-toast{top:76px; transform:translateX(-50%) translateY(-10px)}
+
+/* 错误态统一：sb-toast 用左侧色条，qt-toast 目前只用于成功态，
+   若将来需要错误反馈，.qt-toast.is-err 也会得到同样的红色左边条。 */
+.qt-toast.is-err{border-color:var(--bad)}
+
+/* 两个 Toast 同处一屏可能叠在一起（切题型后立刻删除试卷），
+   两者位置分居顶/底，天然不冲突，无需额外避让。 */
+
+/* =========================================================
+   方案 B-2：暗色令牌定版（2026-10-03 追加）
+
+   一、问题诊断（先算对比度再决定改法，没有拍脑袋）
+   文件里存在**两代暗色令牌**：
+     第一代 第 256/348 行：--bg:#0e1621 --card:#182231 --ink:#e6edf5 --muted:#9fb0c4
+     第二代 第 1480/1489 行：--bg:#151a21 --card:#1c222b --ink:#e7ecf3 --muted:#9aa7b6
+   位置靠后者胜出，所以**实际生效的是第二代**。
+   更要紧的是第一代还带着约 90 行（第 254-343 行）**硬编码的暗色补丁**，
+   那些表面色（#141f2c 表头 / #1c2837 徽章 / #121c28 输入框）是照着
+   第一代 --card:#182231 调的，与第二代 --card:#1c222b 属不同色系。
+
+   我实测了两代的核心对比度（WCAG 正文门槛 4.5:1）：
+     第一代 ink/card 13.56  muted/card 7.23  muted/bg 8.21
+     第二代 ink/card 13.47  muted/card 6.53  muted/bg 7.14
+   **两代都远超AA，第一代补丁并没有造成可读性回归**。
+   这改变了做法：原计划「复算 170 行旧补丁对比度」属高风险低收益，
+   实际只需把基底定版 + 补齐皮肤即可，不必动那 90 行历史补丁。
+   ——这也是为什么必须先量再改，否则会为了"看起来整齐"去动本来没问题的东西。
+
+   二、定版结果
+   **第二代（#151a21 系）定为唯一暗色基底**，第一代作废。
+   新增一组 --surface-* 语义令牌承载「比 card 更深一层的嵌入面」
+   （表头 / 输入框 / 代码块 / 徽章），取代第一代那些硬编码值：
+     --surface-sunken  比 card 深，用于表头 details summary、代码块
+     --surface-inset   最深，用于输入框（视觉上要"凹进去"）
+   取值基于第二代 --card:#1c222b 等比下调，与新基底同族。
+
+   三、顺手修掉的真问题：5 套皮肤的暗色是**混合代**
+   5 套皮肤（第 659-780 行）各自只覆盖了 --bg:#0e1621（第一代的值），
+   而 --card / --line / --ink / --muted 仍取自 :root 第二代，
+   于是暗色下皮肤页实际是「第一代底+ 第二代卡」的拼接，两代色系互不协调。
+   现在为每套皮肤的暗色态补齐全部中性色令牌，统一到定版后的基底，
+   皮肤之间只保留品牌色差异（--brand / --grad / --side / --orb）。
+
+   皮肤差异只体现在品牌色，中性色统一走基底 —— 这是刻意的取舍：
+   5 套皮肤若各有各的中性色，就得复算 5×4 组对比度且难维护；
+   用户能感知到的是"整站换了个色调"，而非"表格底色深浅不同"。
+
+   纯新增，不改第一代与第二代任何原有声明。
+   ========================================================= */
+:root{
+  /* 暗色嵌入面（定版后新增，与 --card:#1c222b 同族） */
+  --surface-sunken:#141a22;   /* 表头、details summary、代码块：比 card 深一层 */
+  --surface-inset:#0f141b;    /* 输入框：最深，视觉上凹陷 */
+}
+
+/* 暗色定版：把中性色令牌集中重声明一次，并补上语义面令牌。
+   放在文件末尾确保覆盖前面所有段落（含皮肤段）留下的旧值。
+
+   ⚠ 这里**不能**写成 `html[data-theme="dark"], html:not([data-theme="light"]){...}`
+   —— 文件里原有的 254/346 两段都是把 not([data-theme=light]) 放在
+   @media (prefers-color-scheme: dark) 内部的。一旦把它提到 media 外，
+   浅色系统下、且用户没显式选过主题（html 上无 data-theme 属性）时
+   也会匹配，暗色会强加给浅色用户 —— 这是很容易写错的一步。
+   所以拆成两条：手动暗色用属性选择器，系统暗色用 media 包裹。 */
+html[data-theme="dark"]{
+  --bg:#151a21;
+  --card:#1c222b;
+  --surface-sunken:#141a22;
+  --surface-inset:#0f141b;
+  --ink:#e7ecf3; --muted:#9aa7b6;
+  --line:#2a323d;
+}
+@media (prefers-color-scheme: dark){
+  html:not([data-theme="light"]){
+    --bg:#151a21;
+    --card:#1c222b;
+    --surface-sunken:#141a22;
+    --surface-inset:#0f141b;
+    --ink:#e7ecf3; --muted:#9aa7b6;
+    --line:#2a323d;
+  }
+}
+
+/* ---- 5 套皮肤的暗色态：补齐中性色，消除混合代 ----
+   每套皮肤暗色下都用同一套定版中性色，只保留品牌色不同。
+   选择器沿用文件里既有的两种暗色入口写法
+   （@media prefers-color-scheme + html[data-theme="dark"]），
+   与第 667-778 行完全一致的优先级策略，不引入新写法。 */
+@media (prefers-color-scheme: dark){
+  html:not([data-theme="light"])[data-skin="boy"],
+  html:not([data-theme="light"])[data-skin="girl"],
+  html:not([data-theme="light"])[data-skin="forest"],
+  html:not([data-theme="light"])[data-skin="sunset"],
+  html:not([data-theme="light"])[data-skin="starry"]{
+    --bg:#151a21; --card:#1c222b;
+    --surface-sunken:#141a22; --surface-inset:#0f141b;
+    --ink:#e7ecf3; --muted:#9aa7b6; --line:#2a323d;
+  }
+}
+html[data-theme="dark"][data-skin="boy"],
+html[data-theme="dark"][data-skin="girl"],
+html[data-theme="dark"][data-skin="forest"],
+html[data-theme="dark"][data-skin="sunset"],
+html[data-theme="dark"][data-skin="starry"]{
+  --bg:#151a21; --card:#1c222b;
+  --surface-sunken:#141a22; --surface-inset:#0f141b;
+  --ink:#e7ecf3; --muted:#9aa7b6; --line:#2a323d;
+}
+
+/* ---- 第一代暗色补丁的表面色改走语义令牌 ----
+   第 282/285/296行 那批硬编码（#141f2c / #1c2837 / #121c28）
+   换成新令牌后与定版基底同族。选择器与原规则完全一致，
+   特异性相同、位置在后，因此覆盖生效。 */
+html:not([data-theme="light"]) details summary,
+html[data-theme="dark"] details summary{background:var(--surface-sunken)}
+html:not([data-theme="light"]) th,
+html[data-theme="dark"] th{background:var(--surface-sunken)}
+html:not([data-theme="light"]) .badge.new,
+html[data-theme="dark"] .badge.new{background:var(--surface-sunken)}
+html:not([data-theme="light"]) code,
+html[data-theme="dark"] code{background:var(--surface-sunken)}
+html:not([data-theme="light"]) input,
+html:not([data-theme="light"]) select{background:var(--surface-inset)}
+html:not([data-theme="light"]) select option{background:var(--surface-inset)}
+html:not([data-theme="light"]) input:-webkit-autofill,
+html:not([data-theme="light"]) input:-webkit-autofill:hover,
+html:not([data-theme="light"]) input:-webkit-autofill:focus{
+  -webkit-box-shadow:0 0 0 1000px var(--surface-inset) inset;
+}
+
+/* =========================================================
+   方案 B-3：admin 窄屏表格卡片化（2026-10-03 追加）
+
+   问题：admin.html 的「全部用户」表有 10 列（ID / 用户名 / 姓名 / 性别 /
+   班级 / 学段年级册别 / 角色 / 主题 / 注册时间 / 操作），
+   在 375~414px 手机屏上必然横向溢出——页面被撑宽，或出现横向滚动条，
+   右侧「操作」列的编辑/删除按钮被推到屏幕外，是主要操作却点不到。
+   之前全站只有 .tb-covers 有关于 admin 的窄屏规则，表格本身完全没处理。
+
+   做法：纯 CSS 卡片化，**不改任何 HTML 结构**。
+   窄屏下把 table/thead/tbody/tr/td 全部转成 block，
+   每个 tr 变成一张卡，每个 td 前面用 ::before 插入列名
+   （列名从 <th> 的 data-label 属性来），这样表头行隐藏后
+   每行仍然自解释——这是 CSS 响应式表格的标准做法。
+
+   需要给 <th> 补 data-label 属性（唯一改 HTML 的地方，纯加属性不改内容）。
+   断点取 760px：低于它表格列数已无法并排显示。
+
+   实施方式：JS 在窄屏时给每个 td 写入 data-label = 对应 th 的文本。
+   为什么不直接写死在 CSS 里：列名会随语言/文案变化，
+   写死 CSS 就等于两处维护，改文案时容易漏。
+   用 CSS 自定义属性也行，但需要逐个 td 手写，同样是重复。
+   ——这是「复用现有组件、不重写业务代码」约束下最省事且不出错的方案。
+
+   桌面端完全不受影响：760px 以上不匹配任何规则。
+   ========================================================= */
+@media (max-width:760px){
+  /* 让卡片容器可横向兜底，避免极端窄屏（320px）仍溢出 */
+  .card table,
+  .card tbody,
+  .card thead,
+  .card tr,
+  .card td{display:block; width:100%}
+
+  /* 表头行转成不可见，只作为 data-label 的数据源（JS 读它） */
+  .card thead{display:none}
+  /* 本项目表格直接以 <tr> 开头、没有 thead/tbody 包裹
+     （admin.html:92/23 是裸 <table><tr>），所以隐藏首行用 :first-child */
+  .card table>tr:first-child{display:none}
+
+  /* 每个数据行 = 一张卡 */
+  .card table>tr:not(:first-child){
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--r-sm);
+    padding:12px 14px;
+    margin-bottom:10px;
+    box-shadow:var(--shadow);
+  }
+  .card table>tr:not(:first-child):last-child{margin-bottom:0}
+
+  /* 每个单元格 = 一行「标签: 值」 */
+  .card table>tr:not(:first-child)>td{
+    border-bottom:none;
+    padding:5px 0;
+    display:flex; align-items:flex-start; gap:10px;
+    font-size:13.5px;
+  }
+  /* 标签列固定宽度，值列占剩余，两列左对齐成一条整齐的竖线 */
+  .card table>tr:not(:first-child)>td::before{
+    content:attr(data-label);
+    flex:0 0 76px;
+    color:var(--muted);
+    font-size:12.5px;
+    line-height:1.6;
+  }
+  /* 值区包一层，撑开剩余宽度并允许换行 */
+  .card table>tr:not(:first-child)>td>*{min-width:0}
+  /* 长内容（用户名、学段徽章组）允许断行而不是撑破卡片 */
+  .card table>tr:not(:first-child)>td{word-break:break-word; overflow-wrap:anywhere}
+
+  /* 表单类单元格（性别下拉）在窄屏独占一行并左对齐 */
+  .card table>tr:not(:first-child)>td:has(form){padding-top:8px}
+  .card table form.inline{margin:0}
+
+  /* 「操作」列是主操作，给它更明显的分隔与热区 */
+  .card table>tr:not(:first-child)>td:last-child{
+    margin-top:6px; padding-top:10px;
+    border-top:1px dashed var(--line);
+  }
+  .card table>tr:not(:first-child)>td:last-child::before{flex-basis:auto; min-width:76px}
+  /* 窄屏下 linkbtn 抬到 44px 热区（桌面保持紧凑） */
+  .card table>tr:not(:first-child)>td:last-child .linkbtn{
+    min-height:44px; display:inline-flex; align-items:center; padding:0 8px;
+  }
+
+  /* 徽章在窄屏独占一行时不居中，跟随左对齐 */
+  .card table>tr:not(:first-child)>td .badge{margin-right:4px}
+}

@@ -24,6 +24,8 @@
       　正确答案：{{join .Correct "、"}}
     </div>
   </div>
+  {{else}}
+  <div class="notice">这份答卷没有可显示的作答明细（记录可能已被清理，或解析失败）。成绩与达标判定不受影响。</div>
   {{end}}
 </div>
 <p><a href="/archive?qt={{.QT}}">← 返回{{if eq .QT "judge"}}判断题{{else}}选择题{{end}}归档</a></p>

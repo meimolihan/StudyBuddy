@@ -41,6 +41,8 @@
     </div>
     {{with index $.Explain .Stem}}<div class="explain">解析：{{.}}</div>{{end}}
   </div>
+  {{else}}
+  <div class="notice">这份答卷没有可显示的逐题明细（记录可能已被清理，或解析失败）。得分与达标判定不受影响。</div>
   {{end}}
 </div>
 {{template "footer" .}}
