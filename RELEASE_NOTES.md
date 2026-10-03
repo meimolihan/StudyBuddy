@@ -1,17 +1,17 @@
-feat: 新增教材页面与模板
+feat: UI样式统一优化，新增UI审计文档与配套测试
 
 ```bash
 docker pull mobufan/studybuddy:latest
 ```
 ```bash
-docker pull mobufan/studybuddy:v0.0.4
+docker pull mobufan/studybuddy:v0.0.5
 ```
 
 ```bash
 docker pull ghcr.io/meimolihan/studybuddy:latest
 ```
 ```bash
-docker pull ghcr.io/meimolihan/studybuddy:v0.0.4
+docker pull ghcr.io/meimolihan/studybuddy:v0.0.5
 ```
 
 ## 二进制安装
