@@ -2849,13 +2849,33 @@ html:not([data-theme="light"]) input:-webkit-autofill:focus{
    ===================================================================== */
 
 /* ---- 触发按钮：包一层 details 挂在工具条末尾 ---- */
-.tb-printpick{position:relative; display:inline-block}
+/* 关键：项目里全局 `details{overflow:hidden}`（导航树用，153 行）是给
+   折叠树裁剪内容用的。打印按钮同样是 <details>，若不覆盖，展开的菜单
+   会被 overflow:hidden 裁掉 —— 表现为「点了没反应」。同理全局
+   `details{background:#fff}`（1541 行改成 transparent）和 `margin-bottom`
+   也会漏进来（树形缩进）。下面把打印按钮从全局 details 样式里摘出来。 */
+.tb-printpick{
+  position:relative; display:inline-block;
+  overflow:visible;                /* 覆盖全局 overflow:hidden，否则菜单被裁 */
+  background:transparent;          /* 覆盖全局 details 背景 */
+  border:none;                     /* 覆盖全局 details 描边 */
+  border-radius:0;
+  margin-bottom:0;                 /* 覆盖全局 details 下外边距 */
+}
 .tb-printpick>summary{
   list-style:none; cursor:pointer; user-select:none;
   display:inline-flex; align-items:center; gap:6px;
+  /* 覆盖全局 details summary 的 padding/font-weight/background */
+  padding:6px 12px; font-weight:400; background:var(--brand-soft);
+  border-radius:10px; border-bottom:1px solid transparent;
 }
-/* 隐藏 summary 默认的三角标记（项目里 .setpick 用同一手法） */
+/* 隐藏 summary 默认的三角标记（项目里 .setpick 用同一手法）；
+   还要盖掉全局 `details summary::before{content:"▸ "}` 注入的符号，
+   否则按钮文字前会多一个三角形。 */
 .tb-printpick>summary::-webkit-details-marker{display:none}
+.tb-printpick>summary::before,
+.tb-printpick[open]>summary::before{content:none}
+.tb-printpick>summary::marker{content:""}
 .tb-printpick>summary::marker{content:""}
 .tb-printpick>summary:focus-visible{outline:2px solid var(--brand); outline-offset:2px}
 .tb-printpick[open]>summary{background:var(--brand-soft)}
