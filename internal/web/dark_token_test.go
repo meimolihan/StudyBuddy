@@ -57,17 +57,79 @@ func contrast(a, b string) float64 {
 }
 
 // darkTokenVal 读定版暗色段里某个令牌的值。
+//
+// ⚠️ 必须跳过「浅色专属作用域」内的声明，否则会读到错的值：
+// style.css 第 3135~3160 行有一段浅色令牌纠偏（--muted:#626c77、
+// --ok/--warn/--bad 等），它写在
+//   html[data-theme="light"]{…}
+//   @media (prefers-color-scheme: light){ html:not([data-theme="dark"]){…} }
+// 两个作用域里，位置在暗色定版段（文件 2718 行附近）**之后**。
+// 本函数原先只取「全文最后一次出现」，于是把浅色值当成了暗色定版值，
+// 表现为两条与暗色毫无关系的失败断言：
+//
+//	--muted 定版值应为 #9aa7b6，实际 #626c77
+//	次要文字 muted/card 对比度 2.99 < 门槛 4.5
+//
+// 而暗色下 --muted 实际就是 #9aa7b6（muted/card 6.53、muted/bg 7.14），
+// 暗色主题本身完全达标 —— 这是**测试方法的缺陷，不是 CSS 缺陷**。
+//
+// 判定方式：从每个候选位置向前回溯到最近的 '{'，看它所属选择器块
+// 是否属于浅色专属作用域（data-theme="light" 或 prefers-color-scheme:light
+// 或 html:not([data-theme="dark"])）。是则跳过。
 func darkTokenVal(t *testing.T, name string) (string, bool) {
 	t.Helper()
 	css := stripCSSComments(styleCSSForTest(t))
-	// 取最后一次出现的定义（定版段在文件末尾）
 	re := regexp.MustCompile(regexp.QuoteMeta(name) + `\s*:\s*(#[0-9a-fA-F]{3,8})`)
 	locs := re.FindAllStringSubmatchIndex(css, -1)
-	if len(locs) == 0 {
-		return "", false
+	// 从后往前找第一条「不在浅色专属作用域内」的声明（定版段在文件末尾）
+	for i := len(locs) - 1; i >= 0; i-- {
+		val := css[locs[i][2]:locs[i][3]]
+		if !inLightOnlyScope(css, locs[i][0]) {
+			return val, true
+		}
 	}
-	last := locs[len(locs)-1]
-	return css[last[2]:last[3]], true
+	return "", false
+}
+
+// lightOnlyRe匹配浅色专属作用域的特征串。
+var lightOnlyRe = regexp.MustCompile(
+	`data-theme\s*=\s*"light"` +
+		`|prefers-color-scheme\s*:\s*light` +
+		`|html:not\(\[data-theme="dark"\]\)`)
+
+// inLightOnlyScope 判断位于 off 处的声明是否处在浅色专属选择器块内。
+// 做法：从 off 向前找最近的 '{'（规则体的开括号），取它之前的文本尾部
+// 作为该规则的选择器上下文；若同时命中 media 查询，则把 @media 行也算进去。
+func inLightOnlyScope(css string, off int) bool {
+	open := strings.LastIndex(css[:off], "{")
+	if open < 0 {
+		return false
+	}
+	// 选择器部分：从上一个 '}' 之后到 '{' 之前
+	start := strings.LastIndex(css[:open], "}")
+	if start < 0 {
+		start = 0
+	}
+	ctx := css[start:open]
+
+	// 若选择器自身不含浅色特征，再看它是否被浅色的 @media 包住：
+	// 从该 '{' 之前回溯最多 3 个 '}'，检查中间出现的 @media 行。
+	if lightOnlyRe.MatchString(ctx) {
+		return true
+	}
+	probe := css[:start]
+	for i := 0; i < 3 && probe != ""; i++ {
+		s := strings.LastIndex(probe, "}")
+		if s < 0 {
+			break
+		}
+		chunk := probe[s:]
+		if strings.Contains(chunk, "@media") && lightOnlyRe.MatchString(chunk) {
+			return true
+		}
+		probe = probe[:s]
+	}
+	return false
 }
 
 // TestDarkTokenSingleGeneration 暗色中性色令牌只能有一套定版值。

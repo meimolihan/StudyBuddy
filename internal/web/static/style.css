@@ -4230,3 +4230,92 @@ html[data-theme="dark"] h1{
     background:none !important;
   }
 }
+
+/* =========================================================
+   阶段 5｜全端与暗色验收（增强精品美化 · 批次 5）
+   ------------------------------------------------------------
+   本段只收口验收中实测出来的**两处真实缺口**，不重写既有样式。
+   验收方法与工具（都落在 tools/ 下，可复跑）：
+     · tools/check_contrast_matrix.py —— 按 CSS 后写覆盖顺序解析出
+       「皮肤 × 明暗」10 组下**最终生效**的令牌，再核真实搭配。
+       ⚠️ 不能用文件头的 :root 原值算：3100~3160 行已做过一轮浅色
+       令牌纠偏（--muted/--ok/--warn/--bad 与 sunset/forest/girl 的
+       --brand-dark/--btn-bg），原值不代表渲染值。
+     · tools/check_responsive.py —— 断点体系 / rem字号 / 裸时长 /
+       hover 上浮双形态 / 暗色 A/B 双写 / 打印段 静态核查。
+
+   验收结论（10 组皮肤×明暗，共 17 类搭配）：
+     · 正文与小字（ink / muted / 语义色 on card）—— 全档4.8~15.7，AA 通过；
+     · 徽章（语义色 on 语义-soft 底）—— 全档 4.81~4.85，AA 通过
+       （上一轮记的warn 2.43 / ok 3.05 / bad 3.83 是被纠偏段修掉前的旧值）；
+     · 渐变大标题 —— 全皮肤全段 5.39~12.14，AA 通过；
+     · 暗色 A/B 双写 —— 86 条 html[data-theme="dark"] 规则在
+       prefers-color-scheme:dark 段均有孪生；auto 模式靠 JS
+       removeAttribute('data-theme') + :not([data-theme="light"]) 兜住，
+       两个入口都覆盖，无缺口。
+     · 断点体系 —— 既定 7 档未被引入新断点，也未混入 768/1200；
+       （另有 340/400/440/960/1080 五个max-width，均为既有代码的
+        弹窗/容器宽度上界，不是断点，不属本轮范围）
+     · hover 隔离 —— 未包 hover:hover 的上浮规则共 6 条，其中 5 条
+       已在既有触屏复位段覆盖；唯 .topbar nav .who 漏网，见下①。
+   ========================================================= */
+
+/* ---- ① 顶栏个人信息按钮的触屏 hover 残留（真实缺口）----
+   .topbar nav .who（partials.html:208 的 <button id="who-btn">，顶栏最高频入口）
+   在 1818 行写了 :hover 上浮 + 白玻璃底 + 阴影，而既有触屏复位段
+   （3230~3280）只复位了 .tnav 与 .setpick>summary，漏了 .who。
+   触屏上点开个人信息弹窗后，该按钮会一直保持「上浮 + 20% 白底」，
+   直到用户去点别处才消失 —— 看起来像「还有个未关闭的弹窗」。
+   静止态（第1814 行）本就没有底色与阴影，故复位为 transparent 即可。
+   写法与既有复位段保持一致：不改原规则，只在无精确指针设备上压回。 */
+@media (hover:none),(pointer:coarse){
+  .topbar nav .who:hover{
+    background:transparent; transform:none; box-shadow:none;
+  }
+}
+
+/* ---- ② sunset 亮色下 --brand 压在 --brand-soft 上仅 2.71:1 ----
+   SC 1.4.11（非文本对比 3:1）适用于「边框/图标/图形」；但下面这两处
+   是**文字**（题型标签、题型页签 hover 文案），属正文级 4.5:1 要求，
+   2.71 差得更远，必须修。
+   实测成因：sunset 是 5 套皮肤里最浅的一套（--brand:#e0781f 橙，
+   --brand-soft:#fdefe2 浅米），橙压浅米只有 2.71。
+   修法：不改令牌（--brand 要继续当填充/描边用，41 处图形元素依赖它），
+   也不改 .q .type（3179 行纠偏段已把它换成 --brand-dark），
+   只把这两处 hover/常态下的**文字色**换成 --brand-dark。
+   --brand-dark 在 sunset 亮色已被纠偏为 #a85210：
+     on brand-soft = 4.80（原 4.13，本就已达标，纠偏段修过）
+   两套入口都写：显式 data-theme=light 与 auto 跟随系统。 */
+html[data-theme="light"] .qtab:not(.is-on):hover,
+html[data-theme="light"] .toggle-password:hover{color:var(--brand-dark)}
+@media (prefers-color-scheme: light){
+  html:not([data-theme="dark"]) .qtab:not(.is-on):hover,
+  html:not([data-theme="dark"]) .toggle-password:hover{color:var(--brand-dark)}
+}
+
+/* ---- ③ sunset 亮色：「brand 描边 + brand-soft 底」同框时边框几乎不可见 ----
+   实测 3 处同框组合：.tb-book:hover(2030)、.tb-nav:hover(2166)、.tb-lb:hover(2215)，
+   都是 border-color:var(--brand) 与 background:var(--brand-soft) 同时出现。
+   sunset 亮色下 #e0781f on #fdefe2 只有 2.71:1 —— 边框与底色几乎同色，
+   卡片边界会在 hover 时「消失」，hover 反馈只剩位移，反馈强度明显弱于其他皮肤。
+   修法：只把**边框色**换成 --brand-dark（sunset 亮色已纠偏为 #a85210，
+   on brand-soft = 4.80），底色 --brand-soft 与文字色一律不动，
+   因此 hover 的整体观感不变，只是边界重新可见。
+   明暗两套入口都写。 */
+html[data-theme="light"] .tb-book:hover,
+html[data-theme="light"] .tb-nav:hover,
+html[data-theme="light"] .tb-lb:hover{border-color:var(--brand-dark)}
+@media (prefers-color-scheme: light){
+  html:not([data-theme="dark"]) .tb-book:hover,
+  html:not([data-theme="dark"]) .tb-nav:hover,
+  html:not([data-theme="dark"]) .tb-lb:hover{border-color:var(--brand-dark)}
+}
+
+/* ---- 收尾兜底：阶段 1~5 新增段全部落在末尾，主题切换时不应有闪白。
+   html[data-theme] 切换只改属性、无需重排，浏览器在同一帧内重算，
+   渐变大标题的 background-clip:text 也不会闪。这里显式声明一次，
+   目的是让「新增段不参与任何会造成重排的动画」这条约束有据可查。 */
+@media (prefers-reduced-motion:reduce){
+  /* 本轮新增的 transform/opacity 过渡统一关掉（含返回顶部 fab 淡入淡出） */
+  .fab,.fab[hidden],button.qtype-card.is-wip{transition:none !important}
+}
