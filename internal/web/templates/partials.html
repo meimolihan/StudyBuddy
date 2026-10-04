@@ -48,15 +48,20 @@
   var nav = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
   var isReload = nav ? nav.type === 'reload'
                      : !!(window.performance.navigation && performance.navigation.type === 1);
+  // 站内导航标记：由页脚全局拦截在点击站内链接/提交表单时写入。
+  // 读到就记下来，**不在这里删** —— 学习主页还有一套独立的开屏动画
+  // （#splash，唐诗 + 星光粒子），它在 body 末尾的脚本里才消费这个标记；
+  // 若 head 这里抢先删掉，splash 就读不到，导航回来照样放动画。
+  var fromNav = sessionStorage.getItem('sb-intro-lastnav') === '1';
   if ((played !== '1' || isReload) &&
-      !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)')).matches) &&
-      // 站内导航即使被误判成 reload 也不重播：last-nav 标记在点击导航链接时
-      // 由页脚脚本写入，导航到达本页时它还在（只对 navigate 生效，reload 会被清掉）。
-      sessionStorage.getItem('sb-intro-lastnav') !== '1') {
+      !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)')).matches &&
+      // 站内导航即使被误判成 reload 也不重播卡片入场
+      !fromNav) {
     document.documentElement.classList.add('sb-anim');
   }
-  // 无论本次播没播，判定结束后都清掉导航标记（它只该影响紧邻的那一次导航）
-  sessionStorage.removeItem('sb-intro-lastnav');
+  // 只有「本次不是导航跳转」时才就地消费掉标记，避免残留影响下一次手动刷新；
+  // 导航跳转这一路要把它留给后面的 #splash 脚本消费。
+  if (!fromNav) { sessionStorage.removeItem('sb-intro-lastnav'); }
 } catch (e) {} })();
 </script>
 </head>
@@ -490,6 +495,26 @@ window.sbBindModal = function (opt) {
     prevQt = sessionStorage.getItem('sb-last-qt');
     sessionStorage.setItem('sb-last-qt', curQt);
   } catch (e) {}
+
+  /* —— 站内导航抑制（2026-10-04）——
+     上面那条 sb-intro-lastnav 只管 Sal.js 卡片入场，管不到本开屏动画；
+     这里额外认它一次：用户点站内链接（如顶栏「学习主页」）跳回来时，
+     标记还在 sessionStorage 里（由页脚全局拦截写入），说明这次渲染
+     来自一次导航而非主动刷新/首次进入 —— 不该再放唐诗与星光粒子。
+     手动刷新不写该标记，开屏照常播放（这是期望行为）。 */
+  var fromNav = false;
+  try {
+    fromNav = sessionStorage.getItem('sb-intro-lastnav') === '1';
+    if (fromNav) { sessionStorage.removeItem('sb-intro-lastnav'); }
+  } catch (e) {}
+
+  if (fromNav) {
+    // 同步移除开屏元素：欢迎弹窗脚本随后解析时看不到 #splash，
+    // 自然走「无开屏 550ms 直弹」路径，无需派发 sb-splash-done 衔接。
+    if (splash.parentNode) { splash.parentNode.removeChild(splash); }
+    return;
+  }
+
   if (prevQt && prevQt !== curQt) {
     if (splash.parentNode) { splash.parentNode.removeChild(splash); }
     setTimeout(function () { showQtToast(QT_NAMES[curQt]); }, 250);
@@ -989,6 +1014,19 @@ window.sbBindModal = function (opt) {
   // 表单回车提交不产生 click，用 submit 事件补上
   document.addEventListener('submit', markNav, true);
 })();
+<script>
+/* 导航标记兜底清理：#splash 只存在于 /study，由它自己的脚本消费标记。
+   但从 /study 导航到别的页时，head 判定有意不删标记（要留给可能存在的
+   splash），而那些页面没有 splash 来消费 —— 标记就会残留，导致用户
+   下一次**手动刷新**也被误判成导航而放不出开屏动画。
+   这里在整个文档末尾兜底：非 /study 页一律清掉。
+   放在独立 script 里而不是 Sal.js 那个 IIFE 内，是因为它开头有
+   `if (!sb-anim) return` 等三道前置 return，导航跳转时根本走不到。 */
+(function () {
+  if (location.pathname === '/study') { return; }  // 交给 #splash 处理
+  try { sessionStorage.removeItem('sb-intro-lastnav'); } catch (e) {}
+})();
+</script>
 </script>
 {{template "fab_js"}}
 {{if .Session}}{{template "profile_js" .}}{{end}}
