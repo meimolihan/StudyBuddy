@@ -7,6 +7,9 @@
   <p class="muted" style="margin-top:0">
     {{.Lesson.Grade}} 年级{{.Lesson.VolumeLabel}} ·
     {{.Lesson.UnitLabel}} · {{.Lesson.LessonLabel}}
+    {{/* 上次用时：做题页计时器随提交带回，存在学生库通用 k/v 表（state），
+         不新增表也不新增列。没有记录时不占版面。 */}}
+    {{if .LastSec}} · 上次用时 {{mmss .LastSec}}{{end}}
   </p>
   {{/* stat-grid：桌面单行 4 列，移动端 2×2。样式见 style.css 末尾 stat-grid 段。
        全站 .grid 是共用的（admin.html 的新建账号表单也用它），所以这里加专用类，

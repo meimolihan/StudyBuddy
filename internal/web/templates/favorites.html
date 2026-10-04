@@ -1,0 +1,104 @@
+{{template "header" .}}
+<h1>我的收藏</h1>
+
+{{/* 收藏的题目存在浏览器本地（做题页点 ☆ 写入），服务端不保存题目内容，
+     所以这里只给一个空壳，列表由脚本按本地数据渲染。
+     好处是收藏不需要服务端表结构，也不受账号切换影响（跟着这台设备走）。 */}}
+<div class="card">
+  <p class="muted" style="margin-top:0">
+    做题时点题目下方的 ☆ 即可收藏；收藏只存在这台设备，换设备不会同步。
+  </p>
+  <div id="fav-body"></div>
+  <p class="muted" id="fav-empty" hidden>
+    还没有收藏的题目。去
+    <a href="/study">学习主页</a>
+    挑一课做做题，遇到想再看看的题目就点一下 ☆。
+  </p>
+  <p class="row" style="margin:12px 0 0">
+    <a class="btn ghost sm" href="/study">← 返回学习主页</a>
+  </p>
+</div>
+
+<script>
+/* 收藏题库渲染：读 localStorage 的 sb_favq，按课程分组列出题目。
+   只展示题干与选项，不显示答案 —— 收藏的用途是「回头再做一遍」，
+   答案应该在做题/结果页看，否则收藏就成了抄答案的捷径。 */
+(function () {
+  var body = document.getElementById('fav-body');
+  var empty = document.getElementById('fav-empty');
+  if (!body) { return; }
+
+  function load() {
+    try {
+      var v = localStorage.getItem('sb_favq');
+      var o = v ? JSON.parse(v) : null;
+      return (o && typeof o === 'object') ? o : {};
+    } catch (e) { return {}; }
+  }
+  function save(o) { try { localStorage.setItem('sb_favq', JSON.stringify(o)); } catch (e) {} }
+  function node(tag, cls, txt) {
+    var n = document.createElement(tag);
+    if (cls) { n.className = cls; }
+    if (txt != null) { n.textContent = txt; }
+    return n;
+  }
+
+  function render() {
+    var all = load();
+    var keys = Object.keys(all).filter(function (k) {
+      return all[k] && Array.isArray(all[k].items) && all[k].items.length;
+    });
+    body.textContent = '';
+    if (!keys.length) {
+      if (empty) { empty.hidden = false; }
+      return;
+    }
+    if (empty) { empty.hidden = true; }
+
+    keys.forEach(function (k) {
+      var g = all[k];
+      var sec = node('section', 'fav-group');
+
+      var head = node('div', 'fav-group-h');
+      head.appendChild(node('b', 'fav-group-t', g.t || '课程'));
+      var acts = node('span', 'fav-group-acts');
+      var go = node('a', 'btn ghost sm', '去练习');
+      go.href = '/quiz?key=' + encodeURIComponent(k);
+      acts.appendChild(go);
+      head.appendChild(acts);
+      sec.appendChild(head);
+
+      var list = node('div', 'fav-list');
+      g.items.forEach(function (it, i) {
+        var card = node('div', 'fav-item');
+        var stem = node('div', 'fav-stem', (i + 1) + '. ' + (it.s || ''));
+        card.appendChild(stem);
+        if (Array.isArray(it.o) && it.o.length) {
+          var ul = node('ul', 'fav-opts');
+          it.o.forEach(function (t) { ul.appendChild(node('li', null, t)); });
+          card.appendChild(ul);
+        }
+        var foot = node('div', 'fav-item-foot');
+        var del = node('button', 'linkbtn', '移除收藏');
+        del.type = 'button';
+        del.addEventListener('click', function () {
+          var cur2 = load();
+          if (!cur2[k] || !Array.isArray(cur2[k].items)) { return; }
+          cur2[k].items = cur2[k].items.filter(function (x) { return x.s !== it.s; });
+          if (!cur2[k].items.length) { delete cur2[k]; }
+          save(cur2);
+          render();
+        });
+        foot.appendChild(del);
+        card.appendChild(foot);
+        list.appendChild(card);
+      });
+      sec.appendChild(list);
+      body.appendChild(sec);
+    });
+  }
+
+  render();
+})();
+</script>
+{{template "footer" .}}

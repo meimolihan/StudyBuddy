@@ -17,6 +17,11 @@
 {{define "ico_print_odd"}}<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="3.5" width="12" height="15" rx="1.5"/><path d="M3.4 6.5h1.2M3.4 10h1.2M3.4 13.5h1.2M3.4 17h1.2"/><path d="M10 7.5h5M10 11h3.4"/></svg>{{end}}
 {{/* 仅偶数页：单页 + 左侧偶数位标记 */}}
 {{define "ico_print_even"}}<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="3.5" width="12" height="15" rx="1.5"/><path d="M3.1 8.3h1.2M3.1 15.7h1.2"/><path d="M10 7.5h5M10 11h3.4"/></svg>{{end}}
+{{/* ---- 教材书签 / 笔记 / 题目收藏 / 字体 图标（2026-10-05）---- */}}
+{{define "ico_bookmark"}}<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.5h11a1 1 0 0 1 1 1v16l-6.5-4-6.5 4v-16a1 1 0 0 1 1-1z"/></svg>{{end}}
+{{define "ico_note"}}<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5h9.5L19 9v10.5H5z"/><path d="M14.5 4.5V9H19"/><path d="M8 13h8M8 16.5h5"/></svg>{{end}}
+{{define "ico_star"}}<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.8l2.6 5.3 5.9.85-4.25 4.15 1 5.85-5.25-2.75L6.75 19.95l1-5.85L3.5 9.95l5.9-.85z"/></svg>{{end}}
+{{define "ico_font"}}<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19l5.5-14L15 19"/><path d="M6.2 14.5h6.6"/><path d="M17.5 19l2.6-7 2.4 7"/><path d="M18.4 16.8h3.4"/></svg>{{end}}
 
 {{define "header"}}<!DOCTYPE html>
 <html lang="zh-CN" data-skin="{{.Skin}}"{{if .Theme}} data-theme="{{.Theme}}"{{end}}{{if .Wallpaper}} data-wallpaper="{{.WallpaperName}}"{{end}}>
@@ -79,6 +84,19 @@
     sessionStorage.setItem('sb-intro-played', '1');
   } catch (e) {}
 } catch (e) {} })();
+</script>
+<script>
+/* 全局字体档位：小 / 默认 / 大。
+   值存在 localStorage（本机偏好，不占服务端、不需要登录态），
+   在 <head> 里同步写到 <html data-font> 上 —— 晚一步（放到页脚脚本）
+   就会先按默认字号画一遍再跳一次，肉眼可见地抖一下。
+   取值只允许 sm / lg 两种，其它（含被清空）一律不写属性 = 默认档。 */
+(function () {
+  try {
+    var v = localStorage.getItem('sb_font');
+    if (v === 'sm' || v === 'lg') { document.documentElement.setAttribute('data-font', v); }
+  } catch (e) {}
+})();
 </script>
 </head>
 <body>
@@ -256,6 +274,21 @@ window.sbBindModal = function (opt) {
         <span class="sw" aria-hidden="true"><span class="sw-k"></span></span>
       </div>
       {{end}}
+    </div>
+
+    {{/* 全局字体大小：小 / 默认 / 大。
+         三个按钮是同组的单选（aria-checked），点击即时生效并记在本机；
+         服务端不存这份偏好，所以它不随账号走 —— 换台设备各自独立，
+         这正合「老人机要大字、孩子机要标准」这类同账号不同设备的场景。
+         具体缩放由 style.css 末尾的「全局字体档位」段按 --sb-fz 变量换算。 */}}
+    <div class="setsec">
+      <div class="setsec-h">🔠 字体大小</div>
+      <div class="fontpick" role="radiogroup" aria-label="全局字体大小">
+        <button type="button" class="fontbtn" data-font="sm" role="radio" aria-checked="false">小</button>
+        <button type="button" class="fontbtn" data-font="def" role="radio" aria-checked="true">默认</button>
+        <button type="button" class="fontbtn" data-font="lg" role="radio" aria-checked="false">大</button>
+      </div>
+      <p class="setrow-d fontpick-hint">全局生效，只存在这台设备</p>
     </div>
 
     {{if .Session.IsAdmin}}
@@ -889,6 +922,219 @@ window.sbBindModal = function (opt) {
 </script>
 {{end}}
 
+{{/* 「火速开发中」弹窗：尚无游戏资源的年级点了游戏题卡片时弹出。
+     与个人信息 / 欢迎弹窗共用同一套 sb-modal 结构与焦点管理 helper，
+     行为一致（Esc 关闭、Tab 在弹窗内循环、关闭后焦点还给触发按钮）。
+     文案可由调用方通过 #wip-desc 预先改写，默认给游戏题那一句。 */}}
+{{define "wip_modal"}}
+<div class="sb-modal-mask" id="wip-mask" hidden>
+  <div class="sb-modal wip-modal" role="dialog" aria-modal="true" aria-labelledby="wip-title">
+    <div class="wip-ico" aria-hidden="true">🎮</div>
+    <h3 id="wip-title">火速开发中</h3>
+    <p class="muted" id="wip-desc">这个年级的游戏题正在加紧制作中，先去刷几套选择题吧～</p>
+    <div class="sb-modal-actions">
+      <button type="button" class="btn primary" id="wip-ok">知道啦</button>
+    </div>
+  </div>
+</div>
+<script>
+(function () {
+  var mask = document.getElementById('wip-mask');
+  if (!mask) { return; }
+  var panel = mask.querySelector('.sb-modal');
+  var btn = document.getElementById('sb-game-wip');
+  function close() { mask.hidden = true; if (ctl) { ctl.restoreFocus(); } }
+  var ctl = window.sbBindModal
+    ? window.sbBindModal({ mask: mask, panel: panel, close: close })
+    : null;
+  function open() {
+    if (ctl) { ctl.open(); }
+    else { mask.hidden = false; }
+  }
+  if (btn) { btn.addEventListener('click', open); }
+  var ok = document.getElementById('wip-ok');
+  if (ok) { ok.addEventListener('click', close); }
+  mask.addEventListener('click', function (e) { if (e.target === mask) { close(); } });
+})();
+</script>
+{{end}}
+
+{{/* 学习主页的本地增强脚本（2026-10-05）：
+     ① 只看错题 —— 过滤课程树，数据来自服务端按课聚合的错题数
+     ② 继续阅读 / 教材书签 —— 读阅读器写进本机的 localStorage 渲染快捷入口
+     ③ 收藏条数 —— 做题页收藏的题目数，填进「我的收藏」入口
+     三项都是纯前端，不新增服务端存储、不刷新页面。 */}}
+{{define "study_extra_js"}}
+<script>
+(function () {
+  function read(k) {
+    try {
+      var v = localStorage.getItem(k);
+      if (!v) { return null; }
+      var o = JSON.parse(v);
+      return (o && typeof o === 'object') ? o : null;
+    } catch (e) { return null; }
+  }
+  function el(tag, cls, txt) {
+    var n = document.createElement(tag);
+    if (cls) { n.className = cls; }
+    if (txt != null) { n.textContent = txt; }   // 一律走 textContent，不拼 HTML
+    return n;
+  }
+
+  /* ---------- ① 只看错题 ---------- */
+  var chk = document.getElementById('sb-wrong-only');
+  if (chk) {
+    var lis = document.querySelectorAll('.nav-card li[data-key]');
+    var num = document.getElementById('sb-wrong-n');
+    var empty = document.getElementById('sb-wrong-empty');
+    function apply() {
+      var on = chk.checked, i, j, n = 0;
+      for (i = 0; i < lis.length; i++) {
+        var w = parseInt(lis[i].getAttribute('data-wrong'), 10) || 0;
+        if (w > 0) { n++; }
+        lis[i].style.display = (on && w === 0) ? 'none' : '';
+      }
+      // 单元标题跟着列表一起藏：留下孤零零的单元名会显得筛选只做了一半
+      var units = document.querySelectorAll('.nav-card .unitname');
+      for (i = 0; i < units.length; i++) {
+        var ul = units[i].nextElementSibling, vis = 0;
+        if (ul) {
+          var kl = ul.querySelectorAll('li[data-key]');
+          for (j = 0; j < kl.length; j++) { if (kl[j].style.display !== 'none') { vis++; } }
+        }
+        units[i].style.display = (on && vis === 0) ? 'none' : '';
+      }
+      var dets = document.querySelectorAll('.nav-card > details');
+      for (i = 0; i < dets.length; i++) {
+        var k2 = dets[i].querySelectorAll('li[data-key]'), v2 = 0;
+        for (j = 0; j < k2.length; j++) { if (k2[j].style.display !== 'none') { v2++; } }
+        dets[i].style.display = (on && v2 === 0) ? 'none' : '';
+        if (on && v2 > 0) { dets[i].open = true; }   // 有错题的科目自动展开，省一次点击
+      }
+      if (num) { num.textContent = n ? '（' + n + '）' : ''; }
+      if (empty) { empty.hidden = !(on && n === 0); }
+    }
+    chk.addEventListener('change', apply);
+    // 开关状态只在本次会话内保留：刷新后回到「全部课程」，
+    // 免得下次进来发现列表少了一大半却想不起为什么。
+  }
+
+  /* ---------- ② 继续阅读 / 教材书签 ---------- */
+  var card = document.getElementById('tb-resume');
+  if (card) {
+    var lastBox = document.getElementById('tb-resume-last');
+    var markBox = document.getElementById('tb-resume-marks');
+    var lastMap = read('sb_tblast') || {};
+    var markMap = read('sb_tbmk') || {};
+    var any = false;
+
+    // 最近阅读：取时间戳最大的一本
+    var best = null;
+    Object.keys(lastMap).forEach(function (k) {
+      var v = lastMap[k];
+      if (!v || !v.p) { return; }
+      if (!best || (v.ts || 0) > (best.ts || 0)) { best = v; best.k = k; }
+    });
+    if (best && lastBox) {
+      var a = el('a', 'tb-resume-item is-last');
+      a.href = '/textbook?key=' + encodeURIComponent(best.k) + '&p=' + best.p;
+      a.appendChild(el('span', 'tb-resume-tag', '继续阅读'));
+      a.appendChild(el('b', 'tb-resume-t', best.t || '教材'));
+      a.appendChild(el('span', 'tb-resume-p', '第 ' + best.p + ' 页'));
+      if (best.cl) { a.appendChild(el('span', 'tb-resume-c', best.cl)); }
+      lastBox.appendChild(a);
+      lastBox.hidden = false;
+      any = true;
+    }
+
+    // 书签：跨分类汇总，按加入时间倒序取最近 8 条
+    var flat = [];
+    Object.keys(markMap).forEach(function (cat) {
+      var arr = markMap[cat];
+      if (!Array.isArray(arr)) { return; }
+      arr.forEach(function (m) {
+        if (!m || !m.k || !m.p) { return; }
+        flat.push({ k: m.k, t: m.t, p: m.p, ts: m.ts || 0, c: m.c || cat });
+      });
+    });
+    flat.sort(function (x, y) { return y.ts - x.ts; });
+    var top = flat.slice(0, 8);
+    if (top.length && markBox) {
+      markBox.appendChild(el('div', 'tb-resume-sub', '教材书签'));
+      var wrap = el('div', 'tb-resume-list');
+      top.forEach(function (m) {
+        var b = el('a', 'tb-resume-item');
+        b.href = '/textbook?key=' + encodeURIComponent(m.k) + '&p=' + m.p;
+        b.appendChild(el('b', 'tb-resume-t', m.t || '教材'));
+        b.appendChild(el('span', 'tb-resume-p', '第 ' + m.p + ' 页'));
+        if (m.c) { b.appendChild(el('span', 'tb-resume-c', m.c)); }
+        wrap.appendChild(b);
+      });
+      markBox.appendChild(wrap);
+      markBox.hidden = false;
+      any = true;
+    }
+    card.hidden = !any;
+  }
+
+  /* ---------- ③ 收藏条数 ---------- */
+  var favN = document.getElementById('sb-fav-n');
+  if (favN) {
+    var fav = read('sb_favq') || {};
+    var c = 0;
+    Object.keys(fav).forEach(function (k) {
+      var it = fav[k];
+      if (it && Array.isArray(it.items)) { c += it.items.length; }
+    });
+    if (c) { favN.textContent = ' · ' + c; }
+  }
+})();
+</script>
+{{end}}
+
+{{/* 全局字体档位脚本：小 / 默认 / 大。
+     与设置面板里的三个按钮配套（settings_menu 的 .fontpick）。
+     只做两件事：把档位写到 <html data-font>，把选择记进 localStorage。
+     真正的缩放规则在 style.css 末尾（--sb-fz 变量），这里不碰任何样式细节，
+     免得「改档位」和「改字号」两处要同步维护。 */}}
+{{define "font_js"}}
+<script>
+(function () {
+  var root = document.documentElement;
+  var KEY = 'sb_font';
+  var btns = document.querySelectorAll('.fontbtn[data-font]');
+  if (!btns.length) { return; }
+
+  function cur() {
+    try { var v = localStorage.getItem(KEY); return (v === 'sm' || v === 'lg') ? v : 'def'; }
+    catch (e) { return 'def'; }
+  }
+  function apply(v, save) {
+    if (v === 'sm' || v === 'lg') { root.setAttribute('data-font', v); }
+    else { root.removeAttribute('data-font'); }
+    if (save) {
+      try {
+        if (v === 'def') { localStorage.removeItem(KEY); }
+        else { localStorage.setItem(KEY, v); }
+      } catch (e) {}
+    }
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].setAttribute('aria-checked', btns[i].getAttribute('data-font') === v ? 'true' : 'false');
+    }
+  }
+  for (var i = 0; i < btns.length; i++) {
+    btns[i].addEventListener('click', function () {
+      apply(this.getAttribute('data-font'), true);
+    });
+  }
+  /* 首屏对齐按钮高亮：<head> 里的内联脚本已经按存档设好 data-font，
+     这里只是让面板里的选中态跟上（比如上次选了「大」，刷新后应仍高亮）。 */
+  apply(cur(), false);
+})();
+</script>
+{{end}}
+
 {{/* 教材导航脚本：① 进入一律从页面顶部开始（禁用浏览器滚动恢复并回顶，
      不再自动定位到当前课 —— 当前课只保留高亮，不滚动）；
      ② 手风琴：点开一个科目自动收起其他科目。
@@ -1074,6 +1320,7 @@ window.sbBindModal = function (opt) {
 })();
 </script>
 {{template "fab_js"}}
+{{template "font_js"}}
 {{if .Session}}{{template "profile_js" .}}{{end}}
 </body>
 </html>

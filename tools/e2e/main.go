@@ -1150,6 +1150,97 @@ func main() {
 	// 清理测试壁纸，避免影响真实使用（BaseDir 已指向临时目录，真实 wallpapers/ 未被触碰）。
 	_ = os.RemoveAll(wpDir)
 
+	fmt.Println("\n[13] 小功能增强：教材书签 / 笔记 / 只看错题 / 收藏 / 计时 / 字体档位")
+
+	// 学习主页：新增控件与容器都在 HTML 里（具体内容由前端按 localStorage 填）
+	sp, sbody := do("GET", "/study", nil, ck)
+	check(sp.Code == 200, fmt.Sprintf("GET /study -> %d", sp.Code))
+	check(strings.Contains(sbody, `id="sb-wrong-only"`), "学习主页含「只看错题」开关")
+	check(strings.Contains(sbody, `data-wrong="`), "课程列表项带错题数 data-wrong")
+	check(strings.Contains(sbody, `id="tb-resume"`), "学习主页含「继续阅读 / 书签」卡容器")
+	check(strings.Contains(sbody, `href="/favorites"`) && strings.Contains(sbody, `id="sb-fav-n"`),
+		"学习主页含「我的收藏」入口")
+	check(strings.Contains(sbody, `id="wip-mask"`), "学习主页含「火速开发中」弹窗骨架")
+	check(strings.Contains(sbody, `class="fontbtn"`), "设置面板含字体档位按钮")
+
+
+	// 教材详情页：阅读器就绪时才断言书签 / 笔记 / 快速跳转
+	if strings.Contains(tbBody, `id="tb-reader"`) {
+		check(strings.Contains(tbBody, `id="tb-markpick"`), "教材详情页含书签下拉")
+		check(strings.Contains(tbBody, `id="tb-note"`) && strings.Contains(tbBody, `id="tb-note-t"`),
+			"教材详情页含单页笔记面板")
+		check(strings.Contains(tbBody, `id="tb-go"`), "阅读器含「前往」快速跳转按钮")
+		check(strings.Contains(tbBody, `data-catlabel="`), "阅读器带年级/学科/学期分类标签（书签分类用）")
+		check(strings.Contains(tbBody, "sb_tbmk") && strings.Contains(tbBody, "sb_tbnote"),
+			"书签与笔记写本机存储（sb_tbmk / sb_tbnote）")
+	}
+
+	// 刷题页：计时器 + 收藏 + 耗时字段
+	_, qbody := do("GET", "/quiz?key="+url.QueryEscape(sampleKey), nil, ck)
+	check(strings.Contains(qbody, `id="q-timer"`), "刷题页含答题计时器")
+	check(strings.Contains(qbody, `id="q-timer-toggle"`), "计时器可关闭（含隐藏开关）")
+	check(strings.Contains(qbody, `name="elapsed"`), "刷题页带耗时隐藏字段")
+	check(strings.Count(qbody, `class="q-fav"`) == 10, "刷题页每题都有收藏按钮")
+	check(strings.Contains(qbody, `data-stem="`), "题目带 data-stem（收藏按题干去重）")
+
+	// 收藏题库页：登录可进，未登录跳登录
+	fv, fvbody := do("GET", "/favorites", nil, ck)
+	check(fv.Code == 200 && strings.Contains(fvbody, `id="fav-body"`),
+		fmt.Sprintf("GET /favorites -> %d 且含列表容器", fv.Code))
+	fvNA, _ := do("GET", "/favorites", nil, "")
+	check(fvNA.Code == 303, fmt.Sprintf("未登录访问 /favorites 跳登录（得到 %d）", fvNA.Code))
+
+	// 耗时链路：带 elapsed 提交 → 存进 state → 课程页显示「上次用时」
+	form2 := url.Values{"key": {sampleKey}, "elapsed": {"95"}}
+	for i := 0; i < 10; i++ {
+		form2.Set(fmt.Sprintf("q%d", i), "0")
+	}
+	wElapsed, _ := do("POST", "/quiz/submit", form2, ck)
+	check(wElapsed.Code == 303, "带耗时的提交正常判分")
+	_, lessonBody := do("GET", "/lesson?key="+url.QueryEscape(sampleKey), nil, ck)
+	check(strings.Contains(lessonBody, "上次用时 1 分 35 秒"), "课程页显示上次用时（mmss 格式化）")
+
+	/* 错题聚合：这次「全选 A」的提交刚写进 answers，聚合后该课应是非零。
+	   两个坑都在断言里堵住：
+	     ① 必须切到 sampleKey 所在的年级册别看 —— 学习主页默认渲染学生档案的
+	        年级（四年级），那里根本不显示 sampleKey（二年级）；
+	     ② 必须在提交**之后**查 —— [4] 归档段把前三份试卷连同作答明细全删了，
+	        放在前面查到的是一张空表。 */
+	_, sbody2 := do("GET", "/study?grade=2&volume=1", nil, ck)
+	wrongHit := false
+	segs := strings.Split(sbody2, `data-wrong="`)
+	for i := 1; i < len(segs); i++ {
+		if j := strings.Index(segs[i], `"`); j > 0 && segs[i][:j] != "0" {
+			wrongHit = true
+			break
+		}
+	}
+	check(wrongHit, "错题已按课程聚合到列表（存在 data-wrong 非零的课程）")
+
+	// 字体档位：变量与换算规则都要在 CSS 里（缺任一档位按钮就只是个摆设）
+	_, cssBody := do("GET", "/static/style.css", nil, "")
+	check(strings.Contains(cssBody, `html[data-font="sm"]{--sb-fz:.88}`), "CSS 含「小」档位变量")
+	check(strings.Contains(cssBody, `html[data-font="lg"]{--sb-fz:1.15}`), "CSS 含「大」档位变量")
+	check(strings.Contains(cssBody, "font-size:calc(15px * var(--sb-fz,1))"),
+		"CSS 按 --sb-fz 换算字号（px 写死处也跟着缩放）")
+
+	// 游戏宿主页：战绩条（一年级游戏才有；列表页取不到 key 就跳过，不算失败）
+	gw, gbody := do("GET", "/games?grade=1&volume=1", nil, ck)
+	if gw.Code == 200 {
+		if i := strings.Index(gbody, `href="/game?key=`); i >= 0 {
+			rest := gbody[i+len(`href="/game?key=`):]
+			if j := strings.Index(rest, `"`); j > 0 {
+				gk := rest[:j]
+				gp, gpbody := do("GET", "/game?key="+gk, nil, ck)
+				check(gp.Code == 200 && strings.Contains(gpbody, `id="gm-score"`),
+					"游戏宿主页含答对/答错战绩条")
+				check(strings.Contains(gpbody, `data-key="`), "宿主页带游戏 key（战绩按游戏分别累计）")
+			}
+		} else {
+			fmt.Println("  · 提示：一年级上册暂无游戏，跳过游戏战绩条用例")
+		}
+	}
+
 	fmt.Println("\n---------------------------------------------")
 	if fail == 0 {
 		fmt.Println("端到端测试全部通过 ✅")

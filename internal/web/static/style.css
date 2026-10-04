@@ -3378,3 +3378,401 @@ html[data-theme="light"] .btn.ghost:hover{
         因此这条**不区分明暗**，两种主题都安全。
    ========================================================= */
 html[data-skin] .btn.ghost{background:var(--brand-soft)}
+
+/* ============================================================
+   2026-10-05 一批小功能样式（append-only，不改动上方任何原规则）
+   ① 做题页工具条：计时器 + 收藏按钮
+   ② 收藏题库页 / 学习主页「我的收藏」入口
+   ③ 教材阅读器：笔记面板 + 书签下拉
+   ④ 学习主页：只看错题开关 + 继续阅读 / 书签卡
+   ⑤ 设置面板：字体档位按钮
+   ⑥ 游戏宿主页：答对 / 答错计数条
+   ⑦ 「火速开发中」弹窗
+   ============================================================ */
+
+/* ---- ① 做题页工具条 ---- */
+.q-bar{
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  margin:0 0 14px; padding:9px 14px;
+  background:var(--card); border-radius:var(--r-sm); box-shadow:var(--shadow);
+}
+.q-timer{
+  display:inline-flex; align-items:center; gap:6px;
+  padding:4px 10px; border-radius:999px;
+  background:var(--brand-soft); color:var(--brand-dark);
+  font-size:14px; font-weight:600; font-variant-numeric:tabular-nums;
+}
+.q-timer[hidden]{display:none !important}   /* 作者样式会顶掉 UA 的 hidden */
+.q-timer-ico{font-size:13px}
+.q-last{font-size:12.5px}
+.q-fav-link{margin-left:auto}
+
+/* 题目右下角的收藏按钮：默认低调，收藏后变实心黄星 */
+.q-foot{display:flex; justify-content:flex-end; margin-top:8px}
+.q-fav{
+  display:inline-flex; align-items:center; gap:6px;
+  padding:5px 12px; border-radius:999px; border:0; cursor:pointer;
+  background:transparent; color:var(--muted);
+  font:inherit; font-size:12.5px;
+  transition:background-color .18s ease, color .18s ease;
+}
+.q-fav:hover{background:var(--brand-soft); color:var(--brand-dark)}
+.q-fav:focus-visible{outline:2px solid var(--brand); outline-offset:2px}
+.q-fav .ico{width:15px; height:15px; stroke:currentColor; fill:none}
+.q-fav.is-on{color:#e0a300; background:rgba(224,163,0,.10)}
+.q-fav.is-on .ico{fill:#f5c33b; stroke:#e0a300}
+
+/* ---- ② 收藏题库页 ---- */
+.fav-group{margin:14px 0 18px; padding-top:12px; border-top:1px solid var(--line)}
+.fav-group:first-child{border-top:0; padding-top:0; margin-top:4px}
+.fav-group-h{display:flex; align-items:center; gap:10px; margin-bottom:8px}
+.fav-group-t{font-size:15px; color:var(--ink)}
+.fav-group-acts{margin-left:auto}
+.fav-list{display:flex; flex-direction:column; gap:10px}
+.fav-item{
+  padding:10px 14px; border-radius:var(--r-sm);
+  background:var(--bg); box-shadow:inset 0 0 0 1px var(--line);
+}
+.fav-stem{font-size:14.5px; font-weight:600; line-height:1.5}
+.fav-opts{margin:6px 0 0; padding-left:20px; color:var(--muted); font-size:13px; line-height:1.7}
+.fav-item-foot{margin-top:6px; text-align:right}
+
+/* ---- ③ 教材阅读器：笔记 + 书签 ---- */
+.tb-note{
+  margin-top:12px; padding:12px 14px;
+  background:var(--card); border-radius:var(--r-sm); box-shadow:var(--shadow);
+}
+.tb-note[hidden]{display:none !important}
+.tb-note-h{display:flex; align-items:baseline; gap:10px; margin-bottom:8px}
+.tb-note-h b{font-size:14px}
+.tb-note-h .muted{margin-left:auto; font-size:12px}
+.tb-note textarea{
+  width:100%; padding:10px 12px; border-radius:10px;
+  border:1px solid var(--line); background:var(--bg); color:var(--ink);
+  font:inherit; font-size:14px; line-height:1.6; resize:vertical;
+}
+.tb-note textarea:focus{outline:2px solid var(--brand); outline-offset:1px}
+.tb-note-row{margin:8px 0 0; align-items:center}
+.tb-note-st{font-size:12.5px; min-height:1em}
+
+/* 书签下拉复用「打印」那套 tb-printpick 结构（同样的定位与开合行为），
+   这里只补列表区与「本页已加书签」的按钮态。 */
+.tb-markpick .tb-mk-list{
+  max-height:220px; overflow:auto; padding:4px 8px 8px;
+}
+.tb-mk-row{display:flex; align-items:center; gap:6px}
+.tb-mk-jump{
+  flex:1; text-align:left; padding:7px 10px; border:0; border-radius:8px;
+  background:transparent; color:var(--ink); font:inherit; font-size:13px; cursor:pointer;
+}
+.tb-mk-jump:hover{background:var(--brand-soft); color:var(--brand-dark)}
+.tb-mk-del{
+  flex:none; width:26px; height:26px; border:0; border-radius:8px;
+  background:transparent; color:var(--muted); font-size:16px; line-height:1; cursor:pointer;
+}
+.tb-mk-del:hover{background:var(--bad-soft); color:var(--bad)}
+.tb-mk-empty{padding:8px 10px; font-size:12.5px}
+.tb-mk-n{font-size:12px; color:var(--brand-dark)}
+.tb-printopt[aria-pressed="true"]{background:var(--brand-soft)}
+
+/* ---- ④ 学习主页 ---- */
+/* 「只看错题」开关：与设置面板里的开关同一套观感，只是尺寸更小 */
+.sb-chk{
+  display:inline-flex; align-items:center; gap:6px; margin-left:auto;
+  padding:5px 12px; border-radius:999px; cursor:pointer;
+  background:var(--card); box-shadow:inset 0 0 0 1px var(--line);
+  font-size:13px; color:var(--ink); user-select:none;
+}
+.sb-chk input{margin:0; accent-color:var(--brand); cursor:pointer}
+.sb-chk:hover{box-shadow:inset 0 0 0 1px var(--brand)}
+.sb-wrong-n{color:var(--bad); font-size:12.5px}
+
+/* 继续阅读 / 教材书签卡 */
+.tb-resume-head{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap}
+.tb-resume-head .muted{margin-left:auto; font-size:12px}
+.tb-resume-sub{margin:12px 0 6px; font-size:13px; color:var(--muted)}
+.tb-resume-list{display:flex; flex-direction:column; gap:8px}
+.tb-resume-item{
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  padding:10px 14px; border-radius:var(--r-sm);
+  background:var(--bg); box-shadow:inset 0 0 0 1px var(--line);
+  color:var(--ink); text-decoration:none;
+}
+.tb-resume-item:hover{background:var(--brand-soft); text-decoration:none}
+.tb-resume-item.is-last{background:var(--brand-soft)}
+.tb-resume-tag{
+  flex:none; padding:2px 8px; border-radius:999px;
+  background:var(--brand); color:#fff; font-size:11.5px;
+}
+.tb-resume-t{font-size:14.5px; font-weight:600}
+.tb-resume-p{font-size:13px; color:var(--brand-dark)}
+.tb-resume-c{margin-left:auto; font-size:12px; color:var(--muted)}
+
+.qtype-entry-foot{
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  margin:12px 0 0; padding-top:10px; border-top:1px solid var(--line);
+}
+.sb-fav-n{color:var(--brand); font-weight:600}
+
+/* 游戏题卡片做成 <button> 时要把 UA 的按钮样式清掉，
+   否则会顶着灰底、居中的系统按钮外观混在另外两张卡里。 */
+button.qtype-card{
+  width:100%; border:0; font:inherit; text-align:left; cursor:pointer;
+}
+button.qtype-card.is-wip .qtype-card-desc{color:var(--muted)}
+
+/* ---- ⑤ 设置面板：字体档位 ---- */
+.fontpick{display:flex; gap:8px; padding:0 2px}
+.fontbtn{
+  flex:1; padding:8px 0; border:1px solid var(--line); border-radius:10px;
+  background:var(--bg); color:var(--ink); font:inherit; cursor:pointer;
+  transition:background-color .18s ease, color .18s ease, box-shadow .18s ease;
+}
+.fontbtn:first-child{font-size:12.5px}
+.fontbtn:last-child{font-size:16px}
+.fontbtn:hover{background:var(--brand-soft); color:var(--brand-dark)}
+.fontbtn[aria-checked="true"]{
+  background:var(--brand-soft); color:var(--brand-dark);
+  box-shadow:inset 0 0 0 2px var(--brand); font-weight:600;
+}
+.fontbtn:focus-visible{outline:2px solid var(--brand); outline-offset:2px}
+.fontpick-hint{padding:6px 2px 0; font-size:12px; color:var(--muted)}
+
+/* ---- ⑥ 游戏宿主页：战绩条 ---- */
+.gm-score{
+  display:inline-flex; align-items:center; gap:10px; flex:none;
+  padding:5px 12px; border-radius:999px;
+  background:var(--brand-soft); color:var(--brand-dark); font-size:13px;
+}
+.gm-score[hidden]{display:none !important}
+.gm-score-i b{font-size:14px; font-variant-numeric:tabular-nums}
+@media (max-width:640px){
+  .gm-bar{flex-wrap:wrap}
+  .gm-score{margin-left:auto}
+}
+
+/* ---- ⑦ 「火速开发中」弹窗 ---- */
+.wip-modal{max-width:340px; text-align:center}
+.wip-ico{font-size:40px; line-height:1; margin-bottom:6px}
+.wip-modal h3{margin:6px 0 8px; font-size:18px}
+.wip-modal .muted{font-size:13.5px; line-height:1.6}
+.wip-modal .sb-modal-actions{justify-content:center}
+
+
+/* ============================================================
+   全局字体档位（小 / 默认 / 大）
+   全站字号都是 px 写死的，改 html 的 font-size 对它们无效，
+   所以这里按原选择器重新声明一遍 font-size，乘上 --sb-fz：
+     默认 = 不写 data-font（--sb-fz 取兜底值 1）
+     小   = 0.88 倍，大 = 1.15 倍
+   规则由 scripts/gen_font_scale_css.py 扫描本文件自动生成，
+   改字号请改原规则后重新生成，不要手改这一段。
+   ============================================================ */
+html[data-font="sm"]{--sb-fz:.88}
+html[data-font="lg"]{--sb-fz:1.15}
+html[data-font] body{font-size:calc(15px * var(--sb-fz,1))}
+html[data-font] .topbar .brand{font-size:calc(17px * var(--sb-fz,1))}
+html[data-font] .topbar .brandtxt em{font-size:calc(11px * var(--sb-fz,1))}
+html[data-font] .topbar nav .tnav{font-size:calc(14px * var(--sb-fz,1))}
+html[data-font] .tnav-ico{font-size:calc(13px * var(--sb-fz,1))}
+html[data-font] .topbar nav .who{font-size:calc(13px * var(--sb-fz,1))}
+html[data-font] .avatar{font-size:calc(13px * var(--sb-fz,1))}
+html[data-font] .topbar nav .tag{font-size:calc(12px * var(--sb-fz,1))}
+html[data-font] .linkbtn{font-size:calc(15px * var(--sb-fz,1))}
+html[data-font] h1{font-size:calc(22px * var(--sb-fz,1))}
+html[data-font] h2{font-size:calc(17px * var(--sb-fz,1))}
+html[data-font] h3{font-size:calc(15px * var(--sb-fz,1))}
+html[data-font] .muted{font-size:calc(13px * var(--sb-fz,1))}
+html[data-font] label{font-size:calc(14px * var(--sb-fz,1))}
+html[data-font] label input, html[data-font] label select, html[data-font] input, html[data-font] select{font-size:calc(15px * var(--sb-fz,1))}
+html[data-font] .btn{font-size:calc(15px * var(--sb-fz,1))}
+html[data-font] .btn.sm{font-size:calc(13px * var(--sb-fz,1))}
+html[data-font] .alert{font-size:calc(14px * var(--sb-fz,1))}
+html[data-font] .notice{font-size:calc(14px * var(--sb-fz,1))}
+html[data-font] .card .grade-switcher summary{font-size:calc(14px * var(--sb-fz,1))}
+html[data-font] .sw-stage{font-size:calc(13px * var(--sb-fz,1))}
+html[data-font] .sw-grade-label{font-size:calc(14px * var(--sb-fz,1))}
+html[data-font] .sw-vol{font-size:calc(13px * var(--sb-fz,1))}
+html[data-font] li.current-lesson::before{font-size:calc(10px * var(--sb-fz,1))}
+html[data-font] .badge{font-size:calc(12px * var(--sb-fz,1))}
+html[data-font] .q .type{font-size:calc(12px * var(--sb-fz,1))}
+html[data-font] .ansline{font-size:calc(13px * var(--sb-fz,1))}
+html[data-font] table{font-size:calc(14px * var(--sb-fz,1))}
+html[data-font] .stat .num{font-size:calc(24px * var(--sb-fz,1))}
+html[data-font] .stat .cap{font-size:calc(13px * var(--sb-fz,1))}
+html[data-font] .foot{font-size:calc(13px * var(--sb-fz,1))}
+html[data-font] code{font-size:calc(13px * var(--sb-fz,1))}
+html[data-font] .auth-bg .floaty{font-size:calc(26px * var(--sb-fz,1))}
+html[data-font] .auth-bg .f2{font-size:calc(30px * var(--sb-fz,1))}
+html[data-font] .auth-bg .f6{font-size:calc(30px * var(--sb-fz,1))}
+html[data-font] .auth-logo{font-size:calc(17px * var(--sb-fz,1))}
+html[data-font] .auth-slogan h2{font-size:calc(25px * var(--sb-fz,1))}
+html[data-font] .auth-slogan p{font-size:calc(13.5px * var(--sb-fz,1))}
+html[data-font] .auth-side-foot{font-size:calc(12.5px * var(--sb-fz,1))}
+html[data-font] .form-header h1{font-size:calc(25px * var(--sb-fz,1))}
+html[data-font] .form-header p{font-size:calc(13.5px * var(--sb-fz,1))}
+html[data-font] .fg label{font-size:calc(13px * var(--sb-fz,1))}
+html[data-font] .fg input{font-size:calc(15px * var(--sb-fz,1))}
+html[data-font] .auth-error{font-size:calc(13px * var(--sb-fz,1))}
+html[data-font] .btn-login{font-size:calc(16px * var(--sb-fz,1))}
+html[data-font] .auth-alt{font-size:calc(13px * var(--sb-fz,1))}
+html[data-font] .fg select{font-size:calc(15px * var(--sb-fz,1))}
+html[data-font] .auth-notice{font-size:calc(13px * var(--sb-fz,1))}
+html[data-font] .btn-auth{font-size:calc(16px * var(--sb-fz,1))}
+html[data-font] .topbar .setpick>summary{font-size:calc(14px * var(--sb-fz,1))}
+html[data-font] .setchev{font-size:calc(10px * var(--sb-fz,1))}
+html[data-font] .setpanel-t{font-size:calc(14px * var(--sb-fz,1))}
+html[data-font] .setpanel-s{font-size:calc(11.5px * var(--sb-fz,1))}
+html[data-font] .setsec-h{font-size:calc(11.5px * var(--sb-fz,1))}
+html[data-font] .skinsw-ck{font-size:calc(13px * var(--sb-fz,1))}
+html[data-font] .skinlb{font-size:calc(11.5px * var(--sb-fz,1))}
+html[data-font] .setrow-t{font-size:calc(13.5px * var(--sb-fz,1))}
+html[data-font] .setrow-d{font-size:calc(11.5px * var(--sb-fz,1))}
+html[data-font] .setrow-go{font-size:calc(17px * var(--sb-fz,1))}
+html[data-font] .fg-hint{font-size:calc(11.5px * var(--sb-fz,1))}
+html[data-font] .fg .gender-opt{font-size:calc(14px * var(--sb-fz,1))}
+html[data-font] .gender-opt .g-title{font-size:calc(15px * var(--sb-fz,1))}
+html[data-font] .gender-opt .g-sub{font-size:calc(11.5px * var(--sb-fz,1))}
+html[data-font] .mini-select{font-size:calc(13px * var(--sb-fz,1))}
+html[data-font] .seg-opt>span{font-size:calc(14.5px * var(--sb-fz,1))}
+html[data-font] .pickfield{font-size:calc(15.5px * var(--sb-fz,1))}
+html[data-font] .sheet-title{font-size:calc(15px * var(--sb-fz,1))}
+html[data-font] .sheet-act{font-size:calc(14.5px * var(--sb-fz,1))}
+html[data-font] .wheel-item{font-size:calc(16px * var(--sb-fz,1))}
+html[data-font] .wheel-item.is-on{font-size:calc(18px * var(--sb-fz,1))}
+html[data-font] .sheet-hint{font-size:calc(11.5px * var(--sb-fz,1))}
+html[data-font] .sheet-num{font-size:calc(15px * var(--sb-fz,1))}
+html[data-font] .wp-card .wp-state{font-size:calc(13.5px * var(--sb-fz,1))}
+html[data-font] .wp-card .wp-tip{font-size:calc(11.5px * var(--sb-fz,1))}
+html[data-font] .sb-check{font-size:calc(14px * var(--sb-fz,1))}
+html[data-font] .sb-del-btn{font-size:calc(13px * var(--sb-fz,1))}
+html[data-font] .sb-modal p{font-size:calc(14px * var(--sb-fz,1))}
+html[data-font] .sb-toast{font-size:calc(14px * var(--sb-fz,1))}
+html[data-font] .qtab{font-size:calc(14px * var(--sb-fz,1))}
+html[data-font] .qtype-hint{font-size:calc(13px * var(--sb-fz,1))}
+html[data-font] .explain{font-size:calc(13px * var(--sb-fz,1))}
+html[data-font] h1{font-size:calc(24px * var(--sb-fz,1))}
+html[data-font] h2{font-size:calc(18px * var(--sb-fz,1))}
+html[data-font] h3{font-size:calc(15px * var(--sb-fz,1))}
+html[data-font] .stat .num{font-size:calc(26px * var(--sb-fz,1))}
+html[data-font] th{font-size:calc(13px * var(--sb-fz,1))}
+html[data-font] .nav-card .tree-body .unitname{font-size:calc(12.5px * var(--sb-fz,1))}
+html[data-font] .nav-card ul.lessons li > a{font-size:calc(13.5px * var(--sb-fz,1))}
+html[data-font] .nav-card ul.lessons li > a::before{font-size:calc(12.5px * var(--sb-fz,1))}
+html[data-font] .nav-card ul.lessons li .badge{font-size:calc(11.5px * var(--sb-fz,1))}
+html[data-font] .nav-card ul.lessons li .linkbtn{font-size:calc(12px * var(--sb-fz,1))}
+html[data-font] .subj-head b{font-size:calc(16px * var(--sb-fz,1))}
+html[data-font] .subj-lesson{font-size:calc(14.5px * var(--sb-fz,1))}
+html[data-font] .subj-meta{font-size:calc(12.5px * var(--sb-fz,1))}
+html[data-font] .pm-avatar{font-size:calc(26px * var(--sb-fz,1))}
+html[data-font] .pm-hint{font-size:calc(11.5px * var(--sb-fz,1))}
+html[data-font] .pm-row{font-size:calc(13.5px * var(--sb-fz,1))}
+html[data-font] .pm-row .pm-k{font-size:calc(12.5px * var(--sb-fz,1))}
+html[data-font] .pm-msg{font-size:calc(13px * var(--sb-fz,1))}
+html[data-font] .welcome-modal h3{font-size:calc(19px * var(--sb-fz,1))}
+html[data-font] .wl-avatar{font-size:calc(28px * var(--sb-fz,1))}
+html[data-font] .wl-hello{font-size:calc(17px * var(--sb-fz,1))}
+html[data-font] .wl-line{font-size:calc(14px * var(--sb-fz,1))}
+html[data-font] .splash-author{font-size:calc(14px * var(--sb-fz,1))}
+html[data-font] .qt-toast{font-size:calc(14px * var(--sb-fz,1))}
+html[data-font] .qt-toast .qt-check{font-size:calc(15px * var(--sb-fz,1))}
+html[data-font] .tb-home-head h2{font-size:calc(17px * var(--sb-fz,1))}
+html[data-font] .tb-book-title{font-size:calc(15px * var(--sb-fz,1))}
+html[data-font] .tb-book-sub{font-size:calc(12px * var(--sb-fz,1))}
+html[data-font] .tb-book-desc{font-size:calc(13px * var(--sb-fz,1))}
+html[data-font] .tb-go{font-size:calc(13px * var(--sb-fz,1))}
+html[data-font] .tb-cover-ph{font-size:calc(15px * var(--sb-fz,1))}
+html[data-font] .tb-cover-ph.sm{font-size:calc(13px * var(--sb-fz,1))}
+html[data-font] .tb-meta h1{font-size:calc(21px * var(--sb-fz,1))}
+html[data-font] .tb-sub{font-size:calc(16px * var(--sb-fz,1))}
+html[data-font] .tb-pos input{font-size:calc(14px * var(--sb-fz,1))}
+html[data-font] .tb-loading{font-size:calc(13px * var(--sb-fz,1))}
+html[data-font] .tb-hint{font-size:calc(12px * var(--sb-fz,1))}
+html[data-font] .tb-thumb-n{font-size:calc(11px * var(--sb-fz,1))}
+html[data-font] .tb-intro{font-size:calc(14px * var(--sb-fz,1))}
+html[data-font] .tb-unit > summary{font-size:calc(14px * var(--sb-fz,1))}
+html[data-font] .tb-lessons a{font-size:calc(14px * var(--sb-fz,1))}
+html[data-font] .tb-lessons .muted{font-size:calc(12px * var(--sb-fz,1))}
+html[data-font] .tb-lib-title h1{font-size:calc(20px * var(--sb-fz,1))}
+html[data-font] .tb-lib-title .muted{font-size:calc(13px * var(--sb-fz,1))}
+html[data-font] .tb-fg-label{font-size:calc(12px * var(--sb-fz,1))}
+html[data-font] .tb-chip{font-size:calc(13px * var(--sb-fz,1))}
+html[data-font] .tb-lb-tag{font-size:calc(11px * var(--sb-fz,1))}
+html[data-font] .tb-lb-name{font-size:calc(13px * var(--sb-fz,1))}
+html[data-font] .tb-lb-meta{font-size:calc(12px * var(--sb-fz,1))}
+html[data-font] .tb-lb-foot{font-size:calc(12px * var(--sb-fz,1))}
+html[data-font] .tb-lib-foot{font-size:calc(12px * var(--sb-fz,1))}
+html[data-font] .tb-cover-name{font-size:calc(12.5px * var(--sb-fz,1))}
+html[data-font] .tb-loading-txt{font-size:calc(13px * var(--sb-fz,1))}
+html[data-font] .sb-toast, html[data-font] .qt-toast{font-size:calc(14px * var(--sb-fz,1))}
+html[data-font] .tb-printpanel-t{font-size:calc(14px * var(--sb-fz,1))}
+html[data-font] .tb-printpanel-s{font-size:calc(11.5px * var(--sb-fz,1))}
+html[data-font] .tb-printhint{font-size:calc(11.5px * var(--sb-fz,1))}
+html[data-font] .qtype-card-ico{font-size:calc(22px * var(--sb-fz,1))}
+html[data-font] .qtype-card-name{font-size:calc(15px * var(--sb-fz,1))}
+html[data-font] .qtype-card-desc{font-size:calc(12.5px * var(--sb-fz,1))}
+html[data-font] .qtype-card-go{font-size:calc(12.5px * var(--sb-fz,1))}
+html[data-font] .gm-ico{font-size:calc(18px * var(--sb-fz,1))}
+html[data-font] .gm-name{font-size:calc(14px * var(--sb-fz,1))}
+html[data-font] .gm-go{font-size:calc(12px * var(--sb-fz,1))}
+html[data-font] .gm-bar-title b{font-size:calc(15px * var(--sb-fz,1))}
+html[data-font] .gm-bar-title .muted{font-size:calc(12.5px * var(--sb-fz,1))}
+html[data-font] .q-timer{font-size:calc(14px * var(--sb-fz,1))}
+html[data-font] .q-timer-ico{font-size:calc(13px * var(--sb-fz,1))}
+html[data-font] .q-last{font-size:calc(12.5px * var(--sb-fz,1))}
+html[data-font] .q-fav{font-size:calc(12.5px * var(--sb-fz,1))}
+html[data-font] .fav-group-t{font-size:calc(15px * var(--sb-fz,1))}
+html[data-font] .fav-stem{font-size:calc(14.5px * var(--sb-fz,1))}
+html[data-font] .fav-opts{font-size:calc(13px * var(--sb-fz,1))}
+html[data-font] .tb-note-h b{font-size:calc(14px * var(--sb-fz,1))}
+html[data-font] .tb-note-h .muted{font-size:calc(12px * var(--sb-fz,1))}
+html[data-font] .tb-note textarea{font-size:calc(14px * var(--sb-fz,1))}
+html[data-font] .tb-note-st{font-size:calc(12.5px * var(--sb-fz,1))}
+html[data-font] .tb-mk-jump{font-size:calc(13px * var(--sb-fz,1))}
+html[data-font] .tb-mk-del{font-size:calc(16px * var(--sb-fz,1))}
+html[data-font] .tb-mk-empty{font-size:calc(12.5px * var(--sb-fz,1))}
+html[data-font] .tb-mk-n{font-size:calc(12px * var(--sb-fz,1))}
+html[data-font] .sb-chk{font-size:calc(13px * var(--sb-fz,1))}
+html[data-font] .sb-wrong-n{font-size:calc(12.5px * var(--sb-fz,1))}
+html[data-font] .tb-resume-head .muted{font-size:calc(12px * var(--sb-fz,1))}
+html[data-font] .tb-resume-sub{font-size:calc(13px * var(--sb-fz,1))}
+html[data-font] .tb-resume-tag{font-size:calc(11.5px * var(--sb-fz,1))}
+html[data-font] .tb-resume-t{font-size:calc(14.5px * var(--sb-fz,1))}
+html[data-font] .tb-resume-p{font-size:calc(13px * var(--sb-fz,1))}
+html[data-font] .tb-resume-c{font-size:calc(12px * var(--sb-fz,1))}
+html[data-font] .fontbtn:first-child{font-size:calc(12.5px * var(--sb-fz,1))}
+html[data-font] .fontbtn:last-child{font-size:calc(16px * var(--sb-fz,1))}
+html[data-font] .fontpick-hint{font-size:calc(12px * var(--sb-fz,1))}
+html[data-font] .gm-score{font-size:calc(13px * var(--sb-fz,1))}
+html[data-font] .gm-score-i b{font-size:calc(14px * var(--sb-fz,1))}
+html[data-font] .wip-ico{font-size:calc(40px * var(--sb-fz,1))}
+html[data-font] .wip-modal h3{font-size:calc(18px * var(--sb-fz,1))}
+html[data-font] .wip-modal .muted{font-size:calc(13.5px * var(--sb-fz,1))}
+@media (max-width:900px){
+  html[data-font] .auth-mobile-brand{font-size:calc(16px * var(--sb-fz,1))}
+}
+@media (max-width:420px){
+  html[data-font] .form-header h1{font-size:calc(22px * var(--sb-fz,1))}
+  html[data-font] .pickfield{font-size:calc(15px * var(--sb-fz,1))}
+  html[data-font] .wp-card .wp-tip{font-size:calc(11px * var(--sb-fz,1))}
+  html[data-font] h1{font-size:calc(20px * var(--sb-fz,1))}
+}
+@media (max-width:640px){
+  html[data-font] .topbar nav .tnav{font-size:calc(13px * var(--sb-fz,1))}
+  html[data-font] .topbar .brand{font-size:calc(15px * var(--sb-fz,1))}
+  html[data-font] table{font-size:calc(13px * var(--sb-fz,1))}
+  html[data-font] h1{font-size:calc(20px * var(--sb-fz,1))}
+  html[data-font] .stat .num{font-size:calc(22px * var(--sb-fz,1))}
+  html[data-font] .tb-meta h1{font-size:calc(18px * var(--sb-fz,1))}
+  html[data-font] .tb-lib-title h1{font-size:calc(18px * var(--sb-fz,1))}
+  html[data-font] .tb-cover-name{font-size:calc(12px * var(--sb-fz,1))}
+  html[data-font] .stat-grid .num{font-size:calc(24px * var(--sb-fz,1))}
+  html[data-font] .tb-printhint{font-size:calc(11px * var(--sb-fz,1))}
+}
+@media (max-width:380px){
+  html[data-font] .stat-grid .num{font-size:calc(21px * var(--sb-fz,1))}
+}
+@media (max-width:760px){
+  html[data-font] .card table>tr:not(:first-child)>td{font-size:calc(13.5px * var(--sb-fz,1))}
+  html[data-font] .card table>tr:not(:first-child)>td::before{font-size:calc(12.5px * var(--sb-fz,1))}
+}

@@ -35,3 +35,6 @@ verify-scratch/
 # 技能自测产物（直接运行引擎时输出到技能目录下的 out/）
 .workbuddy/skills/interactive-quiz-html/out/
 .workbuddy/skills/interactive-quiz-html/scripts/__pycache__/
+
+# 内联脚本语法体检的落盘产物（tools/dumpjs 输出，供 node --check 用）
+.tmp_js/

@@ -56,15 +56,26 @@
     {{else}}
     {{/* 资源还没上线：保留卡片位置与视觉，aria-disabled 让读屏也知道不可点，
          而不是整块消失 —— 消失会让人以为这个功能从来不存在。 */}}
-    <span class="qtype-card" aria-disabled="true" title="本年级游戏资源正在制作中">
+    {{/* 没有游戏资源的年级：卡片保留可见（消失会让人以为没这个功能），
+         但做成可点的按钮 —— 点一下弹「火速开发中」说明，比一句灰掉的
+         「敬请期待」更有回应感。aria-disabled 不能用在可点元素上，
+         所以这里用 <button> + title 说明原因。 */}}
+    <button type="button" class="qtype-card is-wip" id="sb-game-wip"
+            title="本年级游戏资源正在制作中">
       <span class="qtype-card-ico" aria-hidden="true">🎮</span>
       <span class="qtype-card-body">
         <span class="qtype-card-name">游戏题</span>
         <span class="qtype-card-desc">资源制作中，敬请期待</span>
       </span>
-    </span>
+    </button>
     {{end}}
   </div>
+  {{/* 收藏题库入口：收藏的题目存在本机，条数由脚本读 localStorage 填上，
+       服务端不知道有哪几条，所以这里只给链接和空占位数字。 */}}
+  <p class="qtype-entry-foot">
+    <a class="btn ghost sm" href="/favorites">我的收藏<span class="sb-fav-n" id="sb-fav-n"></span></a>
+    <span class="muted">做题时点题目下方的 ☆ 即可收藏</span>
+  </p>
 </div>
 
 {{if .SubjectCards}}
@@ -124,7 +135,17 @@
        其他年级收进「切换年级」菜单（NavMenu），整页跳转换视图。 */}}
   <div class="nav-head">
     <h2>{{if .NavView}}{{.NavView.Title}}{{else}}教材导航{{end}}</h2>
-    {{if .NavMenu}}
+    {{/* 「只看错题」快捷开关：筛的是**课程**（哪几课答错过），数据来自
+       answers 表里已有的 right 标记按课聚合，不新增任何存储。
+       开关只做前端过滤：课程照常全部渲染在 HTML 里，勾选时把「错题数 0」
+       的课程藏起来，取消勾选原样恢复 —— 不做成一次新的服务端查询，
+       切一下开关不该刷新整页。 */}}
+  <label class="sb-chk" id="sb-wrong-box" title="只看答错过题的课程">
+    <input type="checkbox" id="sb-wrong-only">
+    <span>只看错题</span>
+    <span class="sb-wrong-n" id="sb-wrong-n"></span>
+  </label>
+  {{if .NavMenu}}
     <details class="grade-switcher" data-menu>
       <summary title="切换到其他年级 / 册别">切换年级</summary>
       <div class="sw-body">
@@ -164,8 +185,13 @@
       <div class="unitname">{{.Name}}</div>
       <ul class="lessons">
         {{range .Lessons}}
-        <li{{if and $.Current (eq .Key $.Current.Key)}} class="current-lesson"{{end}}>
+        {{/* data-wrong = 该课累计错题数（服务端按 answers.right=0 聚合）。
+             「只看错题」开关与错题数徽标都读这个属性。 */}}
+        {{$w := index $.Wrong .Key}}
+        <li{{if and $.Current (eq .Key $.Current.Key)}} class="current-lesson"{{end}}
+           data-key="{{.Key}}" data-wrong="{{$w}}">
           <a href="/lesson?key={{urlquery .Key}}">{{.Title}}</a>
+          {{if $w}}<span class="badge bad">错 {{$w}}</span>{{end}}
           {{$p := index $.Prog .Key}}
           {{if $p}}
             {{if eq $p.Status "passed"}}<span class="badge ok">已达标 {{$p.BestScore}}分</span>
@@ -186,6 +212,9 @@
   </details>
   {{end}}
   {{end}}
+  {{/* 「只看错题」的空态：勾了开关却一条都没有时给一句说明，
+       否则整张卡片空掉，看着像开关把列表筛坏了。默认隐藏，由脚本控制。 */}}
+  <p class="muted" id="sb-wrong-empty" hidden>这个年级册别还没有错题记录——先去做几套题，错题会自动记在这里。</p>
   {{if not $anyCount}}
   <div class="notice">
     {{.NavView.Title}}暂无{{.QTCN}}题库。可切到另一题型，或点右上角「切换年级」看看其他年级册别。
@@ -195,6 +224,19 @@
   <div class="notice">教材目录里还没有可展示的课程。请把课程 HTML 按规则放入 <code>content/…</code> 目录后重启服务。</div>
   {{end}}
 </div>
+{{/* 教材续读 / 书签卡：内容全在浏览器本地（阅读器写进 localStorage），
+     服务端渲染时只知道「有这个模块」，具体条目由 study_extra_js 填。
+     放在官方教材封面墙之前 —— 它是「接着上次往下读」的快捷入口，
+     比「重新挑一册」更贴近当下的动作。整卡默认隐藏，没数据就不占位。 */}}
+<div class="card tb-resume" id="tb-resume" hidden>
+  <div class="tb-resume-head">
+    <h2>继续阅读</h2>
+    <span class="muted">书签与阅读位置都只存在这台设备</span>
+  </div>
+  <div id="tb-resume-last" hidden></div>
+  <div id="tb-resume-marks" hidden></div>
+</div>
+
 {{/* 官方教材封面墙：只展示「当前登录学生所在年级 + 当前学期」的教材，全学科都收。
      每张卡只渲染封面图（+ 教材名小字），点封面进该教材详情页。
      .TbGrade 为空说明连年级都没定出来（题库还没初始化），.TbCards 为空说明该
@@ -229,6 +271,8 @@
   {{end}}
 </div>
 {{template "study_nav_js"}}
+{{template "study_extra_js"}}
+{{template "wip_modal"}}
 {{template "splash" .}}
 {{template "welcome_modal" .}}
 {{template "footer" .}}

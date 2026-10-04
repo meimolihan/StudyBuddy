@@ -2,10 +2,27 @@
 <h1>在线自测 · {{.Lesson.SubjectCN}} {{.Lesson.Title}}</h1>
 <div class="notice">共 {{len .Qs}} 题（单选 6 题 + 多选 4 题），每题 10 分，满分 {{len .Qs | mul10}} 分。多选题可选多个答案。</div>
 
-<form method="post" action="/quiz/submit">
+{{/* 做题工具条：计时器 + 收藏入口。
+     计时器默认开启但可关闭（关掉的选择记在本机，下次做题不再自动出现），
+     不强制、不打断 —— 它是「这次做得快不快」的参照，不是考试倒计时。 */}}
+<div class="q-bar">
+  <span class="q-timer" id="q-timer" role="timer" aria-live="off">
+    <span class="q-timer-ico" aria-hidden="true">⏱</span>
+    <b id="q-timer-t">00:00</b>
+  </span>
+  <button type="button" class="btn ghost sm" id="q-timer-toggle" aria-pressed="false">隐藏计时</button>
+  {{if .LastSec}}<span class="muted q-last">上次用时 {{mmss .LastSec}}</span>{{end}}
+  <a class="btn ghost sm q-fav-link" href="/favorites">我的收藏</a>
+</div>
+
+<form method="post" action="/quiz/submit" id="q-form"
+      data-key="{{.Lesson.Key}}" data-title="{{.Lesson.Title}}">
   <input type="hidden" name="key" value="{{.Lesson.Key}}">
+  {{/* 耗时随提交带回服务端，存进学生库通用的 k/v 表（state.qtime_<课 key>），
+       不新增表也不新增列。 */}}
+  <input type="hidden" name="elapsed" id="q-elapsed" value="0">
   {{range .Qs}}
-  <div class="q">
+  <div class="q" data-idx="{{.Idx}}" data-stem="{{.Stem}}">
     <div class="stem"><span class="type">{{.TypeCN}}</span>{{.Stem}}</div>
     <ul class="opts">
       {{$idx := .Idx}}
@@ -24,6 +41,14 @@
       </li>
       {{end}}
     </ul>
+    {{/* 收藏：只存本机（localStorage），不占用服务端题库。
+         收藏的是题干与选项，不含答案 —— 收藏是「回头再看一遍」，
+         不是把答案抄走。 */}}
+    <div class="q-foot">
+      <button type="button" class="q-fav" data-idx="{{.Idx}}" aria-pressed="false">
+        <span class="q-fav-ico">{{template "ico_star"}}</span><span class="q-fav-t">收藏</span>
+      </button>
+    </div>
   </div>
   {{end}}
   <div class="row">
@@ -31,4 +56,131 @@
     <a class="btn ghost" href="/lesson?key={{urlquery .Lesson.Key}}">返回课程</a>
   </div>
 </form>
+
+<script>
+/* 做题页本地增强：答题计时 + 题目收藏。
+   两者都不依赖服务端：计时只是读秒并随表单带回，收藏写进 localStorage。 */
+(function () {
+  var form = document.getElementById('q-form');
+  if (!form) { return; }
+  var key = form.getAttribute('data-key') || '';
+  var title = form.getAttribute('data-title') || '';
+
+  /* ---------------- 计时器 ---------------- */
+  var box = document.getElementById('q-timer');
+  var txt = document.getElementById('q-timer-t');
+  var tog = document.getElementById('q-timer-toggle');
+  var hid = document.getElementById('q-elapsed');
+  var OFF = 'sb_qtimer_off';
+  var start = Date.now(), sec = 0, timer = null, off = false;
+  try { off = localStorage.getItem(OFF) === '1'; } catch (e) {}
+
+  function fmt(n) {
+    var m = Math.floor(n / 60), s = n % 60;
+    return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+  }
+  // 用时间戳差值而不是「每秒 +1」：标签页被挂起时 setInterval 会被节流，
+  // 累加计数会越走越慢，差值始终等于真实经过时间。
+  function tick() {
+    sec = Math.floor((Date.now() - start) / 1000);
+    if (txt) { txt.textContent = fmt(sec); }
+  }
+  function paint() {
+    if (box) { box.hidden = off; }
+    if (tog) {
+      tog.textContent = off ? '显示计时' : '隐藏计时';
+      tog.setAttribute('aria-pressed', off ? 'true' : 'false');
+    }
+  }
+  if (tog) {
+    tog.addEventListener('click', function () {
+      off = !off;
+      try {
+        if (off) { localStorage.setItem(OFF, '1'); } else { localStorage.removeItem(OFF); }
+      } catch (e) {}
+      paint();
+    });
+  }
+  paint();
+  tick();
+  timer = setInterval(tick, 1000);
+
+  /* ---------------- 收藏 ---------------- */
+  var FK = 'sb_favq';
+  function favAll() {
+    try {
+      var v = localStorage.getItem(FK);
+      var o = v ? JSON.parse(v) : null;
+      return (o && typeof o === 'object') ? o : {};
+    } catch (e) { return {}; }
+  }
+  function favSave(o) { try { localStorage.setItem(FK, JSON.stringify(o)); } catch (e) {} }
+  function favItems() {
+    var o = favAll();
+    return (o[key] && Array.isArray(o[key].items)) ? o[key].items : [];
+  }
+  function hasFav(stem) {
+    var it = favItems(), i;
+    for (i = 0; i < it.length; i++) { if (it[i].s === stem) { return true; } }
+    return false;
+  }
+  function toggleFav(stem, opts) {
+    var all = favAll();
+    if (!all[key]) { all[key] = { t: title, items: [] }; }
+    var items = all[key].items || [], i, found = -1;
+    for (i = 0; i < items.length; i++) { if (items[i].s === stem) { found = i; break; } }
+    if (found >= 0) {
+      items.splice(found, 1);
+    } else {
+      items.push({ s: stem, o: opts, ts: Date.now() });
+    }
+    all[key].items = items;
+    // 整本课都没收藏了就把这一课删掉，别留一堆空壳
+    if (!items.length) { delete all[key]; }
+    favSave(all);
+    syncFav();
+  }
+  function syncFav() {
+    var btns = form.querySelectorAll('.q-fav');
+    for (var i = 0; i < btns.length; i++) {
+      var q = btns[i].closest ? btns[i].closest('.q') : null;
+      var stem = q ? q.getAttribute('data-stem') : '';
+      var on = hasFav(stem || '');
+      btns[i].setAttribute('aria-pressed', on ? 'true' : 'false');
+      btns[i].classList.toggle('is-on', on);
+      var t = btns[i].querySelector('.q-fav-t');
+      if (t) { t.textContent = on ? '已收藏' : '收藏'; }
+    }
+  }
+  form.addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('.q-fav') : null;
+    if (!b) { return; }
+    var q = b.closest('.q');
+    if (!q) { return; }
+    var stem = q.getAttribute('data-stem') || '';
+    var opts = [];
+    var lis = q.querySelectorAll('.opts li');
+    for (var i = 0; i < lis.length; i++) {
+      opts.push((lis[i].textContent || '').replace(/\s+/g, ' ').trim());
+    }
+    toggleFav(stem, opts);
+  });
+  syncFav();
+
+  /* ---------------- 提交：把耗时带上去 ---------------- */
+  form.addEventListener('submit', function () {
+    tick();
+    if (timer) { clearInterval(timer); }
+    if (hid) { hid.value = String(sec); }
+    // 本机也留一份最近耗时，做题页下次进来能立刻显示，不用等服务端往返
+    try {
+      var o = {};
+      var raw = localStorage.getItem('sb_qtime');
+      if (raw) { try { o = JSON.parse(raw) || {}; } catch (e2) { o = {}; } }
+      o[key] = { sec: sec, ts: Date.now() };
+      localStorage.setItem('sb_qtime', JSON.stringify(o));
+    } catch (e) {}
+  });
+})();
+</script>
 {{template "footer" .}}

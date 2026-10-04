@@ -41,7 +41,17 @@
 </div>
 
 {{if .HasAssets}}
-<div class="card tb-reader" id="tb-reader">
+{{/* 阅读器根元素上带齐教材的分类信息（年级 / 学科 / 学期 / 书名），
+     书签与笔记脚本从这里读，不再往 JS 里拼字符串（书名里的引号会被转义，
+     拼进 JS 字面量反而要自己再处理一遍）。 */}}
+<div class="card tb-reader" id="tb-reader"
+     data-key="{{.Book.Key}}"
+     data-stage="{{.Book.Stage}}"
+     data-grade="{{.Book.Grade}}"
+     data-subject="{{.Book.Subject}}"
+     data-volume="{{.Book.Volume}}"
+     data-title="{{.Book.Title}}"
+     data-catlabel="{{gradeLabel .Book.Stage .Book.Grade}} · {{.Book.SubjectCN}} · {{tbVolumeLabel .Book.Volume}}">
   <div class="tb-bar">
     <button type="button" class="btn ghost sm" id="tb-prev" aria-label="上一页"
             {{if eq .StartPage 1}}disabled{{end}}>‹ 上一页</button>
@@ -49,10 +59,41 @@
       <input type="number" id="tb-input" min="1" max="{{.Pages}}" value="{{.StartPage}}"
              aria-label="页码" inputmode="numeric">
       <span class="muted">/ {{.Pages}}</span>
+      {{/* 快速跳转：输入框本身已支持回车 / 失焦跳页，这里补一个显式「前往」
+           按钮 —— 触屏上没有回车键，只靠 blur 触发很容易被当成没反应。 */}}
+      <button type="button" class="btn ghost sm" id="tb-go" aria-label="跳转到指定页码">前往</button>
     </span>
     <button type="button" class="btn ghost sm" id="tb-next" aria-label="下一页"
             {{if eq .StartPage .Pages}}disabled{{end}}>下一页 ›</button>
     <button type="button" class="btn ghost sm" id="tb-thumb-toggle" aria-pressed="false">缩略图</button>
+
+    {{/* 书签：与「打印」同一套 details 下拉形态（点击展开、点外部 / Esc 收起）。
+         菜单里第一行是「给当前页加书签 / 取消书签」，下面是本书已有书签的列表
+         （点条目跳页，右侧 × 删除）。分类键 = 年级 / 学科 / 学期，存在本机。 */}}
+    <details class="tb-printpick tb-markpick" id="tb-markpick">
+      <summary class="btn ghost sm" aria-label="教材书签">
+        <span class="setico">{{template "ico_bookmark"}}</span>书签<span class="tb-mk-n" id="tb-mk-n"></span>
+      </summary>
+      <div class="tb-printpanel" role="menu" aria-label="教材书签">
+        <div class="tb-printpanel-h">
+          <span class="tb-printpanel-t">教材书签</span>
+          <span class="tb-printpanel-s">本书 <b id="tb-mk-c">0</b> 个</span>
+        </div>
+        <button type="button" class="setrow tb-printopt" role="menuitem" id="tb-mk-add">
+          <span class="setico">{{template "ico_bookmark"}}</span>
+          <span class="setrow-main">
+            <span class="setrow-t" id="tb-mk-add-t">给当前页加书签</span>
+            <span class="setrow-d">再点一次即可取消</span>
+          </span>
+        </button>
+        <div class="tb-mk-list" id="tb-mk-list"></div>
+        <p class="tb-printhint muted">按年级 / 学科 / 学期分类存在本机，学习主页可直接跳回</p>
+      </div>
+    </details>
+
+    <button type="button" class="btn ghost sm" id="tb-note-btn" aria-pressed="false" aria-controls="tb-note">
+      <span class="setico">{{template "ico_note"}}</span>笔记
+    </button>
 
     {{/* 打印：details/summary 下拉，与顶栏设置菜单同一套交互形态（点击展开、
          点外部/Esc 收起，summary 自带键盘与无障碍语义）。菜单里三项对应
@@ -122,6 +163,22 @@
   </div>
   <p class="muted tb-hint">键盘 ← → 翻页 · Home / End 首尾页 · 手机左右滑动翻页 · 进度自动记忆
     {{if not .HiReady}}<span class="tb-hint-tip">当前为清晰加速版（低清），高清分页图按需补齐中</span>{{end}}</p>
+
+  {{/* 单页笔记：绑定当前页码，纯本机（localStorage）保存。
+       翻页时自动带上该页已存的笔记，不弹提示也不打断阅读。 */}}
+  <div class="tb-note" id="tb-note" hidden>
+    <div class="tb-note-h">
+      <b>第 <span id="tb-note-p">{{.StartPage}}</span> 页 · 笔记</b>
+      <span class="muted">只存在这台设备</span>
+    </div>
+    <textarea id="tb-note-t" rows="3" aria-label="本页笔记"
+              placeholder="这一页学到了什么？记下来，下次翻到这页会自动带出…"></textarea>
+    <div class="row tb-note-row">
+      <button type="button" class="btn primary sm" id="tb-note-save">保存笔记</button>
+      <button type="button" class="btn ghost sm" id="tb-note-del">清空本页</button>
+      <span class="muted tb-note-st" id="tb-note-st" role="status" aria-live="polite"></span>
+    </div>
+  </div>
 
   <div class="tb-thumbs" id="tb-thumbs" hidden></div>
 </div>
@@ -312,6 +369,10 @@
     updateNav();
     if (!noSave) { saveProgress(); }
     else { markThumb(n); }
+    /* 翻页广播：书签 / 笔记脚本监听这个事件来同步自己的显示。
+       不直接暴露阅读器的内部变量 cur —— 那会让两个脚本互相耦合，
+       以后改阅读器很容易顺手改坏书签。用事件就只依赖「当前页」这一个值。 */
+    try { document.dispatchEvent(new CustomEvent('tb:page', { detail: { page: n } })); } catch (e) {}
     // 缩略图条滚到当页，方便对照上下文
     var active = thumbs && thumbs.querySelector('.tb-thumb.is-on');
     if (active && thumbs && !thumbs.hidden) {
@@ -667,6 +728,249 @@
       if (sm && sm.focus) { sm.focus(); }
     }
   });
+})();
+
+/* 教材书签 / 单页笔记 / 快速跳转（2026-10-05）。
+   三者都只读本机 localStorage，不新增任何服务端存储：
+     sb_tbmk   书签，按「年级 / 学科 / 学期」分类
+     sb_tbnote 笔记，按 教材 key + 页码
+     sb_tblast 最近阅读位置（学习主页「继续阅读」用）
+   与阅读器之间只通过 tb:page 事件通信，不读写它的内部状态。 */
+(function () {
+  var reader = document.getElementById('tb-reader');
+  if (!reader) { return; }
+  var key = reader.getAttribute('data-key') || '';
+  var title = reader.getAttribute('data-title') || '';
+  var total = {{.Pages}};
+
+  // 分类键：学段 / 年级 / 学科 / 学期 —— 学习主页按这个维度分组展示
+  var cat = [
+    reader.getAttribute('data-stage'),
+    reader.getAttribute('data-grade'),
+    reader.getAttribute('data-subject'),
+    reader.getAttribute('data-volume')
+  ].join('/');
+  var catLabel = reader.getAttribute('data-catlabel') || '';
+
+  var MK = 'sb_tbmk', NT = 'sb_tbnote', LS = 'sb_tblast';
+  var input = document.getElementById('tb-input');
+  var goBtn = document.getElementById('tb-go');
+  var mkAdd = document.getElementById('tb-mk-add');
+  var mkAddT = document.getElementById('tb-mk-add-t');
+  var mkList = document.getElementById('tb-mk-list');
+  var mkCount = document.getElementById('tb-mk-c');
+  var mkNum = document.getElementById('tb-mk-n');
+  var noteBtn = document.getElementById('tb-note-btn');
+  var noteBox = document.getElementById('tb-note');
+  var noteP = document.getElementById('tb-note-p');
+  var noteT = document.getElementById('tb-note-t');
+  var noteSave = document.getElementById('tb-note-save');
+  var noteDel = document.getElementById('tb-note-del');
+  var noteSt = document.getElementById('tb-note-st');
+  var cur = parseInt(input && input.value, 10) || 1;
+
+  function read(k, fallback) {
+    try {
+      var v = localStorage.getItem(k);
+      if (!v) { return fallback; }
+      var o = JSON.parse(v);
+      return (o && typeof o === 'object') ? o : fallback;
+    } catch (e) { return fallback; }
+  }
+  function write(k, o) { try { localStorage.setItem(k, JSON.stringify(o)); } catch (e) {} }
+
+  // ---- 书签 ----
+  function bookMarks() {
+    var all = read(MK, {});
+    var arr = all[cat];
+    return Array.isArray(arr) ? arr : [];
+  }
+  function saveBookMarks(arr) {
+    var all = read(MK, {});
+    all[cat] = arr;
+    write(MK, all);
+  }
+  function markAt(p) {
+    var arr = bookMarks();
+    for (var i = 0; i < arr.length; i++) {
+      if (arr[i].k === key && arr[i].p === p) { return i; }
+    }
+    return -1;
+  }
+  function toggleMark() {
+    var arr = bookMarks(), i = markAt(cur);
+    if (i >= 0) {
+      arr.splice(i, 1);
+    } else {
+      arr.push({ k: key, t: title, p: cur, ts: Date.now(), c: catLabel });
+      // 同书最多 30 个，全局最多 300 条：书签是速记，不该无限堆积
+      var mine = arr.filter(function (x) { return x.k === key; });
+      if (mine.length > 30) {
+        arr = arr.filter(function (x) { return x.k !== key; }).concat(mine.slice(-30));
+      }
+    }
+    saveBookMarks(arr);
+    renderMarks();
+  }
+  function renderMarks() {
+    var arr = bookMarks().filter(function (x) { return x.k === key; });
+    arr.sort(function (a, b) { return a.p - b.p; });
+    if (mkCount) { mkCount.textContent = String(arr.length); }
+    if (mkNum) { mkNum.textContent = arr.length ? ' · ' + arr.length : ''; }
+    var has = markAt(cur) >= 0;
+    if (mkAddT) { mkAddT.textContent = has ? '取消当前页书签' : '给当前页加书签'; }
+    if (mkAdd) { mkAdd.setAttribute('aria-pressed', has ? 'true' : 'false'); }
+    if (!mkList) { return; }
+    mkList.textContent = '';
+    if (!arr.length) {
+      var em = document.createElement('p');
+      em.className = 'tb-mk-empty muted';
+      em.textContent = '还没有书签。翻到想记住的页，点上面一行即可。';
+      mkList.appendChild(em);
+      return;
+    }
+    arr.forEach(function (m) {
+      var row = document.createElement('div');
+      row.className = 'tb-mk-row';
+      var jump = document.createElement('button');
+      jump.type = 'button';
+      jump.className = 'tb-mk-jump';
+      jump.textContent = '第 ' + m.p + ' 页';
+      jump.addEventListener('click', function () {
+        if (input) { input.value = String(m.p); fire(input, 'change'); }
+      });
+      var del = document.createElement('button');
+      del.type = 'button';
+      del.className = 'tb-mk-del';
+      del.setAttribute('aria-label', '删除第 ' + m.p + ' 页的书签');
+      del.textContent = '×';
+      del.addEventListener('click', function () {
+        var a2 = bookMarks(), j = -1;
+        for (var i = 0; i < a2.length; i++) { if (a2[i].k === key && a2[i].p === m.p) { j = i; break; } }
+        if (j >= 0) { a2.splice(j, 1); saveBookMarks(a2); renderMarks(); }
+      });
+      row.appendChild(jump);
+      row.appendChild(del);
+      mkList.appendChild(row);
+    });
+  }
+
+  // ---- 笔记 ----
+  function notesOfBook() { return read(NT, {})[key] || {}; }
+  function noteText(p) { return notesOfBook()[String(p)] || ''; }
+  function saveNoteText(p, txt) {
+    var all = read(NT, {});
+    var b = all[key] || {};
+    if (txt) { b[String(p)] = txt; } else { delete b[String(p)]; }
+    all[key] = b;
+    write(NT, all);
+    syncNoteBtn();
+  }
+  function syncNoteBtn() {
+    if (!noteBtn) { return; }
+    var has = !!noteText(cur);
+    noteBtn.setAttribute('data-has', has ? '1' : '0');
+    noteBtn.setAttribute('title', has ? '本页已有笔记，点击展开' : '给这一页写点笔记');
+  }
+  function loadNote() {
+    if (noteP) { noteP.textContent = String(cur); }
+    if (noteT) { noteT.value = noteText(cur); }
+    syncNoteBtn();
+    if (noteSt) { noteSt.textContent = ''; }
+  }
+  var noteTimer = null;
+  function autoSave() {
+    if (noteTimer) { clearTimeout(noteTimer); }
+    noteTimer = setTimeout(function () {
+      if (!noteT) { return; }
+      saveNoteText(cur, (noteT.value || '').trim());
+      if (noteSt) { noteSt.textContent = '已自动保存'; }
+    }, 700);
+  }
+
+  // ---- 最近阅读位置（学习主页「继续阅读」的数据来源）----
+  function saveLast() {
+    var all = read(LS, {});
+    all[key] = { t: title, p: cur, c: cat, cl: catLabel, ts: Date.now() };
+    // 只留最近 20 本，避免长期累积
+    var ks = Object.keys(all);
+    if (ks.length > 20) {
+      ks.sort(function (a, b) { return (all[b].ts || 0) - (all[a].ts || 0); });
+      var keep = {};
+      ks.slice(0, 20).forEach(function (k2) { keep[k2] = all[k2]; });
+      all = keep;
+    }
+    write(LS, all);
+  }
+
+  function fire(el, type) {
+    // 用原生事件触发阅读器已有的监听（change / input），不复制它的翻页逻辑
+    try { el.dispatchEvent(new Event(type, { bubbles: true })); }
+    catch (e) {
+      var ev = document.createEvent('HTMLEvents');
+      ev.initEvent(type, true, false);
+      el.dispatchEvent(ev);
+    }
+  }
+
+  function onPage(p) {
+    cur = p;
+    renderMarks();
+    if (noteBox && !noteBox.hidden) { loadNote(); } else { syncNoteBtn(); }
+    saveLast();
+  }
+
+  document.addEventListener('tb:page', function (e) {
+    var p = e && e.detail && e.detail.page;
+    if (p) { onPage(p); }
+  });
+
+  // 快速跳转：显式按钮（触屏没有回车键，只靠输入框失焦很容易被当成没反应）
+  if (goBtn && input) {
+    goBtn.addEventListener('click', function () {
+      var v = parseInt(input.value, 10);
+      if (!v || v < 1) { v = 1; }
+      if (v > total) { v = total; }
+      input.value = String(v);
+      fire(input, 'change');
+    });
+  }
+  if (mkAdd) { mkAdd.addEventListener('click', function (e) { e.preventDefault(); toggleMark(); }); }
+  if (noteBtn && noteBox) {
+    noteBtn.addEventListener('click', function () {
+      noteBox.hidden = !noteBox.hidden;
+      noteBtn.setAttribute('aria-pressed', noteBox.hidden ? 'false' : 'true');
+      if (!noteBox.hidden) { loadNote(); if (noteT) { noteT.focus(); } }
+    });
+  }
+  if (noteSave) {
+    noteSave.addEventListener('click', function () {
+      if (!noteT) { return; }
+      saveNoteText(cur, (noteT.value || '').trim());
+      if (noteSt) { noteSt.textContent = '已保存'; }
+    });
+  }
+  if (noteDel && noteT) {
+    noteDel.addEventListener('click', function () {
+      noteT.value = '';
+      saveNoteText(cur, '');
+      if (noteSt) { noteSt.textContent = '本页笔记已清空'; }
+    });
+  }
+  if (noteT) {
+    noteT.addEventListener('input', autoSave);
+    // Ctrl/Cmd + Enter 直接保存，写完不用去够鼠标
+    noteT.addEventListener('keydown', function (e) {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        saveNoteText(cur, (noteT.value || '').trim());
+        if (noteSt) { noteSt.textContent = '已保存'; }
+      }
+    });
+  }
+
+  renderMarks();
+  syncNoteBtn();
 })();
 </script>
 

@@ -87,11 +87,11 @@ func newFuncMap() template.FuncMap {
 			}
 			return m
 		},
-		"letter":      func(i int) string { return string(rune('A' + i)) },
-		"chr":         func(i int) string { return string(rune('A' + i)) },
-		"mul10":       func(i int) int { return i * 10 },
-		"add1":        func(i int) int { return i + 1 },
-		"join":        func(a []string, sep string) string { return strings.Join(a, sep) },
+		"letter": func(i int) string { return string(rune('A' + i)) },
+		"chr":    func(i int) string { return string(rune('A' + i)) },
+		"mul10":  func(i int) int { return i * 10 },
+		"add1":   func(i int) int { return i + 1 },
+		"join":   func(a []string, sep string) string { return strings.Join(a, sep) },
 		// initial 取名字首字，用于顶栏名字旁的圆形头像（中文取第一个汉字，英文取首字母）。
 		"initial": func(s string) string {
 			r := []rune(strings.TrimSpace(s))
@@ -105,10 +105,12 @@ func newFuncMap() template.FuncMap {
 		"skinName":  func(key string) string { return skinName(key) },
 		"skinValid": SkinValid,
 		// 学段 / 年级 / 班级相关。
-		"stageName":    StageNameCN,
-		"gradeLabel":   textbook.GradeLabel,
-		"classNoLabel": ClassNoLabel,
-		"classNo":      ParseClassNo,
+		"stageName": StageNameCN,
+		// tbVolumeLabel 教材册别中文（上册 / 下册 / 全一册），教材详情页的分类标签要用。
+		"tbVolumeLabel": tbVolumeLabel,
+		"gradeLabel":    textbook.GradeLabel,
+		"classNoLabel":  ClassNoLabel,
+		"classNo":       ParseClassNo,
 		// seq 生成 1..n，模板里用于渲染班级下拉与刻度。
 		"seq": func(n int) []int {
 			out := make([]int, 0, n)
@@ -119,6 +121,20 @@ func newFuncMap() template.FuncMap {
 		},
 		// splashVerse 每次渲染随机抽一句《唐诗三百首》诗句，用于学习主页开屏动画。
 		"splashVerse": func() SplashVerse { return RandomSplashVerse() },
+		// mmss 把秒数格式化成「3 分 05 秒」/「45 秒」，用于展示答题耗时。
+		"mmss": func(sec int) string {
+			if sec <= 0 {
+				return ""
+			}
+			m, s := sec/60, sec%60
+			if m == 0 {
+				return strconv.Itoa(s) + " 秒"
+			}
+			if s < 10 {
+				return strconv.Itoa(m) + " 分 0" + strconv.Itoa(s) + " 秒"
+			}
+			return strconv.Itoa(m) + " 分 " + strconv.Itoa(s) + " 秒"
+		},
 	}
 }
 
@@ -194,6 +210,7 @@ func (a *App) Routes() *gin.Engine {
 		auth2.GET("/textbook/toc", a.textbookToc)
 		auth2.GET("/quiz", a.quizPage)
 		auth2.POST("/quiz/submit", a.quizSubmit)
+		auth2.GET("/favorites", a.favoritesPage) // 收藏题库（数据全在本地，页面只给壳）
 		auth2.GET("/result", a.resultPage)
 		// 游戏题：独立目录扫描的轻量互动小游戏，与刷题题库互不影响。
 		// gameRaw 必须在 iframe 的 src 上（列表页 → gamePage → iframe），三级路径各自独立。
@@ -442,6 +459,9 @@ func (a *App) studyPage(c *gin.Context) {
 	}
 	subjCards := a.subjectCards(st, u, qt, pmap)
 	recent, _ := st.ListExams(5)
+	// 错题分布：复用 answers 表里已有的 right 标记按课聚合（不新增表/列），
+	// 供「只看错题」开关在前端过滤课程树。
+	wrong := st.WrongByLesson()
 
 	// 教材导航主视图：URL 显式参数 > 用户档案 > 当前课位置 > 兜底（resolveNav 内部处理）。
 	// 只把选中的年级册别传给模板，其他年级不进 HTML（性能：不渲染不隐藏）。
@@ -485,6 +505,7 @@ func (a *App) studyPage(c *gin.Context) {
 		"Current":      cur,
 		"SubjectCards": subjCards,
 		"Prog":         pmap,
+		"Wrong":        wrong,
 		"Total":        total,
 		"Passed":       passed,
 		"Avg":          avg,
@@ -978,6 +999,8 @@ func (a *App) lessonPage(c *gin.Context) {
 	}
 	bank, _ := l.Bank()
 	p := st.GetProgress(key)
+	// 上次用时：由做题页计时器随提交带回，存在 state.qtime_<key>（秒）。
+	lastSec, _ := strconv.Atoi(strings.TrimSpace(st.GetState("qtime_" + key)))
 	a.html(c, "lesson.html", gin.H{
 		"Title":    l.Title,
 		"Lesson":   l,
@@ -987,6 +1010,7 @@ func (a *App) lessonPage(c *gin.Context) {
 		"Session":  s,
 		"Twin":     twinOf(a.Tree, l), // 同课的另一种题型（选择题 ↔ 判断题互跳）
 		"QT":       l.QType,
+		"LastSec":  lastSec,
 	})
 }
 
@@ -1041,11 +1065,14 @@ func renderQuiz(a *App, c *gin.Context, paper *quiz.Paper, st *db.Student, u *db
 		}
 		qs = append(qs, v)
 	}
+	// 上次用时：state 里的 qtime_<key>（秒），做题页顶部给一句「上次用时 x 分 y 秒」。
+	lastSec, _ := strconv.Atoi(strings.TrimSpace(st.GetState("qtime_" + key)))
 	a.html(c, "quiz.html", gin.H{
 		"Title":   paper.Lesson.Title,
 		"Lesson":  paper.Lesson,
 		"Qs":      qs,
 		"Session": auth.Current(c),
+		"LastSec": lastSec,
 	})
 }
 
@@ -1096,6 +1123,12 @@ func (a *App) quizSubmit(c *gin.Context) {
 				picked[i] = append(picked[i], n)
 			}
 		}
+	}
+
+	// 答题耗时：前端计时器随表单带回的秒数，存进学生库的通用 k/v 表
+	//（state.qtime_<课 key>），不新增字段也不新增表；课程页据此显示「上次用时」。
+	if sec, err := strconv.Atoi(strings.TrimSpace(c.PostForm("elapsed"))); err == nil && sec > 0 && sec < 86400 {
+		_ = st.SetState("qtime_"+key, strconv.Itoa(sec))
 	}
 
 	res := quiz.Grade(qs, picked, a.Cfg.PassScore)
@@ -1161,6 +1194,19 @@ func (a *App) nextLesson(l *textbook.Lesson) *textbook.Lesson {
 		}
 	}
 	return nil
+}
+
+// favoritesPage 收藏题库。
+//
+// 收藏的题目存在浏览器本地（localStorage），服务端不存也不认识具体题目，
+// 所以这个页面只渲染一个空壳（标题 + 装载容器 + 空状态），内容由页面脚本
+// 读本地数据后填进去。这样既不需要新增表，也不用把整份题库搬到前端。
+func (a *App) favoritesPage(c *gin.Context) {
+	s := auth.Current(c)
+	a.html(c, "favorites.html", gin.H{
+		"Title":   "我的收藏",
+		"Session": s,
+	})
 }
 
 func (a *App) resultPage(c *gin.Context) {

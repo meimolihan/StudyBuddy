@@ -347,6 +347,28 @@ func (s *Student) SeenStems(lessonKey string) map[string]bool {
 	return m
 }
 
+// WrongByLesson 统计每课的累计答错次数（lesson_key -> 错题数）。
+//
+// 错题数据本来就存在 answers.right 里（每次自测的作答明细），这里只是
+// 按课程聚合，不新增任何表或列。返回的 map 只含「至少错过一次」的课，
+// 模板据此给课程打「错 N」标记，并支持「只看错题」快捷筛选。
+func (s *Student) WrongByLesson() map[string]int {
+	out := map[string]int{}
+	rows, err := s.db.Query(`SELECT lesson_key, COUNT(*) FROM answers WHERE right=0 GROUP BY lesson_key`)
+	if err != nil {
+		return out
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var k string
+		var n int
+		if err := rows.Scan(&k, &n); err == nil && k != "" {
+			out[k] = n
+		}
+	}
+	return out
+}
+
 // Stats 汇总学习概况。纸质卷（score = -1，待批改）不计入统计。
 func (s *Student) Stats() (total, passed int, avg float64, err error) {
 	if err = s.db.QueryRow(
