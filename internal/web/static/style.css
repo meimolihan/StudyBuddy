@@ -2991,3 +2991,118 @@ html[data-theme="dark"] .tb-printpanel{box-shadow:0 18px 44px rgba(0,0,0,.5)}
     image-rendering:auto;
   }
 }
+
+/* =========================================================
+   游戏题模块（2026-10-04 追加）
+   ---------------------------------------------------------
+   三块内容：学习主页的题型入口卡片、/games 列表页、/game 容器页。
+
+   设计口径：圆角 / 阴影 / 悬停 / 字号全部复用已定版的令牌
+   （--r-sm / --shadow / --brand / --card），不引入新的视觉语言；
+   颜色只用变量，深浅色由令牌自动翻转，不写任何硬编码色值。
+
+   ⚠ 本段为 append-only 追加，勿修改上方任何既有规则。
+   ========================================================= */
+
+/* ---- 1) 学习主页：题型入口 ---- */
+/* 三个入口：选择题 / 判断题 / 游戏题。
+   放在统计卡下方、官方教材上方 —— 刷题为主、教材为辅的顺序里，
+   「去哪做题」应该紧跟「做了多少」，而不是被教材模块隔开。 */
+.qtype-entry{margin-bottom:20px}
+.qtype-entry-grid{
+  display:grid; gap:14px;
+  /* PC 一行三列。minmax 下限 200px：窄到这个宽度以下自动降到两列 / 一列，
+     不需要额外的断点数量控制。 */
+  grid-template-columns:repeat(3,1fr);
+}
+@media (max-width:900px){ .qtype-entry-grid{grid-template-columns:repeat(2,1fr)} }
+@media (max-width:560px){ .qtype-entry-grid{grid-template-columns:1fr} }
+
+.qtype-card{
+  position:relative; display:flex; align-items:center; gap:14px;
+  /* 触屏热区：min-height 撑到 56px，远超 44px 下限，
+     小学生手指点得中，桌面端也保持同一尺寸避免布局跳动。 */
+  min-height:56px; padding:14px 18px;
+  background:var(--card); border-radius:var(--r-sm); box-shadow:var(--shadow);
+  color:var(--ink); text-decoration:none;
+  transition:transform .18s ease, box-shadow .18s ease, background-color .18s ease;
+}
+.qtype-card:hover{
+  text-decoration:none; transform:translateY(-3px);
+  box-shadow:var(--shadow-lg, var(--shadow));
+}
+.qtype-card:active{transform:translateY(-1px)}
+/* 键盘可达性：与教材封面卡同一套 focus-visible 处理。 */
+.qtype-card:focus-visible{
+  outline:2px solid var(--brand); outline-offset:3px;
+}
+
+.qtype-card-ico{
+  flex:none; width:42px; height:42px; border-radius:12px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:22px; line-height:1;
+  background:var(--brand-soft);
+}
+.qtype-card-body{display:flex; flex-direction:column; gap:2px; min-width:0}
+.qtype-card-name{font-size:15px; font-weight:600; color:var(--ink)}
+.qtype-card-desc{font-size:12.5px; color:var(--muted); line-height:1.4}
+.qtype-card-go{
+  margin-left:auto; flex:none; font-size:12.5px; color:var(--brand);
+  /* 触屏没有 hover，箭头常显；桌面端默认隐藏，悬停才淡入，
+     避免三张卡右侧长期挂着三个「→」显得吵。 */
+  transition:opacity .18s ease, transform .18s ease;
+}
+@media (hover:hover){
+  .qtype-card-go{opacity:0; transform:translateX(-4px)}
+  .qtype-card:hover .qtype-card-go{opacity:1; transform:none}
+}
+
+/* 「当前所在题型」高亮：与页首 qtype-tabs 呼应，
+   让点进来的那个入口在主页上仍是选中的样子。 */
+.qtype-card.is-on{box-shadow:var(--shadow), inset 0 0 0 2px var(--brand)}
+.qtype-card.is-on .qtype-card-name{color:var(--brand)}
+
+/* ---- 2) 游戏列表页 ---- */
+.gm-subject{margin:18px 0 8px; color:var(--brand)}
+.gm-subject:first-of-type{margin-top:14px}
+.gm-grid{grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:12px}
+.gm-card{
+  display:flex; align-items:center; gap:11px;
+  min-height:56px; padding:13px 15px;
+  background:var(--card); border-radius:var(--r-sm); box-shadow:var(--shadow);
+  color:var(--ink); text-decoration:none;
+  transition:transform .18s ease, box-shadow .18s ease;
+}
+.gm-card:hover{text-decoration:none; transform:translateY(-2px); box-shadow:var(--shadow-lg, var(--shadow))}
+.gm-card:active{transform:translateY(0)}
+.gm-card:focus-visible{outline:2px solid var(--brand); outline-offset:3px}
+.gm-ico{
+  flex:none; width:34px; height:34px; border-radius:10px;
+  display:flex; align-items:center; justify-content:center; font-size:18px;
+  background:var(--brand-soft);
+}
+.gm-name{font-size:14px; font-weight:600; line-height:1.35; min-width:0}
+.gm-go{margin-left:auto; flex:none; font-size:12px; color:var(--brand); white-space:nowrap}
+.gm-back{margin:18px 0 0}
+
+/* ---- 3) 游戏容器页 ---- */
+/* iframe 撑满剩余高度：给 min-height 而不是固定 height，
+   小屏设备上游戏内容超出时 iframe 自身滚动，不会被外层裁掉。 */
+.gm-stage{display:flex; flex-direction:column; min-height:calc(100vh - 210px)}
+.gm-bar{
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  margin-bottom:14px;
+}
+.gm-bar-title{display:flex; flex-direction:column; gap:1px; min-width:0; margin-right:auto}
+.gm-bar-title b{font-size:15px; line-height:1.3}
+.gm-bar-title .muted{font-size:12.5px}
+.gm-frame{
+  flex:1 1 auto; width:100%; min-height:560px;
+  border:1px solid var(--line); border-radius:var(--radius);
+  background:var(--card); box-shadow:var(--shadow);
+}
+@media (max-width:640px){
+  .gm-frame{min-height:480px; border-radius:var(--r-sm)}
+  .gm-bar{gap:8px}
+  .gm-bar-title{order:-1; flex:1 1 100%; margin-right:0}
+}

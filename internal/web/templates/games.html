@@ -1,0 +1,70 @@
+{{template "header" .}}
+<h1>游戏题</h1>
+
+{{/* 游戏题是独立于刷题树的一条支线：资源来自 content/<学段>/<出版社>/game/ 目录，
+     不进入 textbook.Tree，所以题库改动、归档、进度全部不受影响。
+     页面逻辑与教材列表同构：年级册别来自学生档案，可用 URL 参数覆盖。 */}}
+<div class="card">
+  <div class="nav-head">
+    <h2>{{if .Index}}{{.Index.Title}}{{else}}一年级 · 上册{{end}}</h2>
+    {{if and .Volumes (gt (len .Volumes) 1)}}
+    <details class="grade-switcher" data-menu>
+      <summary title="切换到另一个册别">切换学期</summary>
+      <div class="sw-body">
+        {{range .Volumes}}
+        <div class="sw-grade">
+          <span class="sw-grade-label">{{.Name}}</span>
+          <a class="sw-vol{{if eq $.Volume .No}} is-on{{end}}"
+             href="/games?grade={{$.Grade}}&volume={{.No}}"
+             title="{{$.GradeLabel}}{{.Name}}的游戏">{{if eq $.Volume .No}}✓ {{end}}{{.Name}}</a>
+        </div>
+        {{end}}
+      </div>
+    </details>
+    {{end}}
+  </div>
+
+  {{if .NotFound}}
+  <div class="notice">{{.NotFound}}</div>
+  {{end}}
+
+  {{if .Index.HasAny}}
+  <p class="muted">每个单元一个小游戏，玩完直接关掉就行——不影响刷题进度，也不计入归档。点卡片进入。</p>
+  {{range .Index.Subject}}
+  <h3 class="gm-subject">{{.Name}}</h3>
+  {{range .Units}}
+  {{if .Games}}
+  <div class="unitname">{{.Name}}</div>
+  <div class="grid gm-grid">
+    {{range .Games}}
+    <a class="gm-card" href="/game?key={{urlquery .Key}}"
+       title="{{.Unit}} · {{.Show}}">
+      <span class="gm-ico" aria-hidden="true">🎮</span>
+      <span class="gm-name">{{.Show}}</span>
+      <span class="gm-go" aria-hidden="true">开始玩 →</span>
+    </a>
+    {{end}}
+  </div>
+  {{end}}
+  {{end}}
+  {{end}}
+  {{else}}
+  {{/* 空状态：区分「这个册别没有游戏」和「整个年级都没有游戏」两种情况，
+       提示才不一样——前者可以劝他去切下册，后者只能等资源补齐。 */}}
+  <div class="notice">
+    {{if gt .OtherCount 0}}
+    {{.GradeLabel}}{{if eq .Volume 2}}下册{{else}}上册{{end}}暂时没有游戏资源，
+    但这个年级的{{if eq .Volume 1}}下册{{else}}上册{{end}}已经有了 —— 点右上角「切换学期」就能玩。
+    {{else}}
+    {{.GradeLabel}}的游戏资源正在制作中。我们会按单元一个一个补齐，
+    期间可以先去做{{if eq .Volume 2}}上册{{else}}下册{{end}}的题目，或回到学习主页刷选择题。
+    {{end}}
+  </div>
+  {{end}}
+
+  <p class="muted gm-back">
+    <a class="btn ghost sm" href="/study">← 返回学习主页</a>
+  </p>
+</div>
+
+{{template "footer" .}}

@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>立体小达人</title>
+<style>
+/* 颜色全部走变量：var(--g-*, 浅色fallback)。
+   双写 fallback 的意义在于——直接双击这个 HTML 打开时（不经站点），
+   变量没人注入，靠 fallback 也能正常显示，不会出现「白底白字」。 */
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--g-bg,#f4f7fb); color:var(--g-ink,#1f2937);
+  font-family:"PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif;
+  font-size:15px; line-height:1.6; min-height:100vh;
+  display:flex; flex-direction:column; align-items:center;
+  padding:14px 12px 20px;
+  -webkit-text-size-adjust:100%;
+  -webkit-tap-highlight-color:transparent;
+}
+.wrap{width:100%; max-width:760px; display:flex; flex-direction:column; gap:12px}
+
+/* 顶栏：进度 + 得分 */
+.hud{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+.chip{
+  background:var(--g-card,#fff); border:1px solid var(--g-line,#e3e9f1);
+  border-radius:999px; padding:6px 14px; font-size:13.5px; font-weight:700;
+  white-space:nowrap;
+}
+.chip.brand{background:var(--g-brand,#2f6fd0); border-color:transparent; color:#fff}
+.chip.grow{flex:1 1 auto; min-width:120px}
+.bar{height:9px; border-radius:99px; background:var(--g-line,#e3e9f1); overflow:hidden}
+.bar>i{display:block; height:100%; width:0; border-radius:99px;
+  background:var(--g-brand,#2f6fd0); transition:width .4s cubic-bezier(.4,0,.2,1)}
+
+/* 题面 */
+.q{background:var(--g-card,#fff); border:1px solid var(--g-line,#e3e9f1);
+   border-radius:16px; padding:18px 16px}
+.q-title{font-size:15.5px; font-weight:700; margin-bottom:4px; line-height:1.5}
+.q-sub{font-size:13px; color:var(--g-muted,#6b7a8d); margin-bottom:12px}
+.stage{min-height:96px; display:flex; align-items:center; justify-content:center;
+       flex-wrap:wrap; gap:10px; margin-bottom:14px; text-align:center}
+.stage .big{font-size:64px; font-weight:900; line-height:1.1; letter-spacing:6px}
+.stage .py{font-size:34px; font-weight:800; color:var(--g-brand,#2f6fd0);
+           letter-spacing:3px; font-family:"Times New Roman",Georgia,serif}
+.stage .grid4{display:grid; grid-template-columns:repeat(4,1fr); gap:8px;
+              width:100%; max-width:360px}
+.stage .grid6{display:grid; grid-template-columns:repeat(6,1fr); gap:6px;
+              width:100%; max-width:420px}
+.stage .cell{font-size:30px; line-height:1.2; text-align:center;
+             user-select:none; transition:transform .15s}
+.stage .cell:active{transform:scale(1.25)}
+.stage .cell.on{opacity:.25}
+.stage .shape{font-size:56px; line-height:1}
+.stage .dots{font-size:22px; letter-spacing:6px; line-height:1.5}
+.stage .hide{display:none}
+
+/* 选项 */
+.opts{display:grid; gap:10px}
+.opts.c2{grid-template-columns:repeat(2,1fr)}
+.opts.c4{grid-template-columns:repeat(2,1fr)}
+.opts.c6{grid-template-columns:repeat(3,1fr)}
+.opt{
+  min-height:48px; padding:12px 10px; font:inherit; font-weight:700;
+  border:2px solid var(--g-line,#e3e9f1); border-radius:14px;
+  background:var(--g-card,#fff); color:var(--g-ink,#1f2937); cursor:pointer;
+  display:flex; align-items:center; justify-content:center; text-align:center;
+  transition:transform .15s, border-color .2s, background-color .2s;
+  /* 44px 触屏热区下限：一年级学生手指还不精准 */
+  min-height:48px; word-break:break-word;
+}
+.opt:active{transform:scale(.97)}
+.opt.right{border-color:var(--g-ok,#2e9e5b); background:var(--g-ok,#e7f6ec); color:var(--g-ok,#2e9e5b)}
+.opt.wrong{border-color:var(--g-bad,#d64545); background:var(--g-bad,#fdecec); color:var(--g-bad,#d64545)}
+.opt.dim{opacity:.35; pointer-events:none}
+.opt.py{font-family:"Times New Roman",Georgia,serif; font-size:20px}
+.opt.ch{font-size:26px; letter-spacing:3px}
+
+/* 反馈 */
+.fb{min-height:44px; font-size:14px; font-weight:600; line-height:1.6;
+    padding:10px 12px; border-radius:12px; background:var(--g-card,#fff);
+    border:1px solid var(--g-line,#e3e9f1)}
+.fb.ok{color:var(--g-ok,#2e9e5b); border-color:var(--g-ok,#2e9e5b)}
+.fb.no{color:var(--g-bad,#d64545); border-color:var(--g-bad,#d64545)}
+.fb em{font-style:normal; display:block; font-weight:400; font-size:13px;
+       color:var(--g-muted,#6b7a8d); margin-top:2px}
+
+/* 结算 */
+.done{text-align:center; padding:26px 16px}
+.done h2{margin:0 0 6px; font-size:22px}
+.done p{margin:4px 0; color:var(--g-muted,#6b7a8d); font-size:14px}
+.done .medal{font-size:64px; display:block; margin:6px 0 10px}
+.btn{
+  margin-top:14px; min-height:48px; padding:12px 34px; font:inherit; font-weight:700;
+  border:none; border-radius:999px; cursor:pointer; color:#fff;
+  background:var(--g-brand,#2f6fd0);
+}
+.btn:active{transform:scale(.97)}
+
+/* 数一数专用：点选计数 */
+.tapgrid{display:grid; gap:6px; width:100%; max-width:380px}
+.tap{aspect-ratio:1; border:1px solid var(--g-line,#e3e9f1); border-radius:10px;
+     background:var(--g-card,#fff); font-size:26px; cursor:pointer;
+     display:flex; align-items:center; justify-content:center;
+     transition:transform .12s, background-color .2s}
+.tap:active{transform:scale(.9)}
+.tap.on{background:var(--g-brand-soft,#e8f1fd); border-color:var(--g-brand,#2f6fd0)}
+
+@media (max-width:520px){
+  body{font-size:14px; padding:10px 8px 16px}
+  .stage .big{font-size:48px}
+  .stage .py{font-size:27px}
+  .stage .shape{font-size:42px}
+  .opt{font-size:15px; min-height:46px; padding:10px 6px}
+  .opt.ch{font-size:22px}
+  .opt.py{font-size:18px}
+  .q{padding:14px 12px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none !important; animation:none !important}
+}
+</style>
+</head>
+<body>
+<div class="wrap" id="wrap">
+
+  <div class="hud">
+    <span class="chip brand" id="step">第 1 题</span>
+    <span class="chip grow"><span class="bar"><i id="bar"></i></span></span>
+    <span class="chip" id="score">答对 0 / 0</span>
+  </div>
+
+  <div class="q">
+    <div class="q-title" id="title">题目加载中…</div>
+    <div class="q-sub" id="sub"></div>
+    <div class="stage" id="stage"></div>
+    <div class="opts c4" id="opts"></div>
+  </div>
+
+  <div class="fb" id="fb"></div>
+
+</div>
+
+<div class="done" id="done" style="display:none">
+  <span class="medal" id="medal">🏅</span>
+  <h2 id="rtitle">完成啦！</h2>
+  <p id="rface"></p>
+  <p id="rscore"></p>
+  <button class="btn" id="btnAgain" type="button">再玩一次</button>
+</div>
+
+<script>
+/* ============================================================
+   单元：03-认识立体图形
+   玩法：看图选答案
+   题目：8 道
+   ------------------------------------------------------------
+   题库字段与 StudyBuddy 刷题题库一致：t / q / o / a / e
+     t=题型(s 单选)  q=题干  o=选项数组  a=答案(下标)  e=解析
+   v=视觉数据（游戏专用，textbook.ParseBank 会忽略）
+
+   ⚠ 题库声明必须用 const 而不是 var：ParseBank 按字面量定位，
+   写错会导致整个题库读不出来（游戏能玩，但刷题系统看不到它）。
+   ⚠ 本注释里也**不能**写出那个字面量 —— ParseBank 用 strings.Index
+   取第一个出现处，注释里出现会让它匹配到注释而不是真正的声明。
+   ============================================================ */
+const ALL = [
+  {t:"s",q:"下面哪个不是立体图形？",o:["长方体","正方体","正方形","球"],a:["C"],e:"正方形是平面图形，其余三个都是立体图形。",v:{label:"分一分",shape:"◻️"}},
+  {t:"s",q:"正方体有几个面？",o:["4 个","6 个","8 个","12 个"],a:["B"],e:"正方体有 6 个一样大的正方形面。",v:{label:"数一数",shape:"🎲"}},
+  {t:"s",q:"球在什么上面能滚动？",o:["斜面","竖直的墙","天花板","玻璃上"],a:["A"],e:"球在斜面上会往下滚。",v:{label:"滚一滚",shape:"⚽"}},
+  {t:"s",q:"长方体有几个面？",o:["4 个","6 个","8 个","10 个"],a:["B"],e:"长方体也有 6 个面。",v:{label:"数一数",shape:"📦"}},
+  {t:"s",q:"下面哪个物体的形状像圆柱？",o:["易拉罐","皮球","魔方","书本"],a:["A"],e:"易拉罐上下是圆、侧面是直的，是圆柱。",v:{label:"找一找",shape:"🥫"}},
+  {t:"s",q:"把一个正方体放在桌上，它有几条棱露在外面？",o:["9 条","12 条","8 条","6 条"],a:["A"],e:"正方体共 12 条棱，放在桌上遮住底面的 3 条，露出 9 条。",v:{label:"想一想",shape:"🎲"}},
+  {t:"s",q:"下面哪个是长方体？",o:["牙膏盒","足球","乒乓球","圆锥"],a:["A"],e:"牙膏盒是长方体。",v:{label:"认一认",shape:"🧴"}},
+  {t:"s",q:"正方体和长方体有什么共同点？",o:["都有 6 个面","都没有面","都是圆的","都能滚"],a:["A"],e:"它们都是长方体，正方体是特殊的长方体。",v:{label:"说一说"}}
+];
+const MODE = "choice";
+const UNIT = "03-认识立体图形";
+const OPT_COLS = 4;
+/* 是否打乱选项顺序。默认打乱：孩子不该靠背「B 永远是对的」来蒙题。
+   需要固定顺序时（如老师要按板书讲评），在生成器的 GAMES 表里加第 7 列
+   传 0 即可。 */
+const SHUFFLE = true;
+/* ============================================================
+   一年级单元小游戏引擎
+   ------------------------------------------------------------
+   题库来自 const ALL（格式与项目刷题题库一致：t/q/o/a/e）。
+   玩法由 MODE 决定：
+     choice  看图/看词选答案（识字、课文、常识）
+     spell   拼音拼读：给出声母+韵母，选出正确音节
+     pair    配对：左右两组各选一个，配成一对
+     count   点数：点击数出目标个数
+     compare 比大小：填 >、<、=
+     calc    口算：算式填空
+   ============================================================ */
+(function () {
+  "use strict";
+
+  /* 题库 / 玩法常量由本 <script> 上方的 const 声明提供，
+     这里直接闭包捕获，不再从 window 上取 —— const 不会挂到 window，
+     而且闭包内同名 var 会遮蔽外层常量，取到的会是 undefined。 */
+  var total = ALL.length;
+  var idx = 0, right = 0, wrong = 0, lock = false;
+
+  var $ = function (id) { return document.getElementById(id); };
+  var elTitle = $("title"), elSub = $("sub"), elStage = $("stage"),
+      elOpts = $("opts"), elFb = $("fb"), elDone = $("done"),
+      elBar = $("bar"), elScore = $("score"), elStep = $("step");
+
+  /* 随机打乱：每次进入选项顺序都不一样，避免孩子背位置而不是记知识。
+     Fisher-Yates；rand 用 Math.random 足够，这里不需要密码学强度。 */
+  function shuf(arr) {
+    if (!SHUFFLE) { return arr.slice(); }
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+  function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+  /* 取正确答案文本。
+     a 字段存的是**选项字母**（["B"]），与 textbook.ParseBank 的约定一致 ——
+     那边用 readArray 只收字符串，写数字会被解析成空数组。
+     这里同时兼容数字下标，万一以后手工改了数据也不至于直接失效。 */
+  function answerText(q) {
+    var a = q.a;
+    if (Object.prototype.toString.call(a) !== "[object Array]") {
+      return typeof a === "number" ? q.o[a] : String(a == null ? "" : a);
+    }
+    var v = a[0];
+    if (typeof v === "number") { return q.o[v]; }
+    if (typeof v === "string" && v.length === 1) {
+      var idx = v.toUpperCase().charCodeAt(0) - 65; // 'A' → 0
+      if (idx >= 0 && idx < q.o.length) { return q.o[idx]; }
+    }
+    return String(v);
+  }
+
+  function esc(s) {
+    return String(s == null ? "" : s)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  /* ---------- 顶部 HUD ---------- */
+  function hud() {
+    elBar.style.width = (total ? (idx / total * 100) : 0) + "%";
+    elScore.textContent = "答对 " + right + " / " + total;
+    elStep.textContent = "第 " + Math.min(idx + 1, total) + " 题 / 共 " + total + " 题";
+  }
+
+  /* ---------- 题面渲染：按 MODE 分发 ---------- */
+  function renderStage(q) {
+    var v = q.v || {};   // 视觉数据：emoji / 汉字 / 拼音 / 图形
+    var h = "";
+    switch (MODE) {
+      case "choice":
+        if (v.emoji)      { h += '<span class="big">' + esc(v.emoji) + "</span>"; }
+        else if (v.ch)    { h += '<span class="big">' + esc(v.ch) + "</span>"; }
+        else if (v.py)    { h += '<span class="py">' + esc(v.py) + "</span>"; }
+        if (v.label)      { h += '<div style="width:100%;font-size:13.5px;color:var(--g-muted,#6b7a8d)">' + esc(v.label) + "</div>"; }
+        if (v.tip)        { h += '<div style="width:100%;font-size:13px;color:var(--g-muted,#6b7a8d)">💡 ' + esc(v.tip) + "</div>"; }
+        break;
+
+      case "spell":
+        // 声母 + 韵母 → 选音节。声韵母大字展示，答案选项是完整音节。
+        h += '<div style="display:flex;align-items:center;gap:12px;justify-content:center;flex-wrap:wrap">'
+           + '<span class="py">' + esc(v.sm || "") + "</span>"
+           + '<span class="py" style="color:var(--g-muted,#6b7a8d)">+</span>'
+           + '<span class="py">' + esc(v.ym || "") + "</span>"
+           + '<span class="py" style="color:var(--g-muted,#6b7a8d)">→</span>'
+           + '<span class="py" style="color:var(--g-ok,#2e9e5b)">?</span>'
+           + "</div>";
+        if (v.ch) { h += '<div class="dots" style="width:100%">拼一拼：' + esc(v.ch) + "</div>"; }
+        break;
+
+      case "pair":
+        // 配对：左列取一个词，右列取一个义/字，配成一对
+        h += '<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;width:100%">'
+           + '<span class="big" style="font-size:38px">' + esc(v.left || "") + "</span>"
+           + '<span style="font-size:26px;color:var(--g-muted,#6b7a8d)">⇄</span>'
+           + '<span class="py" style="font-size:26px">?</span>'
+           + "</div>";
+        if (v.emoji) { h += '<span class="big">' + esc(v.emoji) + "</span>"; }
+        break;
+
+      case "count":
+        // 点数题：v.items 是要点的图形数组（可重复），孩子逐个点
+        h += '<div class="tapgrid" id="tapgrid"></div>'
+           + '<div style="width:100%;text-align:center;font-size:14px">点一点，数清楚：<b id="tapped">0</b> 个</div>';
+        break;
+
+      case "compare":
+        // 比大小：两个操作数 + 选符号
+        h += '<div style="display:flex;align-items:center;gap:14px;justify-content:center;flex-wrap:wrap">'
+           + '<span class="big" style="font-size:44px">' + esc(v.a) + "</span>"
+           + '<span class="py" style="font-size:40px;color:var(--g-brand,#2f6fd0)">?</span>'
+           + '<span class="big" style="font-size:44px">' + esc(v.b) + "</span>"
+           + "</div>";
+        if (v.emojiA || v.emojiB) {
+          h += '<div style="width:100%;font-size:18px;letter-spacing:4px">' + esc(v.emojiA || "") + "　" + esc(v.emojiB || "") + "</div>";
+        }
+        break;
+
+      case "calc":
+        h += '<div class="py" style="font-size:36px">' + esc(v.expr || "") + "</div>";
+        if (v.hint) { h += '<div style="width:100%;font-size:13px;color:var(--g-muted,#6b7a8d)">💡 ' + esc(v.hint) + "</div>"; }
+        break;
+    }
+    return h;
+  }
+
+  /* ---------- 选项渲染 ---------- */
+  function renderOpts(q) {
+    var ans = answerText(q);
+    var list = shuf(q.o);
+    elOpts.className = "opts c" + OPT_COLS;
+    elOpts.innerHTML = "";
+    list.forEach(function (text) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "opt";
+      // 中文汉字用大字排版，音节用衬线体，其余常规
+      if (/^[㐀-鿿]{1,2}$/.test(text)) { b.className += " ch"; }
+      else if (/^[a-zāáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜüńňǹ]+\d?$/i.test(text) && /[a-z]/i.test(text)) { b.className += " py"; }
+      b.textContent = text;
+      b.addEventListener("click", function () { choose(b, text, ans, q); });
+      elOpts.appendChild(b);
+    });
+  }
+
+  function choose(btn, text, ans, q) {
+    if (lock) { return; }
+    if (text === ans) {
+      lock = true;
+      btn.classList.add("right");
+      Array.prototype.forEach.call(elOpts.children, function (c) {
+        if (c !== btn) { c.classList.add("dim"); }
+      });
+      right++;
+      hud();
+      var praise = pick(["太棒了！", "答对啦！", "真聪明！", "完全正确！", "你真厉害！"]);
+      elFb.className = "fb ok";
+      elFb.innerHTML = praise + "<em>" + esc(q.e || "") + "</em>";
+      setTimeout(next, 1150);
+    } else {
+      wrong++;
+      btn.classList.add("wrong");
+      elFb.className = "fb no";
+      elFb.textContent = "再想一想哦～";
+      setTimeout(function () { btn.classList.remove("wrong"); }, 620);
+    }
+  }
+
+  /* ---------- 点数题：逐个点，实时计数 ---------- */
+  function bindCount(q) {
+    var g = $("tapgrid"), tapped = 0;
+    if (!g) { return; }
+    var n = Math.min(24, Math.max(4, (q.v && q.v.items ? q.v.items.length : 0) + 3));
+    var items = (q.v && q.v.items) || [];
+    // 先铺干扰项（✿），再把目标图形打散进去，保证答案需要真的数而不是「排除空位」
+    var cells = [];
+    for (var i = 0; i < n; i++) { cells.push("✿"); }
+    for (var k = 0; k < items.length && cells.length > items.length; k++) {
+      var pos = Math.floor(Math.random() * cells.length);
+      cells.splice(pos, 1, items[k]);
+    }
+    cells = shuf(cells);
+    g.innerHTML = "";
+    cells.forEach(function (c) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "tap";
+      b.textContent = c;
+      b.addEventListener("click", function () {
+        if (lock || b.classList.contains("on")) { return; }
+        b.classList.add("on");
+        tapped++;
+        var t = $("tapped");
+        if (t) { t.textContent = tapped; }
+        if (tapped >= items.length) { checkCount(q, items.length); }
+      });
+      g.appendChild(b);
+    });
+  }
+
+  function checkCount(q, target) {
+    if (lock) { return; }
+    lock = true;
+    var ans = answerText(q);
+    if (target + "" === ans) {
+      right++; hud();
+      elFb.className = "fb ok";
+      elFb.innerHTML = "数对啦！<em>" + esc(q.e || "") + "</em>";
+      setTimeout(next, 1300);
+    } else {
+      wrong++;
+      elFb.className = "fb no";
+      elFb.innerHTML = "再数一遍试试～ 一共要点 " + target + " 个。<em>慢慢来，一个一个点。</em>";
+      setTimeout(function () { lock = false; }, 1500);
+    }
+  }
+
+  /* ---------- 流程 ---------- */
+  function render() {
+    if (idx >= total) { finish(); return; }
+    var q = ALL[idx];
+    lock = false;
+    elDone.style.display = "none";
+    $("wrap").style.display = "";
+    elTitle.textContent = q.q || "";
+    elSub.textContent = UNIT ? UNIT : "";
+    elFb.className = "fb";
+    elFb.textContent = "";
+    elStage.innerHTML = renderStage(q);
+    if (MODE === "count") {
+      elOpts.className = "opts";
+      elOpts.innerHTML = "";
+      bindCount(q);
+    } else {
+      renderOpts(q);
+    }
+    hud();
+  }
+
+  function next() {
+    idx++;
+    render();
+  }
+
+  function finish() {
+    $("wrap").style.display = "none";
+    elDone.style.display = "";
+    elBar.style.width = "100%";
+    var pct = total ? Math.round(right / total * 100) : 0;
+    var medal = "🏅", title = "完成啦！", face = "继续加油！";
+    if (pct === 100)      { medal = "🏆"; title = "全对通关！"; face = "你是这个单元的小达人！"; }
+    else if (pct >= 80)   { medal = "🥇"; title = "非常棒！";   face = "只错了 " + wrong + " 次，再练一次就满分啦。"; }
+    else if (pct >= 60)   { medal = "🥈"; title = "做得不错！"; face = "错的 " + wrong + " 题可以再看看解析。"; }
+    else                  { medal = "🥉"; title = "完成挑战！"; face = "错了 " + wrong + " 题，多玩几次就熟练啦。"; }
+    $("medal").textContent = medal;
+    $("rtitle").textContent = title;
+    $("rface").textContent = face;
+    $("rscore").textContent = "共 " + total + " 题，答对 " + right + " 题（" + pct + "%）";
+    $("btnAgain").focus();
+  }
+
+  function again() {
+    idx = 0; right = 0; wrong = 0; lock = false;
+    render();
+  }
+
+  $("btnAgain").addEventListener("click", again);
+
+  /* 题库为空时不白屏：给出可行动的提示而不是一块空白区域。
+     这在「单元游戏文件被替换成空壳」或「数据写错」时会发生。 */
+  if (!total) {
+    $("wrap").style.display = "none";
+    elDone.style.display = "";
+    $("medal").textContent = "🈳";
+    $("rtitle").textContent = "这个游戏还没有题目";
+    $("rface").textContent = "题库是空的，可能是内容还没补齐。回列表页换一个试试。";
+    $("rscore").textContent = "";
+  } else {
+    render();
+  }
+})();
+</script>
+</body>
+</html>

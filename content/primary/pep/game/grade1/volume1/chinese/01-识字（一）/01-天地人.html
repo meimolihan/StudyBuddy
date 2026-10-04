@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>汉字小使者 · 天地人闯关</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans SC", sans-serif;
+    background: linear-gradient(160deg, #e8f5e9 0%, #e3f2fd 45%, #fff8e1 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    user-select: none;
+    padding: 16px;
+  }
+
+  .game-container {
+    width: 100%;
+    max-width: 740px;
+    background: #ffffff;
+    border-radius: 28px;
+    box-shadow: 0 12px 40px rgba(44, 62, 80, 0.12), 0 2px 8px rgba(44, 62, 80, 0.06);
+    padding: 24px 28px 28px;
+    position: relative;
+  }
+
+  /* 顶部状态栏 */
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .level-badge {
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    background: linear-gradient(135deg, #27ae60, #1e8449);
+    padding: 7px 18px;
+    border-radius: 50px;
+    letter-spacing: 1px;
+  }
+
+  .score-box {
+    font-size: 15px;
+    font-weight: 700;
+    color: #2c3e50;
+    background: #f0f3f4;
+    padding: 7px 18px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .score-box .star { color: #f1c40f; font-size: 18px; }
+
+  /* 进度条 */
+  .progress-track {
+    width: 100%;
+    height: 10px;
+    background: #ecf0f1;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #27ae60, #2ecc71);
+    border-radius: 10px;
+    width: 0%;
+    transition: width 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* 题目区 */
+  .question-area {
+    text-align: center;
+    margin-bottom: 8px;
+  }
+
+  .prompt-text {
+    font-size: 19px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 14px;
+    letter-spacing: 1px;
+    min-height: 28px;
+    line-height: 1.4;
+  }
+
+  .visual-area {
+    min-height: 190px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 18px;
+  }
+
+  /* 看图猜字 —— 图片区 */
+  .picture-card {
+    background: #f8fbfc;
+    border: 3px solid #e0e8ec;
+    border-radius: 22px;
+    padding: 20px 28px;
+    text-align: center;
+    transition: transform 0.3s;
+  }
+
+  .picture-emoji {
+    font-size: 82px;
+    line-height: 1.1;
+    display: block;
+  }
+
+  .picture-label {
+    font-size: 15px;
+    color: #7f8c8d;
+    font-weight: 600;
+    margin-top: 6px;
+  }
+
+  /* 听音选字 —— 提示区 */
+  .sound-card {
+    background: linear-gradient(135deg, #fff8e1, #fef9e7);
+    border: 3px dashed #f5b041;
+    border-radius: 22px;
+    padding: 22px 36px;
+    text-align: center;
+  }
+
+  .sound-icon {
+    font-size: 52px;
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .sound-hint {
+    font-size: 17px;
+    color: #b9770e;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+
+  /* 汉字演变动画 */
+  .evolution-stage {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .evo-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .evo-glyph {
+    font-size: 56px;
+    line-height: 1;
+    color: #2c3e50;
+    font-weight: 700;
+    min-width: 78px;
+    text-align: center;
+    transition: transform 0.3s;
+  }
+
+  .evo-glyph.ancient {
+    font-family: "KaiTi", "STKaiti", "SimSun", serif;
+    color: #8e44ad;
+    font-size: 52px;
+    font-weight: 400;
+  }
+
+  .evo-label {
+    font-size: 12px;
+    color: #95a5a6;
+    font-weight: 600;
+  }
+
+  .evo-arrow {
+    font-size: 22px;
+    color: #bdc3c7;
+    padding-bottom: 18px;
+  }
+
+  /* 人称代词 —— 句子语境 */
+  .sentence-card {
+    background: #f0f8ff;
+    border: 3px solid #aed6f1;
+    border-radius: 22px;
+    padding: 22px 30px;
+    text-align: center;
+    max-width: 520px;
+  }
+
+  .sentence-text {
+    font-size: 21px;
+    font-weight: 700;
+    color: #2c3e50;
+    line-height: 1.8;
+    letter-spacing: 1px;
+  }
+
+  .sentence-blank {
+    display: inline-block;
+    min-width: 52px;
+    border-bottom: 3px solid #e67e22;
+    color: #e67e22;
+    font-size: 24px;
+    font-weight: 900;
+    text-align: center;
+    margin: 0 4px;
+  }
+
+  /* 关卡过渡 */
+  .level-transition {
+    font-size: 26px;
+    font-weight: 900;
+    color: #27ae60;
+    text-align: center;
+    line-height: 1.6;
+  }
+
+  /* 选项网格 */
+  .options-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+
+  .option-btn {
+    font-size: 30px;
+    font-weight: 900;
+    padding: 18px 10px;
+    border: 3px solid #d5dbdb;
+    border-radius: 18px;
+    background: #f8fbfc;
+    color: #2c3e50;
+    cursor: pointer;
+    transition: transform 0.18s, border-color 0.25s, box-shadow 0.25s, background 0.25s;
+    font-family: inherit;
+    letter-spacing: 4px;
+    line-height: 1.2;
+  }
+
+  .option-btn .opt-pinyin {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: #95a5a6;
+    letter-spacing: 1px;
+    margin-top: 2px;
+  }
+
+  .option-btn:hover {
+    border-color: #85c1e9;
+    background: #f0f8ff;
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(52, 152, 219, 0.16);
+  }
+
+  .option-btn:active { transform: translateY(-1px) scale(0.98); }
+
+  .option-btn.correct {
+    border-color: #2ecc71;
+    background: #eafaf1;
+    color: #27ae60;
+    animation: correctPulse 0.5s ease;
+  }
+
+  .option-btn.wrong {
+    border-color: #e74c3c;
+    background: #fdedec;
+    color: #c0392b;
+    animation: shake 0.45s ease;
+  }
+
+  .option-btn.dimmed {
+    opacity: 0.4;
+    pointer-events: none;
+  }
+
+  @keyframes correctPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.06); }
+    100% { transform: scale(1); }
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-8px); }
+    40% { transform: translateX(8px); }
+    60% { transform: translateX(-5px); }
+    80% { transform: translateX(5px); }
+  }
+
+  /* 反馈 */
+  .feedback-bar {
+    text-align: center;
+    font-size: 16px;
+    font-weight: 700;
+    min-height: 42px;
+    color: #2c3e50;
+    letter-spacing: 0.5px;
+    line-height: 1.5;
+    padding: 0 6px;
+  }
+
+  .feedback-bar.good { color: #27ae60; }
+  .feedback-bar.bad  { color: #e74c3c; }
+
+  /* 通关面板 */
+  .result-panel {
+    text-align: center;
+    padding: 10px 0 4px;
+    display: none;
+  }
+
+  .result-panel h2 {
+    font-size: 27px;
+    color: #2c3e50;
+    margin-bottom: 8px;
+  }
+
+  .result-panel .final-score {
+    font-size: 19px;
+    color: #e67e22;
+    font-weight: 800;
+    margin-bottom: 6px;
+    line-height: 1.5;
+  }
+
+  .result-panel .medal {
+    font-size: 76px;
+    display: block;
+    margin: 8px 0;
+  }
+
+  .btn-restart {
+    margin-top: 14px;
+    font-size: 17px;
+    font-weight: 700;
+    padding: 14px 48px;
+    border: none;
+    border-radius: 50px;
+    background: linear-gradient(135deg, #27ae60, #1e8449);
+    color: #fff;
+    cursor: pointer;
+    letter-spacing: 2px;
+    box-shadow: 0 6px 18px rgba(39, 174, 96, 0.32);
+    transition: transform 0.2s, box-shadow 0.2s;
+    font-family: inherit;
+  }
+
+  .btn-restart:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 26px rgba(39, 174, 96, 0.42);
+  }
+
+  /* 飘星 */
+  .star-fall {
+    position: fixed;
+    font-size: 26px;
+    pointer-events: none;
+    z-index: 999;
+    animation: starFall 1s ease-out forwards;
+  }
+
+  @keyframes starFall {
+    0%   { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(90px) scale(0.4) rotate(60deg); }
+  }
+
+  /* 响应式 */
+  @media (max-width: 520px) {
+    .game-container { padding: 18px 16px 22px; border-radius: 22px; }
+    .prompt-text { font-size: 16px; }
+    .visual-area { min-height: 150px; }
+    .picture-emoji { font-size: 60px; }
+    .evo-glyph { font-size: 40px; min-width: 56px; }
+    .evo-glyph.ancient { font-size: 38px; }
+    .sentence-text { font-size: 17px; }
+    .option-btn { font-size: 24px; padding: 14px 8px; border-radius: 14px; letter-spacing: 2px; }
+    .options-grid { gap: 10px; }
+    .feedback-bar { font-size: 14px; }
+    .result-panel h2 { font-size: 21px; }
+  }
+
+/* ---- StudyBuddy 主题适配（2026-10-04 追加）----
+   本文件是独立小游戏，自带一套浅色配色。为跟随站点的深色模式，
+   这里只覆盖页面底色 / 卡片底 / 主文字色三处，
+   其余彩色块（正确/错误/关卡色）刻意保留 —— 它们是语义色，
+   在两种背景下都清晰，改了反而丢失反馈含义。
+   变量由 /game/raw 注入（gameThemeBridgeCSS），双击直接打开时用这里的浅色 fallback。 */
+@media (prefers-color-scheme: dark){
+  html:not([data-theme="light"]) body{background:var(--g-bg,#151a21)}
+  html:not([data-theme="light"]) .game-container{background:var(--g-card,#1c222b); color:var(--g-ink,#e7ecf3)}
+  html:not([data-theme="light"]) .score-box{background:var(--g-line,#2a323d); color:var(--g-ink,#e7ecf3)}
+  html:not([data-theme="light"]) .prompt-text,
+  html:not([data-theme="light"]) .feedback-bar,
+  html:not([data-theme="light"]) .result-panel h2,
+  html:not([data-theme="light"]) .evo-glyph{color:var(--g-ink,#e7ecf3)}
+  html:not([data-theme="light"]) .option-btn{background:var(--g-card,#1c222b); color:var(--g-ink,#e7ecf3); border-color:var(--g-line,#2a323d)}
+}
+[data-theme="dark"] body{background:var(--g-bg,#151a21)}
+[data-theme="dark"] .game-container{background:var(--g-card,#1c222b); color:var(--g-ink,#e7ecf3)}
+[data-theme="dark"] .score-box{background:var(--g-line,#2a323d); color:var(--g-ink,#e7ecf3)}
+[data-theme="dark"] .prompt-text,
+[data-theme="dark"] .feedback-bar,
+[data-theme="dark"] .result-panel h2,
+[data-theme="dark"] .evo-glyph{color:var(--g-ink,#e7ecf3)}
+[data-theme="dark"] .option-btn{background:var(--g-card,#1c222b); color:var(--g-ink,#e7ecf3); border-color:var(--g-line,#2a323d)}
+
+</style>
+</head>
+<body>
+
+<div class="game-container" id="gameContainer">
+
+  <!-- 状态栏 -->
+  <div class="top-bar">
+    <div class="level-badge" id="levelBadge">第 1 关 · 看图猜字</div>
+    <div class="score-box">
+      <span class="star">⭐</span>
+      <span id="scoreText">0 / 16</span>
+    </div>
+  </div>
+
+  <!-- 进度条 -->
+  <div class="progress-track">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+
+  <!-- 题目区 -->
+  <div class="question-area">
+    <div class="prompt-text" id="promptText">题目加载中…</div>
+    <div class="visual-area" id="visualArea"></div>
+  </div>
+
+  <!-- 选项 -->
+  <div class="options-grid" id="optionsGrid"></div>
+
+  <!-- 反馈 -->
+  <div class="feedback-bar" id="feedbackBar"></div>
+
+  <!-- 通关面板 -->
+  <div class="result-panel" id="resultPanel">
+    <span class="medal" id="medalEmoji">🏅</span>
+    <h2 id="resultTitle">太棒啦！全部通关！</h2>
+    <div class="final-score" id="finalScoreText"></div>
+    <button class="btn-restart" onclick="restartGame()">再玩一次</button>
+  </div>
+
+</div>
+
+<script>
+/* ============================================================
+   游戏数据 —— 统编版一年级上册第一课《天地人》
+   六个生字：天、地、人、你、我、他
+   共 4 关，每关 4 题，共 16 题
+   ============================================================ */
+
+const LEVELS = [
+  /* ---------- 第 1 关：看图猜字 ---------- */
+  {
+    name: "第 1 关 · 看图猜字",
+    questions: [
+      {
+        type: "picture",
+        prompt: "这幅图画的是哪个汉字宝宝？",
+        data: { emoji: "☁️🌤️", label: "头顶上高高的地方" },
+        options: [
+          { char: "天", pinyin: "tiān" },
+          { char: "地", pinyin: "dì" },
+          { char: "人", pinyin: "rén" },
+          { char: "他", pinyin: "tā" }
+        ],
+        answer: "天",
+        explain: "“天”就是头顶上高高的地方，蓝蓝的天空！"
+      },
+      {
+        type: "picture",
+        prompt: "这幅图画的是哪个汉字宝宝？",
+        data: { emoji: "🌍🌱", label: "脚下踩着的土地" },
+        options: [
+          { char: "天", pinyin: "tiān" },
+          { char: "地", pinyin: "dì" },
+          { char: "我", pinyin: "wǒ" },
+          { char: "你", pinyin: "nǐ" }
+        ],
+        answer: "地",
+        explain: "“地”就是脚下踩着的土地，我们在上面走路、种花。"
+      },
+      {
+        type: "picture",
+        prompt: "这幅图画的是哪个汉字宝宝？",
+        data: { emoji: "🧑", label: "站立着的人" },
+        options: [
+          { char: "人", pinyin: "rén" },
+          { char: "天", pinyin: "tiān" },
+          { char: "地", pinyin: "dì" },
+          { char: "他", pinyin: "tā" }
+        ],
+        answer: "人",
+        explain: "“人”字就像一个人侧身站立的样子，一撇一捺。"
+      },
+      {
+        type: "picture",
+        prompt: "这幅图画的是哪个汉字宝宝？",
+        data: { emoji: "👧👦", label: "身边的同学和朋友" },
+        options: [
+          { char: "他", pinyin: "tā" },
+          { char: "我", pinyin: "wǒ" },
+          { char: "你", pinyin: "nǐ" },
+          { char: "人", pinyin: "rén" }
+        ],
+        answer: "他",
+        explain: "“他”指的是自己和对方以外的第三个人，比如旁边的同学。"
+      }
+    ]
+  },
+
+  /* ---------- 第 2 关：听音选字 ---------- */
+  {
+    name: "第 2 关 · 听音选字",
+    questions: [
+      {
+        type: "sound",
+        prompt: "请选出听到的汉字",
+        data: { hint: "读作“tiān”，第一声", icon: "🔊" },
+        options: [
+          { char: "天", pinyin: "tiān" },
+          { char: "田", pinyin: "tián" },
+          { char: "地", pinyin: "dì" },
+          { char: "人", pinyin: "rén" }
+        ],
+        answer: "天",
+        explain: "“天”读 tiān，第一声，就是天空的天。"
+      },
+      {
+        type: "sound",
+        prompt: "请选出听到的汉字",
+        data: { hint: "读作“dì”，第四声", icon: "🔊" },
+        options: [
+          { char: "地", pinyin: "dì" },
+          { char: "弟", pinyin: "dì" },
+          { char: "天", pinyin: "tiān" },
+          { char: "他", pinyin: "tā" }
+        ],
+        answer: "地",
+        explain: "“地”读 dì，第四声，就是土地的地。"
+      },
+      {
+        type: "sound",
+        prompt: "请选出听到的汉字",
+        data: { hint: "读作“nǐ”，第三声", icon: "🔊" },
+        options: [
+          { char: "你", pinyin: "nǐ" },
+          { char: "我", pinyin: "wǒ" },
+          { char: "他", pinyin: "tā" },
+          { char: "人", pinyin: "rén" }
+        ],
+        answer: "你",
+        explain: "“你”读 nǐ，第三声，指对面的那个人。"
+      },
+      {
+        type: "sound",
+        prompt: "请选出听到的汉字",
+        data: { hint: "读作“wǒ”，第三声", icon: "🔊" },
+        options: [
+          { char: "我", pinyin: "wǒ" },
+          { char: "你", pinyin: "nǐ" },
+          { char: "他", pinyin: "tā" },
+          { char: "地", pinyin: "dì" }
+        ],
+        answer: "我",
+        explain: "“我”读 wǒ，第三声，指自己。"
+      }
+    ]
+  },
+
+  /* ---------- 第 3 关：汉字演变动画 ---------- */
+  {
+    name: "第 3 关 · 汉字演变",
+    questions: [
+      {
+        type: "evolution",
+        prompt: "这个古文字正在变成哪个汉字？",
+        data: { ancient: "𠆢", modern: "人", label: "古文字 → 现在" },
+        options: [
+          { char: "人", pinyin: "rén" },
+          { char: "天", pinyin: "tiān" },
+          { char: "大", pinyin: "dà" },
+          { char: "入", pinyin: "rù" }
+        ],
+        answer: "人",
+        explain: "古文字的“人”像一个人侧身站立，后来慢慢变成了现在的“人”字。"
+      },
+      {
+        type: "evolution",
+        prompt: "这个古文字正在变成哪个汉字？",
+        data: { ancient: "𠀁", modern: "天", label: "古文字 → 现在" },
+        options: [
+          { char: "天", pinyin: "tiān" },
+          { char: "人", pinyin: "rén" },
+          { char: "大", pinyin: "dà" },
+          { char: "夫", pinyin: "fū" }
+        ],
+        answer: "天",
+        explain: "在“人”的头顶上加一横，就是“天”，古人觉得头顶上最高的地方就是天。"
+      },
+      {
+        type: "evolution",
+        prompt: "这个古文字正在变成哪个汉字？",
+        data: { ancient: "埊", modern: "地", label: "古文字 → 现在" },
+        options: [
+          { char: "地", pinyin: "dì" },
+          { char: "土", pinyin: "tǔ" },
+          { char: "也", pinyin: "yě" },
+          { char: "他", pinyin: "tā" }
+        ],
+        answer: "地",
+        explain: "“地”左边是“土”，表示和泥土有关，右边是“也”。"
+      },
+      {
+        type: "evolution",
+        prompt: "这个古文字正在变成哪个汉字？",
+        data: { ancient: "亻", modern: "你", label: "古文字 → 现在" },
+        options: [
+          { char: "你", pinyin: "nǐ" },
+          { char: "他", pinyin: "tā" },
+          { char: "我", pinyin: "wǒ" },
+          { char: "人", pinyin: "rén" }
+        ],
+        answer: "你",
+        explain: "“你”左边是单人旁“亻”，右边是“尔”，表示对面的人。"
+      }
+    ]
+  },
+
+  /* ---------- 第 4 关：人称代词大挑战 ---------- */
+  {
+    name: "第 4 关 · 人称代词大挑战",
+    questions: [
+      {
+        type: "sentence",
+        prompt: "这句话的横线上应该填哪个字？",
+        data: { before: "妈妈，", after: "是我呀！", hint: "说话的人指自己" },
+        options: [
+          { char: "我", pinyin: "wǒ" },
+          { char: "你", pinyin: "nǐ" },
+          { char: "他", pinyin: "tā" },
+          { char: "人", pinyin: "rén" }
+        ],
+        answer: "我",
+        explain: "说话的人指自己，要用“我”。"
+      },
+      {
+        type: "sentence",
+        prompt: "这句话的横线上应该填哪个字？",
+        data: { before: "小明，", after: "在教室里吗？", hint: "问对面的人" },
+        options: [
+          { char: "你", pinyin: "nǐ" },
+          { char: "我", pinyin: "wǒ" },
+          { char: "他", pinyin: "tā" },
+          { char: "天", pinyin: "tiān" }
+        ],
+        answer: "你",
+        explain: "问对面的人，要用“你”。"
+      },
+      {
+        type: "sentence",
+        prompt: "这句话的横线上应该填哪个字？",
+        data: { before: "小红说，", after: "是他的好朋友。", hint: "说到第三个人" },
+        options: [
+          { char: "他", pinyin: "tā" },
+          { char: "我", pinyin: "wǒ" },
+          { char: "你", pinyin: "nǐ" },
+          { char: "地", pinyin: "dì" }
+        ],
+        answer: "他",
+        explain: "说到自己和对方以外的第三个人，要用“他”。"
+      },
+      {
+        type: "sentence",
+        prompt: "这句话的横线上应该填哪个字？",
+        data: { before: "老师问：", after: "叫什么名字？", hint: "老师问学生" },
+        options: [
+          { char: "你", pinyin: "nǐ" },
+          { char: "我", pinyin: "wǒ" },
+          { char: "他", pinyin: "tā" },
+          { char: "人", pinyin: "rén" }
+        ],
+        answer: "你",
+        explain: "老师问对面的学生，要用“你”。"
+      }
+    ]
+  }
+];
+
+/* ============================================================
+   游戏状态
+   ============================================================ */
+
+let currentLevel = 0;
+let currentQuestion = 0;
+let score = 0;
+let mistakes = 0;
+let totalQuestions = LEVELS.reduce((sum, lv) => sum + lv.questions.length, 0);
+let locked = false;
+let questionAnswered = false;
+
+const levelBadge     = document.getElementById("levelBadge");
+const scoreText      = document.getElementById("scoreText");
+const progressFill   = document.getElementById("progressFill");
+const promptText     = document.getElementById("promptText");
+const visualArea     = document.getElementById("visualArea");
+const optionsGrid    = document.getElementById("optionsGrid");
+const feedbackBar    = document.getElementById("feedbackBar");
+const resultPanel    = document.getElementById("resultPanel");
+const medalEmoji     = document.getElementById("medalEmoji");
+const resultTitle    = document.getElementById("resultTitle");
+const finalScoreText = document.getElementById("finalScoreText");
+
+/* ============================================================
+   渲染题目
+   ============================================================ */
+
+function renderQuestion() {
+  const level = LEVELS[currentLevel];
+  const q = level.questions[currentQuestion];
+
+  levelBadge.textContent = level.name;
+  scoreText.textContent = score + " / " + totalQuestions;
+  progressFill.style.width = (score / totalQuestions * 100) + "%";
+
+  promptText.textContent = q.prompt;
+  visualArea.innerHTML = renderVisual(q);
+
+  feedbackBar.textContent = "";
+  feedbackBar.className = "feedback-bar";
+
+  optionsGrid.innerHTML = "";
+  const shuffled = shuffleArray([...q.options]);
+  shuffled.forEach(opt => {
+    const btn = document.createElement("button");
+    btn.className = "option-btn";
+    btn.innerHTML = opt.char + `<span class="opt-pinyin">${opt.pinyin}</span>`;
+    btn.addEventListener("click", () => handleOptionClick(btn, opt.char, q));
+    optionsGrid.appendChild(btn);
+  });
+
+  locked = false;
+  questionAnswered = false;
+}
+
+/* ============================================================
+   视觉渲染分发
+   ============================================================ */
+
+function renderVisual(q) {
+  switch (q.type) {
+    case "picture":   return renderPicture(q.data);
+    case "sound":     return renderSound(q.data);
+    case "evolution": return renderEvolution(q.data);
+    case "sentence":  return renderSentence(q.data);
+    default:          return "";
+  }
+}
+
+/* ---------- 看图猜字 ---------- */
+function renderPicture(data) {
+  return `
+    <div class="picture-card">
+      <span class="picture-emoji">${data.emoji}</span>
+      <span class="picture-label">${data.label}</span>
+    </div>
+  `;
+}
+
+/* ---------- 听音选字（文字模拟） ---------- */
+function renderSound(data) {
+  return `
+    <div class="sound-card">
+      <span class="sound-icon">${data.icon}</span>
+      <span class="sound-hint">${data.hint}</span>
+    </div>
+  `;
+}
+
+/* ---------- 汉字演变 ---------- */
+function renderEvolution(data) {
+  return `
+    <div class="evolution-stage">
+      <div class="evo-step">
+        <div class="evo-glyph ancient">${data.ancient}</div>
+        <div class="evo-label">古文字</div>
+      </div>
+      <div class="evo-arrow">→</div>
+      <div class="evo-step">
+        <div class="evo-glyph modern">${data.modern}</div>
+        <div class="evo-label">现在</div>
+      </div>
+    </div>
+  `;
+}
+
+/* ---------- 人称代词句子 ---------- */
+function renderSentence(data) {
+  return `
+    <div class="sentence-card">
+      <div class="sentence-text">
+        ${data.before}<span class="sentence-blank">？</span>${data.after}
+      </div>
+      <div style="font-size:13px;color:#95a5a6;margin-top:8px;">💡 ${data.hint}</div>
+    </div>
+  `;
+}
+
+/* ============================================================
+   选项点击处理
+   ============================================================ */
+
+function handleOptionClick(btn, optChar, q) {
+  if (locked || questionAnswered) return;
+
+  if (optChar === q.answer) {
+    questionAnswered = true;
+    locked = true;
+
+    btn.classList.add("correct");
+    document.querySelectorAll(".option-btn").forEach(b => {
+      if (b !== btn) b.classList.add("dimmed");
+    });
+
+    score++;
+    scoreText.textContent = score + " / " + totalQuestions;
+    progressFill.style.width = (score / totalQuestions * 100) + "%";
+
+    spawnStars(btn);
+
+    const praise = pickRandom(["太棒啦！🎉", "答对了！⭐", "真聪明！🌟", "你真厉害！👏", "完全正确！✨"]);
+    feedbackBar.textContent = praise + " " + q.explain;
+    feedbackBar.className = "feedback-bar good";
+
+    setTimeout(advanceQuestion, 1500);
+  } else {
+    mistakes++;
+    btn.classList.add("wrong");
+    btn.disabled = true;
+    feedbackBar.textContent = "再想一想哦～ 🤔";
+    feedbackBar.className = "feedback-bar bad";
+
+    setTimeout(() => {
+      btn.classList.remove("wrong");
+      btn.disabled = false;
+    }, 700);
+  }
+}
+
+/* ============================================================
+   推进流程
+   ============================================================ */
+
+function advanceQuestion() {
+  currentQuestion++;
+
+  if (currentQuestion < LEVELS[currentLevel].questions.length) {
+    renderQuestion();
+  } else {
+    currentLevel++;
+    currentQuestion = 0;
+
+    if (currentLevel < LEVELS.length) {
+      showLevelTransition();
+    } else {
+      showResult();
+    }
+  }
+}
+
+function showLevelTransition() {
+  promptText.textContent = "";
+  visualArea.innerHTML = `<div class="level-transition">🎉 进入<br>${LEVELS[currentLevel].name}</div>`;
+  optionsGrid.innerHTML = "";
+  feedbackBar.textContent = "准备好了吗？";
+  feedbackBar.className = "feedback-bar good";
+
+  setTimeout(renderQuestion, 1300);
+}
+
+/* ============================================================
+   结算
+   ============================================================ */
+
+function showResult() {
+  promptText.style.display = "none";
+  visualArea.style.display = "none";
+  optionsGrid.style.display = "none";
+  feedbackBar.style.display = "none";
+  resultPanel.style.display = "block";
+
+  scoreText.textContent = score + " / " + totalQuestions;
+  progressFill.style.width = "100%";
+  levelBadge.textContent = "🎉 通关啦！";
+
+  let medal = "🏅", title = "完成挑战！";
+  if (mistakes === 0) {
+    medal = "🏆";
+    title = "完美通关！你是汉字小达人！";
+  } else if (mistakes <= 3) {
+    medal = "🥇";
+    title = "非常棒！只错了 " + mistakes + " 次。";
+  } else if (mistakes <= 6) {
+    medal = "🥈";
+    title = "做得不错！错了 " + mistakes + " 次，继续加油！";
+  } else {
+    medal = "🥉";
+    title = "完成啦！错了 " + mistakes + " 次，多练习会更棒！";
+  }
+
+  medalEmoji.textContent = medal;
+  resultTitle.textContent = title;
+  finalScoreText.textContent = "共 " + totalQuestions + " 题，答对 " + score + " 题";
+}
+
+/* ============================================================
+   重新开始
+   ============================================================ */
+
+function restartGame() {
+  currentLevel = 0;
+  currentQuestion = 0;
+  score = 0;
+  mistakes = 0;
+  locked = false;
+  questionAnswered = false;
+
+  promptText.style.display = "";
+  visualArea.style.display = "";
+  optionsGrid.style.display = "";
+  feedbackBar.style.display = "";
+  resultPanel.style.display = "none";
+
+  renderQuestion();
+}
+
+/* ============================================================
+   工具函数
+   ============================================================ */
+
+function shuffleArray(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function pickRandom(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function spawnStars(originEl) {
+  const rect = originEl.getBoundingClientRect();
+  const emojis = ["⭐", "🌟", "✨", "💫"];
+
+  for (let i = 0; i < 6; i++) {
+    const s = document.createElement("span");
+    s.className = "star-fall";
+    s.textContent = pickRandom(emojis);
+    s.style.left = (rect.left + rect.width / 2 + (Math.random() - 0.5) * 100) + "px";
+    s.style.top  = (rect.top + rect.height / 3) + "px";
+    s.style.animationDelay = (i * 0.06) + "s";
+    document.body.appendChild(s);
+    setTimeout(() => s.remove(), 1200);
+  }
+}
+
+/* ============================================================
+   启动
+   ============================================================ */
+
+renderQuestion();
+</script>
+</body>
+</html>

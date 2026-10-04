@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>校园探秘 · 数一数</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans SC", sans-serif;
+    background: linear-gradient(160deg, #e8f8f5 0%, #eafaf1 50%, #fef9e7 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    user-select: none;
+    padding: 14px;
+  }
+
+  .game-container {
+    width: 100%;
+    max-width: 720px;
+    background: #ffffff;
+    border-radius: 28px;
+    box-shadow: 0 12px 40px rgba(44, 62, 80, 0.12), 0 2px 8px rgba(44, 62, 80, 0.06);
+    padding: 22px 26px 26px;
+    position: relative;
+  }
+
+  /* 顶部状态栏 */
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .level-badge {
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    background: linear-gradient(135deg, #27ae60, #1e8449);
+    padding: 7px 18px;
+    border-radius: 50px;
+    letter-spacing: 1px;
+  }
+
+  .score-box {
+    font-size: 15px;
+    font-weight: 700;
+    color: #2c3e50;
+    background: #f0f3f4;
+    padding: 7px 18px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .score-box .star { color: #f1c40f; font-size: 18px; }
+
+  /* 进度条 */
+  .progress-track {
+    width: 100%;
+    height: 10px;
+    background: #ecf0f1;
+    border-radius: 10px;
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #27ae60, #2ecc71);
+    border-radius: 10px;
+    width: 0%;
+    transition: width 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* 题目文字 */
+  .prompt-text {
+    text-align: center;
+    font-size: 20px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 12px;
+    letter-spacing: 1px;
+    line-height: 1.5;
+    min-height: 30px;
+  }
+
+  .prompt-emoji {
+    font-size: 24px;
+    vertical-align: -2px;
+  }
+
+  /* 场景区 */
+  .scene {
+    position: relative;
+    width: 100%;
+    height: 330px;
+    background: linear-gradient(180deg, #d5f5e3 0%, #a9dfbf 55%, #7dcea0 100%);
+    border-radius: 22px;
+    border: 4px solid #ffffff;
+    box-shadow: inset 0 0 28px rgba(39, 174, 96, 0.14), 0 4px 14px rgba(39, 174, 96, 0.10);
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+
+  .scene-item {
+    position: absolute;
+    font-size: 44px;
+    line-height: 1;
+    cursor: pointer;
+    transform: translate(-50%, -50%);
+    transition: transform 0.18s, filter 0.25s;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .scene-item:hover {
+    transform: translate(-50%, -50%) scale(1.16);
+  }
+
+  .scene-item.counted {
+    filter: drop-shadow(0 0 10px #f1c40f) brightness(1.08);
+    cursor: default;
+    animation: itemPop 0.35s ease;
+  }
+
+  .scene-item.counted:hover {
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  @keyframes itemPop {
+    0%   { transform: translate(-50%, -50%) scale(1); }
+    50%  { transform: translate(-50%, -50%) scale(1.32); }
+    100% { transform: translate(-50%, -50%) scale(1); }
+  }
+
+  .scene-item.shake {
+    animation: itemShake 0.45s ease;
+  }
+
+  @keyframes itemShake {
+    0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
+    25%      { transform: translate(-50%, -50%) rotate(-12deg); }
+    50%      { transform: translate(-50%, -50%) rotate(12deg); }
+    75%      { transform: translate(-50%, -50%) rotate(-7deg); }
+  }
+
+  /* 序号徽章 */
+  .count-badge {
+    position: absolute;
+    top: -6px;
+    right: -8px;
+    min-width: 21px;
+    height: 21px;
+    padding: 0 4px;
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 900;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(230, 126, 34, 0.5);
+    font-family: inherit;
+    pointer-events: none;
+  }
+
+  /* 计数行 */
+  .counter-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+
+  .counter-bubble {
+    font-size: 17px;
+    font-weight: 800;
+    color: #e67e22;
+    background: #fef9e7;
+    border: 2px solid #f5b041;
+    padding: 8px 22px;
+    border-radius: 50px;
+    letter-spacing: 0.5px;
+    transition: transform 0.2s;
+  }
+
+  .counter-bubble.pop {
+    animation: counterPop 0.3s ease;
+  }
+
+  @keyframes counterPop {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.14); }
+    100% { transform: scale(1); }
+  }
+
+  .counter-bubble .num {
+    font-size: 22px;
+    font-weight: 900;
+    color: #d35400;
+    margin: 0 2px;
+  }
+
+  .btn-reset-count {
+    font-size: 14px;
+    font-weight: 700;
+    color: #7f8c8d;
+    background: #f4f6f7;
+    border: 2px solid #dfe4e6;
+    padding: 7px 16px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .btn-reset-count:hover {
+    color: #e67e22;
+    border-color: #f5b041;
+    background: #fef9e7;
+  }
+
+  /* 选项 */
+  .options-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .option-num {
+    font-size: 32px;
+    font-weight: 900;
+    padding: 16px 6px;
+    border: 3px solid #d5dbdb;
+    border-radius: 18px;
+    background: #f8fbfc;
+    color: #2c3e50;
+    cursor: pointer;
+    transition: transform 0.18s, border-color 0.25s, box-shadow 0.25s, background 0.25s;
+    font-family: inherit;
+    line-height: 1;
+  }
+
+  .option-num:hover {
+    border-color: #85c1e9;
+    background: #f0f8ff;
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(52, 152, 219, 0.16);
+  }
+
+  .option-num:active { transform: translateY(-1px) scale(0.98); }
+
+  .option-num.correct {
+    border-color: #2ecc71;
+    background: #eafaf1;
+    color: #27ae60;
+    animation: correctPulse 0.5s ease;
+  }
+
+  .option-num.wrong {
+    border-color: #e74c3c;
+    background: #fdedec;
+    color: #c0392b;
+    animation: shake 0.45s ease;
+  }
+
+  .option-num.dimmed {
+    opacity: 0.38;
+    pointer-events: none;
+  }
+
+  @keyframes correctPulse {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.08); }
+    100% { transform: scale(1); }
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%      { transform: translateX(-8px); }
+    40%      { transform: translateX(8px); }
+    60%      { transform: translateX(-5px); }
+    80%      { transform: translateX(5px); }
+  }
+
+  /* 反馈 */
+  .feedback-bar {
+    text-align: center;
+    font-size: 16px;
+    font-weight: 700;
+    min-height: 44px;
+    color: #2c3e50;
+    letter-spacing: 0.5px;
+    line-height: 1.5;
+    padding: 0 6px;
+  }
+
+  .feedback-bar.good { color: #27ae60; }
+  .feedback-bar.bad  { color: #e74c3c; }
+
+  /* 通关面板 */
+  .result-panel {
+    text-align: center;
+    padding: 10px 0 4px;
+    display: none;
+  }
+
+  .result-panel h2 {
+    font-size: 27px;
+    color: #2c3e50;
+    margin-bottom: 8px;
+  }
+
+  .result-panel .final-score {
+    font-size: 19px;
+    color: #e67e22;
+    font-weight: 800;
+    margin-bottom: 6px;
+    line-height: 1.5;
+  }
+
+  .result-panel .medal {
+    font-size: 76px;
+    display: block;
+    margin: 8px 0;
+  }
+
+  .btn-restart {
+    margin-top: 14px;
+    font-size: 17px;
+    font-weight: 700;
+    padding: 14px 48px;
+    border: none;
+    border-radius: 50px;
+    background: linear-gradient(135deg, #27ae60, #1e8449);
+    color: #fff;
+    cursor: pointer;
+    letter-spacing: 2px;
+    box-shadow: 0 6px 18px rgba(39, 174, 96, 0.32);
+    transition: transform 0.2s, box-shadow 0.2s;
+    font-family: inherit;
+  }
+
+  .btn-restart:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 26px rgba(39, 174, 96, 0.42);
+  }
+
+  /* 飘星 */
+  .star-fall {
+    position: fixed;
+    font-size: 26px;
+    pointer-events: none;
+    z-index: 999;
+    animation: starFall 1s ease-out forwards;
+  }
+
+  @keyframes starFall {
+    0%   { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(90px) scale(0.4) rotate(60deg); }
+  }
+
+  /* 响应式 */
+  @media (max-width: 560px) {
+    .game-container { padding: 16px 14px 20px; border-radius: 22px; }
+    .prompt-text { font-size: 17px; }
+    .prompt-emoji { font-size: 20px; }
+    .scene { height: 255px; border-radius: 18px; border-width: 3px; }
+    .scene-item { font-size: 32px; }
+    .count-badge { min-width: 18px; height: 18px; font-size: 11px; top: -5px; right: -6px; }
+    .counter-bubble { font-size: 15px; padding: 6px 16px; }
+    .counter-bubble .num { font-size: 19px; }
+    .option-num { font-size: 26px; padding: 13px 4px; border-radius: 14px; }
+    .options-grid { gap: 9px; }
+    .feedback-bar { font-size: 14px; min-height: 40px; }
+    .result-panel h2 { font-size: 21px; }
+  }
+
+/* ---- StudyBuddy 主题适配（2026-10-04 追加）----
+   本文件是独立小游戏，自带一套浅色配色。为跟随站点的深色模式，
+   这里只覆盖页面底色 / 卡片底 / 主文字色三处，
+   其余彩色块（正确/错误/关卡色）刻意保留 —— 它们是语义色，
+   在两种背景下都清晰，改了反而丢失反馈含义。
+   变量由 /game/raw 注入（gameThemeBridgeCSS），双击直接打开时用这里的浅色 fallback。 */
+@media (prefers-color-scheme: dark){
+  html:not([data-theme="light"]) body{background:var(--g-bg,#151a21)}
+  html:not([data-theme="light"]) .game-container{background:var(--g-card,#1c222b); color:var(--g-ink,#e7ecf3)}
+  html:not([data-theme="light"]) .score-box{background:var(--g-line,#2a323d); color:var(--g-ink,#e7ecf3)}
+  html:not([data-theme="light"]) .prompt-text,
+  html:not([data-theme="light"]) .feedback-bar,
+  html:not([data-theme="light"]) .result-panel h2,
+  html:not([data-theme="light"]) .evo-glyph{color:var(--g-ink,#e7ecf3)}
+  html:not([data-theme="light"]) .option-btn{background:var(--g-card,#1c222b); color:var(--g-ink,#e7ecf3); border-color:var(--g-line,#2a323d)}
+}
+[data-theme="dark"] body{background:var(--g-bg,#151a21)}
+[data-theme="dark"] .game-container{background:var(--g-card,#1c222b); color:var(--g-ink,#e7ecf3)}
+[data-theme="dark"] .score-box{background:var(--g-line,#2a323d); color:var(--g-ink,#e7ecf3)}
+[data-theme="dark"] .prompt-text,
+[data-theme="dark"] .feedback-bar,
+[data-theme="dark"] .result-panel h2,
+[data-theme="dark"] .evo-glyph{color:var(--g-ink,#e7ecf3)}
+[data-theme="dark"] .option-btn{background:var(--g-card,#1c222b); color:var(--g-ink,#e7ecf3); border-color:var(--g-line,#2a323d)}
+
+</style>
+</head>
+<body>
+
+<div class="game-container" id="gameContainer">
+
+  <!-- 状态栏 -->
+  <div class="top-bar">
+    <div class="level-badge" id="levelBadge">第 1 题 · 数一数</div>
+    <div class="score-box">
+      <span class="star">⭐</span>
+      <span id="scoreText">0 / 8</span>
+    </div>
+  </div>
+
+  <!-- 进度条 -->
+  <div class="progress-track">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+
+  <!-- 题目 -->
+  <div class="prompt-text" id="promptText">题目加载中…</div>
+
+  <!-- 场景 -->
+  <div class="scene" id="scene"></div>
+
+  <!-- 计数行 -->
+  <div class="counter-row">
+    <div class="counter-bubble" id="counterBubble">
+      我数了 <span class="num" id="counterNum">0</span> 个
+    </div>
+    <button class="btn-reset-count" id="resetBtn">🔄 重新数</button>
+  </div>
+
+  <!-- 选项 -->
+  <div class="options-grid" id="optionsGrid"></div>
+
+  <!-- 反馈 -->
+  <div class="feedback-bar" id="feedbackBar"></div>
+
+  <!-- 通关面板 -->
+  <div class="result-panel" id="resultPanel">
+    <span class="medal" id="medalEmoji">🏅</span>
+    <h2 id="resultTitle">太棒啦！全部通关！</h2>
+    <div class="final-score" id="finalScoreText"></div>
+    <button class="btn-restart" onclick="restartGame()">再玩一次</button>
+  </div>
+
+</div>
+
+<script>
+/* ============================================================
+   题库 —— 统编版一年级上册数学《数一数》
+   8 题，目标数量从 3 递增到 10，干扰物体逐步增加
+   ============================================================ */
+
+const QUESTIONS = [
+  {
+    target: { emoji: "🐦", name: "小鸟", unit: "只" },
+    targetCount: 3,
+    distractors: [
+      { emoji: "🌸", name: "花朵", count: 2 },
+      { emoji: "🌳", name: "大树", count: 1 }
+    ]
+  },
+  {
+    target: { emoji: "🍎", name: "苹果", unit: "个" },
+    targetCount: 4,
+    distractors: [
+      { emoji: "🍃", name: "树叶", count: 3 },
+      { emoji: "🌰", name: "栗子", count: 1 }
+    ]
+  },
+  {
+    target: { emoji: "🌸", name: "花朵", unit: "朵" },
+    targetCount: 5,
+    distractors: [
+      { emoji: "🦋", name: "蝴蝶", count: 2 },
+      { emoji: "🍀", name: "小草", count: 2 }
+    ]
+  },
+  {
+    target: { emoji: "🐟", name: "小鱼", unit: "条" },
+    targetCount: 6,
+    distractors: [
+      { emoji: "🪨", name: "石头", count: 3 },
+      { emoji: "🌿", name: "水草", count: 2 }
+    ]
+  },
+  {
+    target: { emoji: "🦋", name: "蝴蝶", unit: "只" },
+    targetCount: 7,
+    distractors: [
+      { emoji: "🌷", name: "郁金香", count: 2 },
+      { emoji: "🍀", name: "小草", count: 2 }
+    ]
+  },
+  {
+    target: { emoji: "⭐", name: "星星", unit: "颗" },
+    targetCount: 8,
+    distractors: [
+      { emoji: "🌙", name: "月亮", count: 1 },
+      { emoji: "☁️", name: "云朵", count: 2 }
+    ]
+  },
+  {
+    target: { emoji: "✏️", name: "铅笔", unit: "支" },
+    targetCount: 9,
+    distractors: [
+      { emoji: "📕", name: "书本", count: 2 },
+      { emoji: "📏", name: "尺子", count: 1 }
+    ]
+  },
+  {
+    target: { emoji: "🎈", name: "气球", unit: "个" },
+    targetCount: 10,
+    distractors: [
+      { emoji: "🎁", name: "礼物", count: 2 },
+      { emoji: "🎀", name: "蝴蝶结", count: 1 }
+    ]
+  }
+];
+
+/* ============================================================
+   游戏状态
+   ============================================================ */
+
+let currentIndex = 0;
+let score = 0;
+let mistakes = 0;
+let counted = 0;
+let locked = false;
+
+const levelBadge   = document.getElementById("levelBadge");
+const scoreText    = document.getElementById("scoreText");
+const progressFill = document.getElementById("progressFill");
+const promptText   = document.getElementById("promptText");
+const scene        = document.getElementById("scene");
+const counterBubble= document.getElementById("counterBubble");
+const counterNum   = document.getElementById("counterNum");
+const resetBtn     = document.getElementById("resetBtn");
+const optionsGrid  = document.getElementById("optionsGrid");
+const feedbackBar  = document.getElementById("feedbackBar");
+const resultPanel  = document.getElementById("resultPanel");
+const medalEmoji   = document.getElementById("medalEmoji");
+const resultTitle  = document.getElementById("resultTitle");
+const finalScoreText = document.getElementById("finalScoreText");
+
+/* ============================================================
+   渲染题目
+   ============================================================ */
+
+function renderQuestion() {
+  const q = QUESTIONS[currentIndex];
+
+  levelBadge.textContent = `第 ${currentIndex + 1} 题 · 数一数`;
+  scoreText.textContent = `${score} / ${QUESTIONS.length}`;
+  progressFill.style.width = `${score / QUESTIONS.length * 100}%`;
+
+  promptText.innerHTML =
+    `数一数，有几${q.target.unit} <span class="prompt-emoji">${q.target.emoji}</span> ${q.target.name}？`;
+
+  renderScene(q);
+  counted = 0;
+  updateCounter();
+  locked = false;
+
+  feedbackBar.textContent = "先一个一个点着数，数完再选答案哦～";
+  feedbackBar.className = "feedback-bar";
+
+  // 选项
+  const opts = generateOptions(q.targetCount);
+  optionsGrid.innerHTML = "";
+  opts.forEach(n => {
+    const btn = document.createElement("button");
+    btn.className = "option-num";
+    btn.textContent = n;
+    btn.addEventListener("click", () => handleAnswer(btn, n, q));
+    optionsGrid.appendChild(btn);
+  });
+}
+
+/* ============================================================
+   场景渲染 —— 网格随机布局
+   ============================================================ */
+
+function renderScene(q) {
+  scene.innerHTML = "";
+
+  const COLS = 6, ROWS = 4;
+  const cells = [];
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) cells.push({ r, c });
+  }
+  shuffleArray(cells);
+
+  // 组装物体列表
+  const items = [];
+  for (let i = 0; i < q.targetCount; i++) {
+    items.push({ emoji: q.target.emoji, isTarget: true, name: q.target.name });
+  }
+  q.distractors.forEach(d => {
+    for (let i = 0; i < d.count; i++) {
+      items.push({ emoji: d.emoji, isTarget: false, name: d.name });
+    }
+  });
+  shuffleArray(items);
+
+  // 放置
+  items.forEach((item, idx) => {
+    const cell = cells[idx];
+
+    const x = (cell.c + 0.5) / COLS * 100 + (Math.random() - 0.5) * 5;
+    const y = (cell.r + 0.5) / ROWS * 100 + (Math.random() - 0.5) * 7;
+
+    const el = document.createElement("div");
+    el.className = "scene-item";
+    el.style.left = x + "%";
+    el.style.top  = y + "%";
+    el.textContent = item.emoji;
+    el.dataset.target = item.isTarget ? "1" : "0";
+
+    el.addEventListener("click", () => handleItemClick(el, item, q));
+    scene.appendChild(el);
+  });
+}
+
+/* ============================================================
+   点击场景物体
+   ============================================================ */
+
+function handleItemClick(el, item, q) {
+  if (locked) return;
+
+  // 点到干扰物体
+  if (!item.isTarget) {
+    el.classList.add("shake");
+    setTimeout(() => el.classList.remove("shake"), 500);
+    feedbackBar.textContent = `这是${item.name}，我们要数的是${q.target.name}哦～`;
+    feedbackBar.className = "feedback-bar bad";
+    return;
+  }
+
+  // 已经数过的不重复计数
+  if (el.classList.contains("counted")) return;
+
+  el.classList.add("counted");
+
+  counted++;
+  const badge = document.createElement("span");
+  badge.className = "count-badge";
+  badge.textContent = counted;
+  el.appendChild(badge);
+
+  updateCounter();
+
+  if (counted === 1) {
+    feedbackBar.textContent = "真棒！继续点着数～";
+    feedbackBar.className = "feedback-bar good";
+  }
+}
+
+/* ============================================================
+   计数显示
+   ============================================================ */
+
+function updateCounter() {
+  counterNum.textContent = counted;
+  counterBubble.classList.add("pop");
+  setTimeout(() => counterBubble.classList.remove("pop"), 300);
+}
+
+function resetCounting() {
+  counted = 0;
+  document.querySelectorAll(".scene-item.counted").forEach(el => {
+    el.classList.remove("counted");
+    const badge = el.querySelector(".count-badge");
+    if (badge) badge.remove();
+  });
+  updateCounter();
+}
+
+resetBtn.addEventListener("click", () => {
+  if (locked) return;
+  resetCounting();
+  feedbackBar.textContent = "已清空，重新数一数吧～";
+  feedbackBar.className = "feedback-bar";
+});
+
+/* ============================================================
+   选项生成
+   ============================================================ */
+
+function generateOptions(answer) {
+  const nearby = [];
+  for (let d = 1; d <= 2; d++) {
+    if (answer - d >= 1) nearby.push(answer - d);
+    if (answer + d <= 10) nearby.push(answer + d);
+  }
+  shuffleArray(nearby);
+
+  let opts = nearby.slice(0, 3);
+
+  // 邻近数不够时从 1~10 补足
+  let guard = 0;
+  while (opts.length < 3 && guard < 100) {
+    guard++;
+    const cand = Math.floor(Math.random() * 10) + 1;
+    if (cand !== answer && !opts.includes(cand)) opts.push(cand);
+  }
+
+  opts.push(answer);
+  return shuffleArray(opts);
+}
+
+/* ============================================================
+   作答
+   ============================================================ */
+
+function handleAnswer(btn, n, q) {
+  if (locked) return;
+
+  const answer = q.targetCount;
+
+  if (n === answer) {
+    locked = true;
+    btn.classList.add("correct");
+    document.querySelectorAll(".option-num").forEach(b => {
+      if (b !== btn) b.classList.add("dimmed");
+    });
+
+    score++;
+    scoreText.textContent = `${score} / ${QUESTIONS.length}`;
+    progressFill.style.width = `${score / QUESTIONS.length * 100}%`;
+
+    spawnStars(btn);
+
+    const praise = pickRandom([
+      "太棒啦！🎉", "数对啦！⭐", "真聪明！🌟",
+      "你真厉害！👏", "完全正确！✨"
+    ]);
+
+    let detail;
+    if (answer <= 5) {
+      const seq = Array.from({ length: answer }, (_, i) => i + 1).join("、");
+      detail = `${seq}，一共 ${answer} ${q.target.unit}${q.target.name}。`;
+    } else {
+      detail = `一共 ${answer} ${q.target.unit}${q.target.name}。`;
+    }
+
+    feedbackBar.textContent = praise + detail;
+    feedbackBar.className = "feedback-bar good";
+
+    setTimeout(nextQuestion, 1700);
+
+  } else {
+    mistakes++;
+    locked = true;
+    btn.classList.add("wrong");
+
+    if (counted === 0) {
+      feedbackBar.textContent = "先一个一个点着数，数完再选答案哦～";
+    } else {
+      feedbackBar.textContent = `你数了 ${counted} 个，再仔细数一数吧～`;
+    }
+    feedbackBar.className = "feedback-bar bad";
+
+    setTimeout(() => {
+      btn.classList.remove("wrong");
+      resetCounting();
+      locked = false;
+      feedbackBar.textContent = "再数一次，一定可以的！💪";
+      feedbackBar.className = "feedback-bar";
+    }, 950);
+  }
+}
+
+/* ============================================================
+   推进
+   ============================================================ */
+
+function nextQuestion() {
+  currentIndex++;
+
+  if (currentIndex < QUESTIONS.length) {
+    renderQuestion();
+  } else {
+    showResult();
+  }
+}
+
+/* ============================================================
+   结算
+   ============================================================ */
+
+function showResult() {
+  promptText.style.display = "none";
+  scene.style.display = "none";
+  document.querySelector(".counter-row").style.display = "none";
+  optionsGrid.style.display = "none";
+  feedbackBar.style.display = "none";
+  resultPanel.style.display = "block";
+
+  scoreText.textContent = `${score} / ${QUESTIONS.length}`;
+  progressFill.style.width = "100%";
+  levelBadge.textContent = "🎉 通关啦！";
+
+  let medal = "🏅", title = "完成挑战！";
+  if (mistakes === 0) {
+    medal = "🏆";
+    title = "完美通关！你是数数小达人！";
+  } else if (mistakes <= 2) {
+    medal = "🥇";
+    title = `非常棒！只错了 ${mistakes} 次。`;
+  } else if (mistakes <= 5) {
+    medal = "🥈";
+    title = `做得不错！错了 ${mistakes} 次，继续加油！`;
+  } else {
+    medal = "🥉";
+    title = `完成啦！错了 ${mistakes} 次，多练习会更棒！`;
+  }
+
+  medalEmoji.textContent = medal;
+  resultTitle.textContent = title;
+  finalScoreText.textContent = `共 ${QUESTIONS.length} 题，答对 ${score} 题`;
+}
+
+/* ============================================================
+   重新开始
+   ============================================================ */
+
+function restartGame() {
+  currentIndex = 0;
+  score = 0;
+  mistakes = 0;
+  counted = 0;
+  locked = false;
+
+  promptText.style.display = "";
+  scene.style.display = "";
+  document.querySelector(".counter-row").style.display = "";
+  optionsGrid.style.display = "";
+  feedbackBar.style.display = "";
+  resultPanel.style.display = "none";
+
+  renderQuestion();
+}
+
+/* ============================================================
+   工具
+   ============================================================ */
+
+function shuffleArray(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function pickRandom(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function spawnStars(originEl) {
+  const rect = originEl.getBoundingClientRect();
+  const emojis = ["⭐", "🌟", "✨", "💫"];
+
+  for (let i = 0; i < 6; i++) {
+    const s = document.createElement("span");
+    s.className = "star-fall";
+    s.textContent = pickRandom(emojis);
+    s.style.left = (rect.left + rect.width / 2 + (Math.random() - 0.5) * 100) + "px";
+    s.style.top  = (rect.top + rect.height / 3) + "px";
+    s.style.animationDelay = (i * 0.06) + "s";
+    document.body.appendChild(s);
+    setTimeout(() => s.remove(), 1200);
+  }
+}
+
+/* ============================================================
+   启动
+   ============================================================ */
+
+renderQuestion();
+</script>
+</body>
+</html>

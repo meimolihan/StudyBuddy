@@ -296,7 +296,12 @@ func main() {
 	check(w.Code == 200 && !strings.Contains(body, "模板渲染失败"), "学习主页（判断题）渲染正常")
 	check(strings.Contains(body, `href="/study?qt=choose"`) && strings.Contains(body, `href="/study?qt=judge"`),
 		"学习主页含选择题 / 判断题切换入口")
-	check(strings.Contains(body, `qtab is-on" role="tab"`), "当前题型选项卡高亮")
+	// 页首 qtype-tabs 已移除，切换入口只有「开始做题」三张 qtype-card。
+	// 当前题型（qt=judge）由判断题那张卡的 .is-on 表达。
+	check(strings.Contains(body, `class="qtype-card is-on"`) &&
+		strings.Contains(body, `href="/study?qt=judge"`), "当前题型入口卡高亮")
+	// 回归保护：页首不应再出现那组重复控件
+	check(!strings.Contains(body, "qtype-tabs"), "学习主页已无页首题型切换标签（避免与入口卡重复）")
 	// 教材导航重构后主树只渲染当前视图（用户档案 primary/g4/v1）这一个年级册别，
 	// 所以这里改用「该视图内」的 judge 课来断言，而不是全库第一门 judge 课。
 	viewJudge, viewChoose := "", ""

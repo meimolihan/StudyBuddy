@@ -233,23 +233,50 @@ func TestModalAriaComplete(t *testing.T) {
 
 // TestQtypeTabsNotTablist 题型切换是**页面跳转**（<a href>），
 // 不能用 role="tablist"/role="tab"——那会让读屏用户以为同页切换内容。
+//
+// 归档页仍用页首 qtype-tabs 切换；学习主页的页首标签已移除，
+// 切换能力由「开始做题」入口卡承担（那三张 .qtype-card），因此两边检查的落点不同。
 func TestQtypeTabsNotTablist(t *testing.T) {
-	for _, f := range []string{"study.html", "archive.html"} {
-		body := tmplSourceForTest(t, f)
-		if strings.Contains(body, `role="tablist"`) || strings.Contains(body, `role="tab"`) {
-			t.Errorf("%s 仍用 tab 语义，但它的 <a> 带 href 是整页跳转", f)
+	// 归档页：保留页首标签，检查 navigation + aria-current 语义
+	arc := tmplSourceForTest(t, "archive.html")
+	if strings.Contains(arc, `role="tablist"`) || strings.Contains(arc, `role="tab"`) {
+		t.Error("archive.html 仍用 tab 语义，但它的 <a> 带 href 是整页跳转")
+	}
+	if !strings.Contains(arc, `role="navigation"`) {
+		t.Error("archive.html 应改用 role=\"navigation\"")
+	}
+	if !strings.Contains(arc, `aria-current="{{if eq .QT "choose"}}page`) ||
+		!strings.Contains(arc, `aria-current="{{if eq .QT "judge"}}page`) {
+		t.Error("archive.html 的两个题型项都应有 aria-current=\"page\"")
+	}
+	if strings.Contains(arc, "aria-selected") {
+		t.Error("archive.html 残留 aria-selected，那是 tab 语义专用属性")
+	}
+
+	// 学习主页：页首标签已删，切换入口是入口卡，同样不能用 tab 语义
+	// 注意先剥模板注释：我在注释里写了 "qtype-tabs" 这几个字说明来龙去脉，
+	// 不剥的话会把注释当成元素还在，那是典型的假红。
+	st := stripTmplComments(tmplSourceForTest(t, "study.html"))
+	if strings.Contains(st, `role="tablist"`) || strings.Contains(st, `role="tab"`) {
+		t.Error("study.html 仍用 tab 语义，但它的 <a> 带 href 是整页跳转")
+	}
+	if strings.Contains(st, "aria-selected") {
+		t.Error("study.html 残留 aria-selected，那是 tab 语义专用属性")
+	}
+	if strings.Contains(st, "qtype-tabs") {
+		t.Error("study.html 不该再有页首题型切换标签——与「开始做题」入口卡功能重复")
+	}
+	// 切换能力必须还在：三张入口卡，两个题型链接 + 一个游戏列表链接
+	for _, href := range []string{`href="/study?qt=choose"`, `href="/study?qt=judge"`, `href="/games"`} {
+		if !strings.Contains(st, href) {
+			t.Errorf("study.html 缺入口卡链接 %s，删掉页首标签后题型切换会无处可去", href)
 		}
-		if !strings.Contains(body, `role="navigation"`) {
-			t.Errorf("%s 应改用 role=\"navigation\"", f)
-		}
-		// 当前项用 aria-current="page" 表达
-		if !strings.Contains(body, `aria-current="{{if eq .QT "choose"}}page`) ||
-			!strings.Contains(body, `aria-current="{{if eq .QT "judge"}}page`) {
-			t.Errorf("%s 的两个题型项都应有 aria-current=\"page\"", f)
-		}
-		// aria-selected 是 tab 专属，换成 navigation 后必须清掉
-		if strings.Contains(body, "aria-selected") {
-			t.Errorf("%s 残留 aria-selected，那是 tab 语义专用属性", f)
+	}
+	// 页首标签删掉后，入口卡的 .is-on 高亮是当前题型唯一的视觉提示，
+	// 必须同时有 aria-current 兜给读屏 —— 只剩颜色/描边差别时读屏用户读不出来。
+	for _, qt := range []string{"choose", "judge"} {
+		if !strings.Contains(st, `aria-current="{{if eq .QT "`+qt+`"}}page`) {
+			t.Errorf("入口卡缺 %s 的 aria-current=\"page\"，读屏无法判断当前题型", qt)
 		}
 	}
 }

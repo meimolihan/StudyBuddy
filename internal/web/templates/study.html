@@ -1,25 +1,70 @@
 {{template "header" .}}
 <h1>学习主页</h1>
 
-{{/* 题型切换：选择题 ↔ 判断题。两套题库目录互为镜像，切换后目录、当前进度、
-     自测与归档都只在该题型内进行；参数 qt=choose|judge，默认选择题。 */}}
-<div class="qtype-tabs" role="navigation" aria-label="题型切换">
-  {{/* 不用 role=tablist/tab：这两个 <a> 带 href，是整页跳转而非同页Tab 面板。
-       ARIA 规范要求 tab 必须归属 tabpanel 且支持键盘方向键切换，
-       本项目是导航链接，套tab 语义会让读屏用户以为同页切换内容却发现页面整跳了。
-       改用 navigation + aria-current 表达"当前选中项"，语义与实际行为一致。 */}}
-  <a class="qtab{{if eq .QT "choose"}} is-on{{end}}" aria-current="{{if eq .QT "choose"}}page{{else}}false{{end}}"
-     href="/study?qt=choose" title="浏览选择题库（choose 目录）">选择题</a>
-  <a class="qtab{{if eq .QT "judge"}} is-on{{end}}" aria-current="{{if eq .QT "judge"}}page{{else}}false{{end}}"
-     href="/study?qt=judge" title="浏览判断题库（judge 目录）">判断题</a>
-  <span class="qtype-hint muted">{{.QTCN}}题库</span>
-</div>
+{{/* 页首原有的题型切换标签（选择题 / 判断题）已移除 ——
+     同样的切换能力由下方「开始做题」入口卡承担（选择题 / 判断题 / 游戏题），
+     两处同时存在会让用户看到重复控件。题型状态仍由 ?qt=choose|judge 控制，
+     入口卡上 .is-on 高亮的就是当前题型。 */}}
 
 <div class="grid" style="margin-bottom:16px">
   <div class="stat"><div class="num">{{.Total}}</div><div class="cap">累计自测次数</div></div>
   <div class="stat"><div class="num">{{.Passed}}</div><div class="cap">达标次数</div></div>
   <div class="stat"><div class="num">{{printf "%.0f" .Avg}}</div><div class="cap">平均得分</div></div>
   <div class="stat"><div class="num">{{.Session.Name}}</div><div class="cap">{{.Session.Class}}</div></div>
+</div>
+
+{{/* 题型入口：选择题 / 判断题 /游戏题。
+     页首那组 qtype-tabs 已移除，这三张卡是主页上唯一的题型切换入口，
+     .is-on 高亮标示当前题型（由 ?qt=choose|judge 决定）。
+     游戏题走 /games（独立目录扫描的轻量小游戏），不占用刷题进度与归档。
+     .GameCount 为 0 时该年级的游戏还没上线，卡片降级为不可点并说明原因，
+     不做成「点了跳到空页面」。 */}}
+{{$gc := 0}}
+{{if .GameStage}}{{$gc = .GameCount}}{{end}}
+<div class="card qtype-entry">
+  <h2>开始做题</h2>
+  <div class="qtype-entry-grid">
+    <a class="qtype-card{{if eq .QT "choose"}} is-on{{end}}" href="/study?qt=choose"
+       aria-current="{{if eq .QT "choose"}}page{{else}}false{{end}}"
+       title="浏览{{.QTCN}}题库（choose 目录）">
+      <span class="qtype-card-ico" aria-hidden="true">📝</span>
+      <span class="qtype-card-body">
+        <span class="qtype-card-name">选择题</span>
+        <span class="qtype-card-desc">四选一，练基础题</span>
+      </span>
+      <span class="qtype-card-go" aria-hidden="true">进入 →</span>
+    </a>
+    <a class="qtype-card{{if eq .QT "judge"}} is-on{{end}}" href="/study?qt=judge"
+       aria-current="{{if eq .QT "judge"}}page{{else}}false{{end}}"
+       title="浏览判断题库（judge 目录）">
+      <span class="qtype-card-ico" aria-hidden="true">✅</span>
+      <span class="qtype-card-body">
+        <span class="qtype-card-name">判断题</span>
+        <span class="qtype-card-desc">对与错，巩固概念</span>
+      </span>
+      <span class="qtype-card-go" aria-hidden="true">进入 →</span>
+    </a>
+    {{if $gc}}
+    <a class="qtype-card" href="/games" title="玩本册的小游戏">
+      <span class="qtype-card-ico" aria-hidden="true">🎮</span>
+      <span class="qtype-card-body">
+        <span class="qtype-card-name">游戏题</span>
+        <span class="qtype-card-desc">{{$gc}} 个单元小游戏，轻松玩</span>
+      </span>
+      <span class="qtype-card-go" aria-hidden="true">进入 →</span>
+    </a>
+    {{else}}
+    {{/* 资源还没上线：保留卡片位置与视觉，aria-disabled 让读屏也知道不可点，
+         而不是整块消失 —— 消失会让人以为这个功能从来不存在。 */}}
+    <span class="qtype-card" aria-disabled="true" title="本年级游戏资源正在制作中">
+      <span class="qtype-card-ico" aria-hidden="true">🎮</span>
+      <span class="qtype-card-body">
+        <span class="qtype-card-name">游戏题</span>
+        <span class="qtype-card-desc">资源制作中，敬请期待</span>
+      </span>
+    </span>
+    {{end}}
+  </div>
 </div>
 
 {{if .SubjectCards}}

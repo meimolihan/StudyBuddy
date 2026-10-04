@@ -1,0 +1,21 @@
+{{template "header" .}}
+<div class="gm-stage">
+  {{/* 返回按钮与页头放在 iframe 之外：游戏本体是离线静态 HTML，
+       不知道 StudyBuddy 的存在，导航必须由宿主页提供。
+       iframe 用 loading="lazy"：游戏是可选资源，不该拖慢列表页以外的任何首屏。 */}}
+  <div class="gm-bar">
+    <a class="btn ghost sm" href="/games" title="返回游戏列表">← 返回游戏列表</a>
+    <div class="gm-bar-title">
+      <b>{{.Game.DisplayTitle}}</b>
+      <span class="muted">{{.Game.Label}}</span>
+    </div>
+    <a class="btn ghost sm" href="/study" title="返回学习主页">学习主页</a>
+  </div>
+
+  <iframe class="gm-frame"
+          src="/game/raw?key={{urlquery .Game.Key}}"
+          title="{{.Game.DisplayTitle}}"
+          loading="lazy"
+          referrerpolicy="same-origin"></iframe>
+</div>
+{{template "footer" .}}

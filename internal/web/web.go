@@ -46,6 +46,9 @@ type App struct {
 
 // New 构建应用并注册路由。
 func New(cfg *config.Config, g *db.Global, tree *textbook.Tree) (*App, error) {
+	// 游戏模块要按内容根扫 game/ 目录，这里把根路径交给它。
+	// 放在 New 里而不是包级 init：单元测试可以先注入临时目录再构造 App。
+	SetContentRoot(cfg.Content)
 	tmpl, err := template.New("").Funcs(newFuncMap()).ParseFS(assetsFS, "templates/*.html")
 	if err != nil {
 		return nil, fmt.Errorf("解析模板失败: %w", err)
@@ -192,6 +195,11 @@ func (a *App) Routes() *gin.Engine {
 		auth2.GET("/quiz", a.quizPage)
 		auth2.POST("/quiz/submit", a.quizSubmit)
 		auth2.GET("/result", a.resultPage)
+		// 游戏题：独立目录扫描的轻量互动小游戏，与刷题题库互不影响。
+		// gameRaw 必须在 iframe 的 src 上（列表页 → gamePage → iframe），三级路径各自独立。
+		auth2.GET("/games", a.gamesPage)
+		auth2.GET("/game", a.gamePage)
+		auth2.GET("/game/raw", a.gameRaw)
 		auth2.POST("/lesson/docx", a.lessonDocx)
 		auth2.GET("/archive", a.archivePage)
 		auth2.GET("/archive/view", a.archiveView)
@@ -452,6 +460,7 @@ func (a *App) studyPage(c *gin.Context) {
 	// 该年级全部教材，不会因为学期缺失就整块空掉。
 	var tbCards []gin.H
 	tbGrade, tbVolume := "", ""
+	gameStage, gameCount := "", 0
 	if nav != nil {
 		tbCards = a.tbHomeCards(nav.Stage, nav.Grade, nav.Volume)
 		tbGrade = textbook.GradeLabel(nav.Stage, nav.Grade)
@@ -460,6 +469,12 @@ func (a *App) studyPage(c *gin.Context) {
 		if nav.Volume > 0 {
 			tbVolume = tbVolumeLabel(nav.Volume)
 		}
+		// 题型入口卡片上的游戏数量：按**该年级全部册别**统计而不是只算当前册别。
+		// 只算当前册别的话，学生在还没录上册游戏的年级会看到「资源制作中」，
+		// 而下册其实已经能玩了 —— 入口卡片是「这个年级有没有游戏」的判断，
+		// 具体哪个册别有内容交给 /games 页面里的「切换学期」去说。
+		gameStage = nav.Stage
+		gameCount = games.Count(nav.Stage, nav.Grade)
 	}
 
 	a.html(c, "study.html", gin.H{
@@ -483,6 +498,8 @@ func (a *App) studyPage(c *gin.Context) {
 		"TbCards":      tbCards,
 		"TbGrade":      tbGrade,
 		"TbVolume":     tbVolume,
+		"GameStage":    gameStage,
+		"GameCount":    gameCount,
 	})
 }
 
@@ -1622,6 +1639,8 @@ func navSection(p string) string {
 	switch {
 	case p == "/study" || p == "/lesson" || p == "/quiz" || p == "/result":
 		return "study"
+	case p == "/games" || p == "/game" || strings.HasPrefix(p, "/game/"):
+		return "study" // 游戏题属于学习域，顶栏与「学习主页」同亮
 	case p == "/textbook" || strings.HasPrefix(p, "/textbook/"):
 		return "textbook" // 顶栏独立高亮「教材」
 	case p == "/archive" || strings.HasPrefix(p, "/archive/"):
