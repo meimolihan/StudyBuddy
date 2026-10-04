@@ -4154,8 +4154,14 @@ p.muted#sb-wrong-empty a{
 .notice{line-height:1.8}
 
 /* ---- 4.2 模块大标题渐变（仅限 h1 大标题，克制使用）----
-   仅施加于页面 h1，且必须提供降级：background-clip:text 不支持时
-   回落到纯色 var(--brand)，不会出现「文字消失」（因为 color 兜底）。 */
+   ⚠️⚠️ 本段（含紧随其后的两条暗色规则）**已于「紧急修复｜暗色模式下 h1
+   渐变标题」段被整体取代**，现行版本在文件末尾，全部改用 longhand。
+   保留本段仅为留痕，**切勿把它当成生效样式**：
+   这里的 `background:linear-gradient(...)` 是**简写**，会重置
+   `background-clip` → 正是「暗色下 h1 有背景色但文字全消失」的事故根因。
+   亮色当时看似正常纯属侥幸（本段内background 恰好写在 background-clip
+   之前），暗色规则里background 在后、又把前面设好的 clip 重置掉了。
+   排查同类问题请直接看文件末尾的「紧急修复」段。 */
 h1{
   /* 渐变只用 --brand-dark 三段，不用 --brand：
      --brand 在女生皮肤亮色下 #e0518f on #fdf2f8 仅 3.35:1（未达 AA），
@@ -4171,16 +4177,17 @@ h1{
   -webkit-background-clip:text; background-clip:text;
   -webkit-text-fill-color:transparent;
 }
-/* 不支持 color-mix 时退化为单色 --brand-dark（所有皮肤均达标） */
-@supports not (color:color-mix(in srgb, red 50%, blue)){
-  h1{background:var(--brand-dark)}
-}
-/* 降级路径：不支持 background-clip:text 时用纯色，文字照常可见 */
-@supports not ((-webkit-background-clip:text) or (background-clip:text)){
-  h1{color:var(--brand-dark); background:none; -webkit-text-fill-color:currentColor}
-}
+/* ⚠️ 原此处有两条 @supports 降级规则，**已删除**，切勿恢复：
+     ① @supports not(color:color-mix(…)){ h1{background:var(--brand-dark)} }
+     ② @supports not((background-clip:text)){ h1{…background:none…} }
+   它们都用了 `background` 简写 —— 同源事故写法。
+   现行版本见文件末尾的 @supports 分支（已全部改用 background-image/
+   background-color 两个 longhand，且显式重声明 background-clip）。
+   删除原因：留着会被误当成有效兜底，而它们的实际效果依赖声明顺序，
+   顺序一变就复发。 */
 /* 暗色：--brand-dark 是浅色系（#8ec6ff/#ffb3d1 等），向黑混会变暗降低对比，
-   故暗色两端改为向白混。核算最差 8.53:1。A/B 双写。 */
+   故暗色两端改为向白混。核算最差 8.53:1。A/B 双写。
+   ⚠️ 同上，本条已废弃，现行版本见文件末尾。 */
 @media (prefers-color-scheme: dark){
   html:not([data-theme="light"]) h1{
     background:linear-gradient(96deg,
@@ -4318,4 +4325,83 @@ html[data-theme="light"] .tb-lb:hover{border-color:var(--brand-dark)}
 @media (prefers-reduced-motion:reduce){
   /* 本轮新增的 transform/opacity 过渡统一关掉（含返回顶部 fab 淡入淡出） */
   .fab,.fab[hidden],button.qtype-card.is-wip{transition:none !important}
+}
+
+/* =========================================================
+   紧急修复｜暗色模式下 h1 渐变标题「有背景色但文字不可见」
+   ------------------------------------------------------------
+   现象：暗色模式下页面 h1（study.html:2「学习主页」、login.html:39
+   「欢迎回来，同学！」等）铺着一层渐变底色，文字却完全看不见。
+   亮色模式正常。
+
+   根因（CSS 简写属性的陷阱）：`background` 是 **shorthand**，它会重置
+   所有 background-* 子属性，**包括 `background-clip`**。
+   阶段 4 的暗色规则写的是：
+       html[data-theme="dark"] h1{ background:linear-gradient(96deg, …) }
+   这条 `background` 把 4168 行 h1{} 里已经设好的
+   `background-clip:text` **重置回初始值 border-box**，
+   于是渐变从「只在文字笔画里显色」变成「铺满整个 h1 盒子」——
+   这就是用户看到的「有背景色」；
+   而 `-webkit-text-fill-color:transparent` 在 4172 行、位于暗色规则
+   之前且**没有被重置**，仍然生效 —— 文字于是彻底透明。
+   亮色之所以正常，纯属侥幸：h1{} 里 `background` 写在
+   `background-clip:text` **之前**，简写只影响它之前已声明的属性，
+   后面的 background-clip 覆盖了被重置的值。
+
+   修法（三处一起，缺一不可）：
+     ① 渐变一律改用 **background-image**（longhand，不重置 clip）；
+     ② 暗色两条规则**重新声明** background-clip:text + text-fill-color，
+        不依赖前面的 h1{} 兜底（即使将来调整顺序也安全）；
+     ③ @supports 降级分支里的 `background:var(--brand-dark)` 同样要改。
+
+   附带修掉同源第二处bug：**-webkit-text-fill-color 会继承给所有后代**，
+   admin.html:2 的 `<h1>用户管理 <span class="badge info">管理员</span></h1>`
+   里的徽章文字也被拉成透明（徽章有自己的 background，
+   background-clip 不在其上，故徽章底色正常、文字消失）。
+   统一用 `h1 *{ -webkit-text-fill-color:currentColor }` 兜住后代。
+   ========================================================= */
+h1{
+  /* 用 longhand background-image，不碰 background-clip */
+  background-image:linear-gradient(96deg,
+    color-mix(in srgb, var(--brand-dark) 88%, #000) 0%,
+    var(--brand-dark) 58%,
+    color-mix(in srgb, var(--brand-dark) 70%, #000) 100%);
+  -webkit-background-clip:text; background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+/* 后代恢复：text-fill-color 是继承属性，h1 内的徽章/链接等必须显式复原，
+   否则它们的文字也会跟着透明（admin.html 的「管理员」徽章即此症状）。 */
+h1 *{-webkit-text-fill-color:currentColor}
+
+@media (prefers-color-scheme: dark){
+  html:not([data-theme="light"]) h1{
+    background-image:linear-gradient(96deg,
+      color-mix(in srgb, var(--brand-dark) 92%, #000) 0%,
+      var(--brand-dark) 58%,
+      color-mix(in srgb, var(--brand-dark) 82%, #fff) 100%);
+    /* 显式重声明，不依赖 h1{} 的顺序 —— 防止同类回归 */
+    -webkit-background-clip:text; background-clip:text;
+    -webkit-text-fill-color:transparent;
+  }
+}
+html[data-theme="dark"] h1{
+  background-image:linear-gradient(96deg,
+    color-mix(in srgb, var(--brand-dark) 92%, #000) 0%,
+    var(--brand-dark) 58%,
+    color-mix(in srgb, var(--brand-dark) 82%, #fff) 100%);
+  -webkit-background-clip:text; background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+
+/* ---- @supports 降级分支同样必须避开 background 简写 ----
+   ① 不支持 color-mix → 退化为纯色背景图（不是 background 简写）；
+   ② 不支持 background-clip:text → 文字恢复实色、背景图撤掉。 */
+@supports not (color:color-mix(in srgb, red 50%, blue)){
+  h1{background-image:none; background-color:var(--brand-dark);
+     -webkit-text-fill-color:currentColor}
+}
+@supports not ((-webkit-background-clip:text) or (background-clip:text)){
+  h1{color:var(--brand-dark); background-image:none; background-color:transparent;
+     -webkit-text-fill-color:currentColor}
+  h1 *{-webkit-text-fill-color:currentColor}
 }
