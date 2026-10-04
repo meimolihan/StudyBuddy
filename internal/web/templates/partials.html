@@ -62,6 +62,22 @@
   // 只有「本次不是导航跳转」时才就地消费掉标记，避免残留影响下一次手动刷新；
   // 导航跳转这一路要把它留给后面的 #splash 脚本消费。
   if (!fromNav) { sessionStorage.removeItem('sb-intro-lastnav'); }
+
+  /* —— 关键兜底（2026-10-04 二修）——
+     原来 sb-intro-played 只由页脚 Sal.js 脚本在成功初始化后才写入；而学习
+     主页（study.html）里根本没有 [data-sal] 元素，Sal.js 走到
+     `if (!els.length) return` 就退出了，played **永远写不进去**。于是每次
+     站内跳转回来 `played !== '1'` 恒真，开屏判定只剩 sb-intro-lastnav 这一
+     道防线；拦截稍有闪失（新入口、脚本顺序、SVG 图标上的点击）动画就必然
+     重播 —— 这就是「改了好几次还是没效果」的根因。
+     这里改成无条件落盘：只要本次页面渲染过一次，本会话即视为已播过。 */
+  try {
+    if (played !== '1') {
+      // 会话首次渲染：给 #splash 留个「本次是首次」的信号，让它照常播放。
+      sessionStorage.setItem('sb-intro-first', '1');
+    }
+    sessionStorage.setItem('sb-intro-played', '1');
+  } catch (e) {}
 } catch (e) {} })();
 </script>
 </head>
@@ -507,6 +523,23 @@ window.sbBindModal = function (opt) {
     fromNav = sessionStorage.getItem('sb-intro-lastnav') === '1';
     if (fromNav) { sessionStorage.removeItem('sb-intro-lastnav'); }
   } catch (e) {}
+
+  /* —— 第二道防线（2026-10-04 二修）——
+     不再把「不放开屏」全押在 sb-intro-lastnav 上。只要本会话已经播过、
+     且这次渲染不是手动刷新（navigation type 不是 reload），就直接禁掉。
+     拦截标记即便因故没写成，这一条也能兜住；反过来手动刷新依旧照常播放。 */
+  if (!fromNav) {
+    try {
+      var navE2 = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
+      var navT2 = navE2 ? navE2.type
+        : (window.performance && performance.navigation && performance.navigation.type === 1 ? 'reload' : 'navigate');
+      var first = sessionStorage.getItem('sb-intro-first') === '1';
+      sessionStorage.removeItem('sb-intro-first'); // 一次性信号，读完即清
+      if (!first && sessionStorage.getItem('sb-intro-played') === '1' && navT2 !== 'reload') {
+        fromNav = true;
+      }
+    } catch (e) {}
+  }
 
   if (fromNav) {
     // 同步移除开屏元素：欢迎弹窗脚本随后解析时看不到 #splash，
@@ -1024,9 +1057,11 @@ window.sbBindModal = function (opt) {
    `if (!sb-anim) return` 等三道前置 return，导航跳转时根本走不到。 */
 (function () {
   if (location.pathname === '/study') { return; }  // 交给 #splash 处理
-  try { sessionStorage.removeItem('sb-intro-lastnav'); } catch (e) {}
+  try {
+    sessionStorage.removeItem('sb-intro-lastnav');
+    sessionStorage.removeItem('sb-intro-first');
+  } catch (e) {}
 })();
-</script>
 </script>
 {{template "fab_js"}}
 {{if .Session}}{{template "profile_js" .}}{{end}}
