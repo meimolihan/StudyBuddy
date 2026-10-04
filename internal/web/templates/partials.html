@@ -176,7 +176,7 @@ window.sbBindModal = function (opt) {
 
     {{if .Session}}
       <a class="tnav{{if eq .Nav "study"}} is-on{{end}}" href="/study"><span class="tnav-ico">{{template "ico_book"}}</span>学习主页</a>
-      <a class="tnav{{if eq .Nav "textbook"}} is-on{{end}}" href="/textbook" title="浏览全年级全学科官方教材"><span class="tnav-ico">{{template "ico_textbook"}}</span>教材</a>
+      <a class="tnav{{if eq .Nav "textbook"}} is-on{{end}}" href="/textbook" title="浏览全年级全学科官方教材"><span class="tnav-ico">{{template "ico_textbook"}}</span>教材仓库</a>
       <a class="tnav{{if eq .Nav "archive"}} is-on{{end}}" href="/archive"><span class="tnav-ico">{{template "ico_archive"}}</span>试卷归档</a>
       <button type="button" class="who" id="who-btn" aria-haspopup="dialog" title="点击查看个人信息与头像">
         <span class="avatar">{{initial .Session.Name}}{{if .HasAvatar}}<img class="avatar-pic" src="/avatar/me" alt="" onerror="this.remove()">{{end}}</span><span class="whotxt">{{.Session.Name}}{{if .Session.IsAdmin}}<span class="tag">管理员</span>{{end}}</span>
