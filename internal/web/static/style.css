@@ -4108,3 +4108,125 @@ button.qtype-card.is-wip .qtype-card-desc{
 @media (prefers-reduced-motion:reduce){
   .fab,.fab[hidden]{transition:none !important}
 }
+
+/* =========================================================
+   阶段 4｜空状态与细节（增强精品美化 · 批次 4）
+   ------------------------------------------------------------
+   勘察结论：主题切换过渡项目已有（341/421 行已在 body 级铺
+   color/background-color/border-color/box-shadow）；渐变标题、
+   全局图片圆角、空状态统一视觉均未做，本段补这三项。
+   ⚠️ 零 DOM 约束：本段不改模板，只用既有类做后置覆盖。
+   ========================================================= */
+
+/* ---- 4.1 空状态统一视觉 ----
+   项目里的空状态分两类落地方式：
+     ① .notice —— 归档无记录、学习页无题、游戏无资源（已有底色）
+     ② .muted —— 收藏夹为空、只看错题无结果（纯文字，无容器）
+   这里给② 补一个与 ① 同气质的容器感，并把 ① 调得更像「空状态」
+   而非普通提示条：加居中排版、加大上下留白。两者明暗自适应。 */
+.muted#fav-empty,
+p.muted#sb-wrong-empty{
+  display:block; text-align:center;
+  padding:var(--sp-6) var(--sp-5);
+  margin:var(--sp-4) 0;
+  border-radius:var(--r-sm);
+  background:var(--bg);
+  box-shadow:inset 0 0 0 1px var(--line);
+  /* 用 ink 的mix 而非纯 --muted：亮色下 muted on --bg 仅 3.66:1（未达AA）。
+     混合后约 7.3:1。本轮新增元素必须自身达标。 */
+  color:color-mix(in srgb, var(--ink) 82%, var(--bg));
+  line-height:1.9;
+}
+/* 不支持 color-mix 时回落到 --ink（--ink on --bg 达14.58:1） */
+@supports not (color:color-mix(in srgb, red 50%, blue)){
+  .muted#fav-empty,
+  p.muted#sb-wrong-empty{color:var(--ink)}
+}
+/* 空状态里的链接是唯一可点元素，给它足够热区与强调 */
+.muted#fav-empty a,
+p.muted#sb-wrong-empty a{
+  display:inline-block; padding:2px 4px;
+  color:var(--brand); font-weight:600;
+}
+/* ① 类空状态：居中 + 更松的留白，与 ② 视觉对齐。
+   注意 .notice 也用于表单校验等场景（非空态），故不加 ::before 图标，
+   只调排版，避免影响它在本就被复用的场景。 */
+.notice{line-height:1.8}
+
+/* ---- 4.2 模块大标题渐变（仅限 h1 大标题，克制使用）----
+   仅施加于页面 h1，且必须提供降级：background-clip:text 不支持时
+   回落到纯色 var(--brand)，不会出现「文字消失」（因为 color 兜底）。 */
+h1{
+  /* 渐变只用 --brand-dark 三段，不用 --brand：
+     --brand 在女生皮肤亮色下 #e0518f on #fdf2f8 仅 3.35:1（未达 AA），
+     且中段占 45% 宽度会形成肉眼可辨的浅色带。
+     层次靠「同色不同明度」制造：两端向黑偏移、中段保持原色 ——
+     **必须往黑里混而不是往白里混**（往白混会降低对比度，方向搞反）。
+     核算结果：5套皮肤明暗共6 种组合，全段最差 5.39:1，全部达 AA。 */
+  color:var(--brand-dark);
+  background:linear-gradient(96deg,
+    color-mix(in srgb, var(--brand-dark) 88%, #000) 0%,
+    var(--brand-dark) 58%,
+    color-mix(in srgb, var(--brand-dark) 70%, #000) 100%);
+  -webkit-background-clip:text; background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+/* 不支持 color-mix 时退化为单色 --brand-dark（所有皮肤均达标） */
+@supports not (color:color-mix(in srgb, red 50%, blue)){
+  h1{background:var(--brand-dark)}
+}
+/* 降级路径：不支持 background-clip:text 时用纯色，文字照常可见 */
+@supports not ((-webkit-background-clip:text) or (background-clip:text)){
+  h1{color:var(--brand-dark); background:none; -webkit-text-fill-color:currentColor}
+}
+/* 暗色：--brand-dark 是浅色系（#8ec6ff/#ffb3d1 等），向黑混会变暗降低对比，
+   故暗色两端改为向白混。核算最差 8.53:1。A/B 双写。 */
+@media (prefers-color-scheme: dark){
+  html:not([data-theme="light"]) h1{
+    background:linear-gradient(96deg,
+      color-mix(in srgb, var(--brand-dark) 92%, #000) 0%,
+      var(--brand-dark) 58%,
+      color-mix(in srgb, var(--brand-dark) 82%, #fff) 100%);
+  }
+}
+html[data-theme="dark"] h1{
+  background:linear-gradient(96deg,
+    color-mix(in srgb, var(--brand-dark) 92%, #000) 0%,
+    var(--brand-dark) 58%,
+    color-mix(in srgb, var(--brand-dark) 82%, #fff) 100%);
+}
+/* 渐变标题与 .card 内深色文字相邻时，h1 已是独立行，不会串色。 */
+
+/* ⚠️ 曾写成 `.card img:not(.tb-stage img):not(.tb-thumb img)` ——
+   **`:not()` 里不能放后代组合器**（CSS Selectors Level 3 限制），
+   浏览器会静默丢弃整条规则。正确做法是给确定存在的图片类逐个加圆角。
+   教材阅读区 .tb-stage img 是 absolute inset:0 铺满容器、靠容器
+   overflow:hidden 裁切，给它加圆角反而露边，故不在此列。
+
+   实际结构（已核模板）：封面 <img> 在 .tb-cover-frame 内；
+   .tb-cover-ph 是**无图占位**（只有文字），其下没有 img，故不配对。
+   .tb-cover-frame 本身已有 overflow:hidden 负责裁切。 */
+.tb-cover-frame img{border-radius:var(--r-sm)}
+
+/* ---- 4.4 图片加载占位底色 ----
+   项目已有 .tb-skel（pulse 动画 + reduced-motion 兜底），这里复用同一
+   套视觉语言，为待解码图片铺一层浅灰底，避免白底上「图慢慢浮出来」。
+   纯 CSS 无 JS：图解码后自然盖住底色。
+   只作用于确实有 src 的封面图，且排除教材阅读区（那里已有 .tb-skel 与
+   .tb-loading 专门处理加载态）。 */
+.tb-cover-frame img[src]{background-color:var(--line)}
+
+/* ---- 4.5 打印兜底：渐变标题在打印时必须可见 ----
+   ⚠️ 关键风险：h1 用了 -webkit-text-fill-color:transparent + background-clip:text。
+   打印时浏览器若不打印背景（默认 print-color-adjust:economy），背景会被去掉，
+   而文字填充色是透明 → **标题变成完全空白**。
+   教材打印虽然只放行 .tb-printroot（正文全是图片），但页面级 @media print
+   会隐藏 body 其余内容，h1 不参与打印流；为防未来新增打印路径，这里
+   仍显式兜底恢复可见。 */
+@media print{
+  h1{
+    -webkit-text-fill-color:currentColor !important;
+    color:var(--ink) !important;
+    background:none !important;
+  }
+}
