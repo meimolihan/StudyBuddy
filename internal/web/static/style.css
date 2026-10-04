@@ -3776,3 +3776,74 @@ html[data-font] .wip-modal .muted{font-size:calc(13.5px * var(--sb-fz,1))}
   html[data-font] .card table>tr:not(:first-child)>td{font-size:calc(13.5px * var(--sb-fz,1))}
   html[data-font] .card table>tr:not(:first-child)>td::before{font-size:calc(12.5px * var(--sb-fz,1))}
 }
+
+/* =========================================================
+   阶段 1｜底层设计令牌（增强精品美化 · 批次 1）
+   ------------------------------------------------------------
+   本段只新增令牌与滚动条细节，不接管任何既有选择器 ——
+   因为文件末尾还有 196 条html[data-font] 的 font-size 覆盖段
+   （由 scripts/gen_font_scale_css.py 生成），一旦这里用 rem/em
+   或让字号走继承，字号缩放功能会静默失效。新段一律用 px。
+   亮色规则不改动任何既有渲染；令牌值取自现有实际用值，
+   因此本段落地后视觉零变化。
+   ========================================================= */
+:root{
+  /* ---- 间距：4px 基准栅格。新组件一律引用变量，不手写字面量。 ---- */
+  --sp-1:4px;   --sp-2:8px;   --sp-3:12px;
+  --sp-4:16px;  --sp-5:20px;  --sp-6:24px;
+  /* 语义别名（可选层）：让组件意图更清晰，值仍锚定上面6 档 */
+  --gap-card:var(--sp-4);   /* 卡片内元素间距 */
+  --pad-card:var(--sp-4);   /* 卡片内边距 */
+  --gap-tight:var(--sp-2);  /* 同组控件间距 */
+  --gap-loose:var(--sp-5);  /* 模块之间留白 */
+
+  /* ---- 字号层级：全部 px。取值对齐现有实际用值，不改变任何现有观感。
+         h1 现为 22px（1520行后置覆盖）、h2 18px、正文 15px、辅助 13px/12px。 ---- */
+  --fs-title:22px;   /* 页面大标题 */
+  --fs-h2:18px;      /* 模块标题 */
+  --fs-body:15px;    /* 正文（与 body 现值一致） */
+  --fs-sm:13px;      /* 辅助小字 */
+  --fs-xs:12px;      /* 更小的标注 */
+
+  /* ---- 行高：与 body 现值 1.6 体系一致 ---- */
+  --lh-title:1.35;   /* 大标题收紧，避免中文标题过散 */
+  --lh-body:1.6;     /* 正文，与 body 现有 1.6 完全一致 */
+  --lh-tight:1.45;   /* 密集控件 */
+}
+
+/* ---- 浮层内滚动容器的滚动条细节 ----
+   全局 ::-webkit-scrollbar 已在文件头部定义（轨道 var(--bg)、滑块跟
+   var(--brand)，明暗靠变量自动翻转）。此处只补两点全局规则没覆盖的：
+   ① 浮层（顶栏下拉、设置面板、书签/打印列表）内的滚动容器轨道铺
+      var(--bg) 会在白色浮层上显出一块灰底，改为透明；
+   ② 标准属性 scrollbar-color 只作为 Firefox 的降级 —— 注意 Chrome 121+
+      一旦它们非auto 就会禁用 ::-webkit-scrollbar 定制，所以放在
+      @supports not selector(::-webkit-scrollbar) 内，互不干扰。 ---- */
+.sw-body::-webkit-scrollbar-track,
+.sw-body::-webkit-scrollbar-track-piece,
+.setpanel::-webkit-scrollbar-track,
+.setpanel::-webkit-scrollbar-track-piece,
+.tb-mk-list::-webkit-scrollbar-track,
+.tb-mk-list::-webkit-scrollbar-track-piece,
+.tb-printpanel::-webkit-scrollbar-track,
+.tb-printpanel::-webkit-scrollbar-track-piece{background:transparent}
+.sw-body::-webkit-scrollbar-corner,
+.setpanel::-webkit-scrollbar-corner,
+.tb-mk-list::-webkit-scrollbar-corner,
+.tb-printpanel::-webkit-scrollbar-corner{background:transparent}
+/* 浮层内滑块内缩，不贴浮层边缘 */
+.sw-body::-webkit-scrollbar-thumb,
+.setpanel::-webkit-scrollbar-thumb,
+.tb-mk-list::-webkit-scrollbar-thumb,
+.tb-printpanel::-webkit-scrollbar-thumb{
+  border:2px solid transparent; border-radius:7px;
+  background:var(--brand);
+  background:color-mix(in srgb, var(--brand) 48%, var(--bg));
+  background-clip:padding-box;
+}
+@supports not selector(::-webkit-scrollbar){
+  .sw-body, .setpanel, .tb-mk-list, .tb-printpanel{
+    scrollbar-width:thin;
+    scrollbar-color:color-mix(in srgb, var(--brand) 48%, var(--bg)) transparent;
+  }
+}
