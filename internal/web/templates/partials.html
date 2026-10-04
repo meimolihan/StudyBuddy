@@ -982,14 +982,19 @@ window.sbBindModal = function (opt) {
     return n;
   }
 
-  /* ---------- ① 只看错题 ---------- */
-  var chk = document.getElementById('sb-wrong-only');
+  /* ---------- ① 只看错题 ----------
+     ⚠️ 初版是 checkbox+label，现改为 <button>（三者要同行横排）。
+        状态从 chk.checked 挪到 **aria-pressed**（无障碍属性，
+        顺带让 CSS 能直接 [aria-pressed="true"] 选中态，无需额外 class）。
+        下面的筛选逻辑一行未动，只换了「状态从哪读」和「监听什么事件」。 */
+  var chk = document.getElementById('sb-wrong-box');
   if (chk) {
     var lis = document.querySelectorAll('.nav-card li[data-key]');
     var num = document.getElementById('sb-wrong-n');
     var empty = document.getElementById('sb-wrong-empty');
+    function isOn() { return chk.getAttribute('aria-pressed') === 'true'; }
     function apply() {
-      var on = chk.checked, i, j, n = 0;
+      var on = isOn(), i, j, n = 0;
       for (i = 0; i < lis.length; i++) {
         var w = parseInt(lis[i].getAttribute('data-wrong'), 10) || 0;
         if (w > 0) { n++; }
@@ -1015,7 +1020,10 @@ window.sbBindModal = function (opt) {
       if (num) { num.textContent = n ? '（' + n + '）' : ''; }
       if (empty) { empty.hidden = !(on && n === 0); }
     }
-    chk.addEventListener('change', apply);
+    chk.addEventListener('click', function () {
+      chk.setAttribute('aria-pressed', isOn() ? 'false' : 'true');
+      apply();
+    });
     // 开关状态只在本次会话内保留：刷新后回到「全部课程」，
     // 免得下次进来发现列表少了一大半却想不起为什么。
   }

@@ -137,19 +137,33 @@
     <h2>{{if .NavView}}{{.NavView.Title}}{{else}}教材导航{{end}}</h2>
     {{/* 「只看错题」快捷开关：筛的是**课程**（哪几课答错过），数据来自
        answers 表里已有的 right 标记按课聚合，不新增任何存储。
-       开关只做前端过滤：课程照常全部渲染在 HTML 里，勾选时把「错题数 0」
-       的课程藏起来，取消勾选原样恢复 —— 不做成一次新的服务端查询，
-       切一下开关不该刷新整页。 */}}
-  <label class="sb-chk" id="sb-wrong-box" title="只看答错过题的课程">
-    <input type="checkbox" id="sb-wrong-only">
+       开关只做前端过滤：课程照常全部渲染在 HTML 里，点开时把「错题数 0」
+       的课程藏起来，再点一下原样恢复 —— 不做成一次新的服务端查询，
+       切一下开关不该刷新整页。
+       ⚠️ 这里用 <button> 而不是 checkbox+label：三者（标题 / 本开关 /
+       切换年级）要同处一行横向排列，button 语义更贴切、也更好加
+       aria-pressed 状态。**开/关状态存在 aria-pressed 上**（初版曾用
+       hidden 的 checkbox，但那样多一个不可见焦点，键盘 Tab 会停在
+       一个看不见的东西上）。 */}}
+  <button type="button" class="sb-chk" id="sb-wrong-box" aria-pressed="false"
+          title="只看答错过题的课程">
     <span>只看错题</span>
     <span class="sb-wrong-n" id="sb-wrong-n"></span>
-  </label>
+  </button>
   {{if .NavMenu}}
     <details class="grade-switcher" data-menu>
       <summary title="切换到其他年级 / 册别">切换年级</summary>
       <div class="sw-body">
+        {{/* 每个学段包一层 .sw-col：三列并排时才能保证「小学/初中/高中」
+             各自成组。⚠️ 不能用 CSS grid/columns 直接平铺 —— .sw-stage 与
+             .sw-grade 是兄弟节点，grid 按顺序流入格子会把学段标题和它管辖
+             的年级拆到不同列（实测第一列变成「小学/三年级/六年级/八年级/
+             高一」），columns 虽按内容流分配但仍按高度均衡、无法控制从哪个
+             学段起分栏（实测第二栏开头是孤零零的「九年级」）。
+             包裹后 .sw-col 自身成为 grid/flex 的直接子项，分组才可靠。
+             下面所有 class / id / 链接 / 选中判定逻辑**一律未改**。 */}}
         {{range .NavMenu}}
+        <div class="sw-col">
         <div class="sw-stage">{{.Label}}</div>
         {{range .Grades}}
         {{$g := .}}
@@ -162,6 +176,7 @@
           {{end}}
         </div>
         {{end}}
+        </div>
         {{end}}
       </div>
     </details>
