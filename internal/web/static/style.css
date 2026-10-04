@@ -3982,3 +3982,129 @@ ul.lessons li:active{transform:translateY(0) scale(.99)}
   .subj-tile:hover,.opts label:hover,ul.lessons li:hover,.btn:hover,
   .fab:hover{transform:none !important}
 }
+
+/* =========================================================
+   阶段 3｜页面专项（增强精品美化 · 批次 3）
+   ------------------------------------------------------------
+   先系统排查再落笔：用tools/check_missing_ui.py 把 9 个模板里
+   「可交互元素上用到但 CSS 完全没有」的 class/id 全跑了一遍，
+   逐条 grep 核实后，真实缺口只剩两处，其余页面（教材阅读器
+   .tb-nav 翻页含 44px 热区、.q/.opts 选项、result 的right/wrong
+   判分态、归档.sb-check 勾选框、subj-tile/qtype-card 卡片）
+   项目都已实现且完整，不重复造。本段只补缺口 + 少量点缀。
+   ========================================================= */
+
+/* ---- 3.1 学习主页 · 游戏卡「未开放」视觉暗示 ----
+   #sb-game-wip 是个真<button class="qtype-card is-wip">，但此前
+   is-wip 只有一条 .qtype-card-desc 变色，卡片外观与可用卡完全一致，
+   用户看不出它点不动，只能点下去才知道是「火速开发中」。
+   这里给未开放态一套明确但克制的视觉：整体降饱和 + 虚线描边 +
+   右上角「开发中」角标 + 禁用上浮。所有 hover 位移包在 hover:hover内。 */
+button.qtype-card.is-wip{
+  /* 底色用 var(--bg) 而非 var(--surface-sunken)——后者虽定义在无条件的
+     :root 里，但值是深色系 #141a22，且项目既有用法全限定在
+     html[data-theme="dark"] 之下；亮色直接取它会得到一张深黑卡片。 */
+  background:var(--bg);
+  box-shadow:inset 0 0 0 1px var(--line);
+  cursor:pointer;                /* 仍可点：点了要有「火速开发中」反馈 */
+  filter:saturate(.72);
+}
+/* 暗色才用嵌入面（比 card 深一层，与该令牌定位一致），A/B 双写 */
+@media (prefers-color-scheme: dark){
+  html:not([data-theme="light"]) button.qtype-card.is-wip{background:var(--surface-sunken)}
+}
+html[data-theme="dark"] button.qtype-card.is-wip{background:var(--surface-sunken)}
+/* 虚线描边：与可点卡片形成「未就绪」的形态差异 */
+button.qtype-card.is-wip::after{
+  content:"开发中"; position:absolute; top:-8px; right:10px;
+  padding:2px 8px; border-radius:999px;
+  font-size:11px; font-weight:600; line-height:1.5; letter-spacing:.02em;
+  /* 用 --ink 而非 --muted：亮色下 muted on card 仅 3.93:1（未达 AA），
+     ink on card 为 15.65:1。这是本轮新增元素，必须自身达标，
+     不像既有徽章那样把对比度问题留给阶段 5。 */
+  color:var(--ink); background:var(--card);
+  box-shadow:inset 0 0 0 1px var(--line);
+  pointer-events:none;
+}
+/* 未开放态不参与 hover 上浮——避免「看起来能用但点了没反应」的错觉 */
+@media (hover:hover){
+  button.qtype-card.is-wip:hover{
+    transform:none;
+    box-shadow:inset 0 0 0 1px var(--brand);
+  }
+  button.qtype-card.is-wip:hover::after{
+    box-shadow:inset 0 0 0 1px var(--brand); color:var(--brand);
+  }
+}
+button.qtype-card.is-wip:active{transform:none}
+/* 未开放卡片的描述文字：既有规则用 --muted，在本卡改过的底色上亮色仅
+   3.66:1（未达 AA）。这条覆盖让描述达到可读标准 —— 卡片既然变成
+   「未就绪」外观，文字可读性就是本轮自己的责任，不能推给阶段 5。
+   暗色下muted 本就 7.90:1，此处覆盖对其无影响。 */
+button.qtype-card.is-wip .qtype-card-desc{
+  color:color-mix(in srgb, var(--ink) 78%, var(--bg));
+}
+/* 不支持 color-mix 时回落到 --ink */
+@supports not (color:color-mix(in srgb, red 50%, blue)){
+  button.qtype-card.is-wip .qtype-card-desc{color:var(--ink)}
+}
+/* 触屏：本就没有 hover 态，靠上面的常显虚线与角标表达不可用 */
+
+/* ---- 3.2 刷题页 · 题目卡留白规整 ----
+   题目卡、题干、选项之间的间距此前是各处零散写死的，
+   这里统一到阶段 1 定的间距令牌（--sp-*），只改间距不改配色观感。 */
+.q{padding:var(--sp-5)}
+.q .stem{margin-bottom:var(--sp-3); line-height:1.65}
+/* 选项与选项之间给足呼吸空间，触屏点选更不容易误误触相邻项 */
+.q .opts li{margin:var(--sp-2) 0}
+.q .opts label{padding:var(--sp-3)}
+/* 结果页的「解析：…」段落：.explain 只存在于 result.html（不在 .q 内），
+   这里给它与题干留出间距。 */
+.result-item .explain{margin-top:var(--sp-2); line-height:1.7}
+
+/* ---- 3.3 游戏页 · 外框圆角与柔和阴影 ----
+   游戏是同源 iframe，游戏文件本身不改，只给宿主页的外框做视觉收口。 */
+.gm-stage{gap:var(--sp-4)}
+.gm-frame{
+  border-radius:var(--r-lg);
+  box-shadow:var(--shadow-lg);
+  overflow:hidden;
+}
+/* 游戏页整体也给一层入场淡入，与站内其他页面节奏一致 */
+.gm-bar{
+  transition:color var(--dur) var(--ease);
+}
+
+/* ---- 3.4 教材详情页 · 阅读区图片柔和阴影 ----
+   .tb-stage 已有 10px 圆角 + 边框 + 阴影，这里只把阴影提亮一档，
+   让「书页」在白底卡片上有更明确的悬浮感；圆角不动（图片 absolute
+   inset:0 铺满容器，靠容器 overflow:hidden 裁切，改圆角反而露边）。 */
+.tb-stage{box-shadow:var(--shadow-lg)}
+/* 缩略图条同步：默认弱一点，选中态由既有规则强调 */
+.tb-thumbs .tb-thumb{transition:border-color var(--dur) var(--ease),
+  box-shadow var(--dur) var(--ease)}
+
+/* ---- 3.5 悬浮球：出现/消失改为淡入淡出 ----
+   #sb-fab-top 的显示切换靠 .fab[hidden]{display:none}（作者样式会顶掉
+   UA 的 hidden，必须显式声明），而 display 之间的切换无法过渡，
+   所以此前按钮是「啪」地一下出现/消失。这里补 opacity + transform
+   过渡：hidden 态保留在文档流但不可见，显示时淡入上浮。
+   注意 display:none 的元素无法参与过渡，故用 visibility 配合 opacity，
+   并在 hidden 时置 visibility:hidden 让它不抢点击与Tab 焦点。 */
+.fab{
+  transition:opacity var(--dur) var(--ease),
+             transform var(--dur) var(--ease),
+             box-shadow var(--dur) var(--ease);
+}
+.fab[hidden]{
+  display:inline-flex !important;   /* 覆盖上面那条 display:none */
+  visibility:hidden; opacity:0; transform:translateY(8px) scale(.9);
+  pointer-events:none;
+}
+/* 触屏上 fab 更大，过渡幅度相应收一点，避免视觉上过猛 */
+@media (pointer:coarse){
+  .fab[hidden]{transform:translateY(6px) scale(.92)}
+}
+@media (prefers-reduced-motion:reduce){
+  .fab,.fab[hidden]{transition:none !important}
+}
