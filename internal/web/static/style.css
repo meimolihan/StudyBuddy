@@ -3847,3 +3847,138 @@ html[data-font] .wip-modal .muted{font-size:calc(13.5px * var(--sb-fz,1))}
     scrollbar-color:color-mix(in srgb, var(--brand) 48%, var(--bg)) transparent;
   }
 }
+
+/* =========================================================
+   阶段 2｜通用组件（增强精品美化 · 批次 2）
+   ------------------------------------------------------------
+   先勘察后落笔：卡片/按钮的 hover 上浮、暗色 hover 同权重压回、
+   触屏 44px 热区、reduced-motion 降级，项目里都已实现且比通用
+   模板更精细，本段不重复造，只补四处真实缺口：
+     ① 弹窗遮罩毛玻璃（现有 .sb-modal-mask/.sheetscrim 是纯半透明色）
+     ② 表格隔行底色（现有只有 hover 底色，无隔行）
+     ③ 卡片按压反馈 .active（现有只有 hover，无按下态）
+     ④ 分割线/徽章/标签的圆角与配色收口
+   所有 hover 位移继续包在 @media (hover:hover) 内。
+   ========================================================= */
+
+/* ---- ① 弹窗遮罩：毛玻璃 + 退场淡出 ----
+   #wip-mask（火速开发中）、个人信息、欢迎、归档确认弹窗都复用
+   .sb-modal-mask；.sheetscrim 是底部抽屉那套。两者统一处理。
+   backdrop-filter 必须同时给 -webkit- 前缀，且必须有降级底色——
+   不支持时靠前面的 rgba 底色照常可读（此处的 rgba 已由原有规则提供）。 */
+.sb-modal-mask,
+.sheetscrim{
+  -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+  transition:background-color var(--dur) var(--ease),
+             opacity var(--dur) var(--ease);
+}
+/* 不支持 backdrop-filter 的浏览器：加一层更实的底色，避免透底看不清 */
+@supports not ((backdrop-filter:blur(8px)) or (-webkit-backdrop-filter:blur(8px))){
+  .sb-modal-mask{background:rgba(15,23,42,.62)}
+  .sheetscrim{background:rgba(15,23,42,.58)}
+}
+/* 暗色：底色压深一档，毛玻璃下透出的内容才不会刺眼。
+   A/B 双写：@media 内的 html:not([data-theme="light"]) 覆盖 auto 模式，
+   单独 html[data-theme="dark"] 覆盖手动切深色。两处权重必须与原规则对齐。 */
+@media (prefers-color-scheme: dark){
+  html:not([data-theme="light"]) .sb-modal-mask{background:rgba(0,0,0,.7)}
+  html:not([data-theme="light"]) .sheetscrim{background:rgba(0,0,0,.66)}
+}
+html[data-theme="dark"] .sb-modal-mask{background:rgba(0,0,0,.7)}
+html[data-theme="dark"] .sheetscrim{background:rgba(0,0,0,.66)}
+
+/* 弹窗本体：入场动画已存在(sb-pop)，这里补退场所需的对称淡入淡出，
+   并让遮罩在显示时就有 opacity 过渡能力。 */
+.sb-modal{animation:sb-pop var(--dur) var(--ease) both}
+
+/* ---- ② 表格隔行底色 ----
+   现有规则只给 tbody tr:hover 铺底色，长表格（错题表、成绩表）扫读时
+   缺少行引导。
+
+   ⚠️ 这里**不能**直接用 var(--surface-sunken)：该令牌虽定义在无条件的
+   :root 里，但值是深色系 #141a22，且项目里所有既有用法
+   （details summary / th / code / .badge.new）都限定在
+   html[data-theme="dark"] 之下 —— 亮色从未真正用过它。
+   直接拿来当亮色隔行底色，亮色表格会出现深黑条带。
+   因此：亮色用极浅的 --bg（同为灰系，条纹可见度≈1.13），
+   暗色才用 --surface-sunken，两套各自 A/B 双写。 */
+.card table>tr:not(:first-child):nth-child(even){background:var(--bg)}
+.card table>tr:not(:first-child):nth-child(even):hover{background:var(--brand-soft)}
+@media (prefers-color-scheme: dark){
+  html:not([data-theme="light"]) .card table>tr:not(:first-child):nth-child(even){background:var(--surface-sunken)}
+  html:not([data-theme="light"]) .card table>tr:not(:first-child):nth-child(even):hover{background:var(--brand-soft)}
+}
+html[data-theme="dark"] .card table>tr:not(:first-child):nth-child(even){background:var(--surface-sunken)}
+html[data-theme="dark"] .card table>tr:not(:first-child):nth-child(even):hover{background:var(--brand-soft)}
+/* @media print 段已把 body 全部隐藏、只放行教材打印容器，
+   这里额外保证即便有表格进入打印流也不染色（否则打印稿出现灰白条带）。 */
+@media print{
+  table tr, .card table>tr:not(:first-child):nth-child(even){
+    background:transparent !important;
+  }
+}
+
+/* ---- ③ 按压反馈（:active）----
+   现有规则只给了 :hover 上浮，没有「按下」这一档，鼠标点击时缺少即时反馈。
+   :active 与 :hover 同时命中（鼠标按住时两者都成立），所以这里写全transform
+   与 box-shadow，把上浮压回去，形成明确的按压语义。
+   纯 :active 不需要包在 hover:hover 里——触屏本来就有按压态，
+   这是触屏用户唯一的即时反馈来源。 */
+.card,
+.stat,
+.result-item,
+.q,
+.subj-tile,
+.opts label,
+ul.lessons li{transition-property:box-shadow, transform;
+  transition-duration:var(--dur); transition-timing-function:var(--ease)}
+.card:active,
+.stat:active,
+.result-item:active,
+.q:active,
+.subj-tile:active,
+.opts label:active,
+ul.lessons li:active{transform:translateY(0) scale(.99)}
+.btn:active{transform:translateY(0) scale(.97)}
+/* 触屏上:active 与 hover 状态机可能残留（点完不立刻消），
+   项目已用 @media (pointer:coarse) 处理过 hover，这里补一层：
+   触屏设备禁用上浮位移，只保留背景色变化，避免点完卡片停在抬起态。 */
+@media (hover:none),(pointer:coarse){
+  .card:hover,
+  .stat:hover,
+  .result-item:hover,
+  .q:hover,
+  .subj-tile:hover,
+  .opts label:hover,
+  ul.lessons li:hover,
+  .btn:hover,
+  .fab:hover{transform:none}
+}
+
+/* ---- ④ 辅助件收口 ---- */
+/* 分割线弱化：项目已「去分割线 + 靠留白」，这里只把表格里偏重的底线
+   调淡一档，优先留白而非粗线条（表格是唯一必须保留线的场景）。 */
+.card table>tr:not(:first-child)>td{border-bottom-color:var(--line)}
+/* 徽章：原 border-radius:20px 在 12px 小字号下已接近胶囊，
+   改用 999px 让不同字号的徽章都稳定呈胶囊形；补 font-weight:600
+   提升小字号可读性。不改任何颜色 —— 亮色徽章对比度问题已记录，
+   留到阶段 5 统一处理，本批次不碰亮色观感。 */
+.badge{border-radius:999px; font-weight:600; line-height:1.5}
+/* 标签/芯片类：.skinchip、.tb-chip 圆角与配色已各自定义完整（931/2197 行），
+   本段不动，避免同选择器二次覆盖。原先写的 .pill / .chip 是本项目不存在的
+   类（真实类名是 .skinchip 与 .tb-chip），已移除，不留死规则。
+   模板中也不存在 <hr> 元素，故未为其新增分割线规则。 */
+
+/* ---- 阶段 2 收尾：reduced-motion 兜住新增的 transform 过渡 ----
+   项目已有 @media (prefers-reduced-motion:reduce) 段并会关闭过渡，
+   这里补一条兜底：即使前面那段因故未命中，也确保按压缩放不生效。 */
+@media (prefers-reduced-motion:reduce){
+  .card,.stat,.result-item,.q,.subj-tile,.opts label,ul.lessons li,.btn{
+    transition:none !important;
+  }
+  .card:active,.stat:active,.result-item:active,.q:active,
+  .subj-tile:active,.opts label:active,ul.lessons li:active,
+  .btn:active,.card:hover,.stat:hover,.result-item:hover,.q:hover,
+  .subj-tile:hover,.opts label:hover,ul.lessons li:hover,.btn:hover,
+  .fab:hover{transform:none !important}
+}
