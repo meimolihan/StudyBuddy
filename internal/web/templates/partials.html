@@ -933,31 +933,61 @@ window.sbBindModal = function (opt) {
 <script>
 /* 站内导航跳转不重播开屏动画（2026-10-04）。
    原判定是 `(played !== '1' || isReload)` —— 只要浏览器把这次导航判成
-   reload，就会无视「本会话已播过」而重播。但点顶栏「学习主页」这类站内
-   链接时，navigation API 在部分环境（尤其是带前进/后退缓存的恢复导航、
-   以及旧内核回退到 performance.navigation 时）会误报 type='reload'，
-   于是点一次导航动画就重放一次，看着像「按钮没生效又闪一遍」。
+   reload，就会无视「本会话已播过」而重播。但点站内链接时，navigation API
+   在部分环境（尤其是带前进/后退缓存的恢复导航、以及旧内核回退到
+   performance.navigation 时）会误报 type='reload'，于是点一次导航动画就
+   重放一次，看着像「按钮没生效又闪一遍」。
 
-   这里在点击站内链接的瞬间打一个一次性标记 sb-intro-lastnav，由 header 的
-   内联脚本优先消费并清除。只对**站内 .tnav 链接**生效：
-     - 修饰键点击（ctrl/cmd/shift/alt）走新标签，不拦截也不打标记
-     - 纯锚点（#…）不跳转页面，不打标记
-     - 外部链接（http://…、//…）不打标记
+   修法：站内发生跳转的瞬间打一个一次性标记 sb-intro-lastnav，由 header
+   的内联脚本优先消费并清除。**在 document 上用捕获阶段统一监听**，而不是
+   逐个绑定某个类 —— 这样顶栏 tnav、页面里的「返回学习主页」、题型切换、
+   教材/归档/游戏之间的互跳，乃至表单 POST 后 303 重定向回本页（同页往返，
+   最容易误触发），全部覆盖，不会漏掉某类入口。
+
+   判定「站内跳转」的条件（任一命中即认为会发生页面导航）：
+     - <a href>：站内绝对路径（/… 且不是 //host）
+     - <form action>：站内路径，或留空 action（同页提交）
+   一律排除：新标签/新窗口（修饰键、中键右键）、页内锚点、纯 hash 变更、
+   download 属性、target 指向外站、协议相对与 http(s) 外链。
    标记只活一次、消费即删，所以浏览器前进/后退、手动刷新仍按原规则播。 */
 (function () {
-  var links = document.querySelectorAll('a.tnav[href]');
-  if (!links.length) { return; }
-  Array.prototype.forEach.call(links, function (a) {
-    a.addEventListener('click', function (e) {
-      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) { return; } // 打开新标签：让浏览器接管
-      if (e.button && e.button !== 0) { return; }                        // 中键/右键不处理
-      var href = a.getAttribute('href') || '';
-      if (href.charAt(0) === '#') { return; }                             // 页内锚点
-      // 站内绝对路径才拦；//host 与 http(s):// 都算外站
-      if (href.charAt(0) !== '/' || href.slice(0, 2) === '//') { return; }
-      try { sessionStorage.setItem('sb-intro-lastnav', '1'); } catch (err) {}
-    });
-  });
+  function isInternal(path) {
+    if (!path) { return false; }
+    if (path.charAt(0) === '#') { return false; }            // 页内锚点
+    if (path.slice(0, 2) === '//') { return false; }           // 协议相对 = 外站
+    if (path.charAt(0) === '/') { return true; }              // 站内绝对路径
+    // 相对路径（同目录）也视为站内，但排除带协议的非 http（同 blob:/mailto: 等）
+    return !/^[a-z][a-z0-9+.-]*:/i.test(path);
+  }
+  function markNav(e) {
+    // 修饰键 / 中键 / 右键 → 浏览器开新标签或新窗口，本页不导航
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) { return; }
+    if (e.button && e.button !== 0) { return; }
+    var t = e.target;
+    // 事件委托可能落在图标等子元素上，向上找到最近的 a / form
+    var el = t && t.closest ? t.closest('a[href], form[action], form') : null;
+    if (!el) { return; }
+    var tag = el.tagName;
+    if (tag === 'A') {
+      if (el.hasAttribute('download')) { return; }
+      var tg = (el.getAttribute('target') || '').toLowerCase();
+      if (tg && tg !== '_self') { return; }                   // 目标另有窗口/标签
+      if (!isInternal(el.getAttribute('href') || '')) { return; }
+    } else {
+      // 表单：留空 action 或站内 action 都会导航到某个页面
+      var act = el.getAttribute('action') || '';
+      if (act && !isInternal(act)) { return; }
+      if (el.hasAttribute('data-no-intro-nav')) { return; }    // 显式豁免
+      // target=_blank 的表单在新窗口打开，本页不导航
+      var ft = (el.getAttribute('target') || '').toLowerCase();
+      if (ft && ft !== '_self') { return; }
+    }
+    try { sessionStorage.setItem('sb-intro-lastnav', '1'); } catch (err) {}
+  }
+  // 捕获阶段监听：不依赖冒泡，页面里 stopPropagation 的自定义脚本也拦得住
+  document.addEventListener('click', markNav, true);
+  // 表单回车提交不产生 click，用 submit 事件补上
+  document.addEventListener('submit', markNav, true);
 })();
 </script>
 {{template "fab_js"}}
