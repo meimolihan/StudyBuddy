@@ -56,14 +56,42 @@ def find_games(root: str) -> list[str]:
 
 
 def strip_enhance(html: str) -> str:
-    """移除已注入的增强层（用于幂等重写与 --remove）。"""
-    # 增强层的 style 以哨兵开头、到 </style> 结束
+    """移除已注入的增强层（用于幂等重写与 --remove）。
+
+    ⚠ 这里踩过一个坑：最初写成 `[ \t]*<?(?:style|script)?[^<>]{0,40}>?` 想
+    兼容「哨兵在标签外」与「哨兵在标签内」两种写法，但 `[^<>]{0,40}` 会
+    **跨过 `<style>` 标签本身**，匹配起点飘到标签之前，结果只吃掉了哨兵和
+    内容、留下了孤立的 `<style>` 开标签 —— 重复注入就多一个空 style 块
+    （实测 `<style>` 2→3，字节每次 +17）。
+
+    正确做法：**两个精确模式分开写**，各只认一种形态：
+      形态 A（正确，当前写法）：<style>\\n/* 哨兵 */ ... </style>
+      形态 B（旧版，哨兵在标签外）：/* 哨兵 */<style> ... </style>
+    两条都要求「哨兵紧跟在开标签之后」或「紧贴闭标签之前」，
+    不会误伤游戏自带的 style/script。
+
+    ⚠ 替换值用空串而不是 "\\n"：inject() 写回时是
+    `head.rstrip() + "\\n" + block + "\\n" + tail.lstrip()`，
+    前后换行由 inject 自己负责。若这里再吐一个 "\\n"，
+    strip 结果就会比原文多一个空行（实测 `</style>\\n</head>`
+    变成 `</style>\\n\\n</head>`），导致「strip 后与原始版本逐字节比对」不通过。
+    """
+    # 形态 A：标签内哨兵（当前）
     html = re.sub(
-        r"\n?" + re.escape(SENTINEL_CSS) + r".*?</style>\n?",
-        "\n", html, flags=re.S)
+        r"[ \t]*<(style|script)>\s*" + re.escape(SENTINEL_CSS)
+        + r".*?</\1>\n?",
+        "", html, flags=re.S)
     html = re.sub(
-        r"\n?" + re.escape(SENTINEL_JS) + r".*?</script>\n?",
-        "\n", html, flags=re.S)
+        r"[ \t]*<(style|script)>\s*" + re.escape(SENTINEL_JS)
+        + r".*?</\1>\n?",
+        "", html, flags=re.S)
+    # 形态 B：标签外哨兵（旧版，会渲染成可见文本）
+    html = re.sub(
+        r"[ \t]*" + re.escape(SENTINEL_CSS) + r"\s*<style>.*?</style>\n?",
+        "", html, flags=re.S)
+    html = re.sub(
+        r"[ \t]*" + re.escape(SENTINEL_JS) + r"\s*<script>.*?</script>\n?",
+        "", html, flags=re.S)
     return html
 
 
@@ -110,22 +138,36 @@ def fingerprint(html: str) -> dict:
 
 
 def inject(html: str) -> str:
-    """在 </head> 前插 CSS、</body> 前插 JS。"""
-    css_block = (SENTINEL_CSS + "\n<style>\n" + ENHANCE_CSS.strip()
+    """在 </head> 前插 CSS、</body> 前插 JS。
+
+    ⚠ 哨兵必须放在 <style>/<script> **标签内部**当首行注释。
+    放在标签外面就成了 body 里的可见文本节点，会在页面上真的显示出
+    一行「__SBK_CSS__」（实测截图里出现在顶部和底部中央）。
+    放在内部既是合法注释（不渲染），又能被 strip_enhance 的正则命中。
+    """
+    css_block = ("<style>\n" + SENTINEL_CSS + "\n" + ENHANCE_CSS.strip()
                  + "\n</style>")
-    js_block = (SENTINEL_JS + "\n<script>\n" + ENHANCE_JS.strip()
+    js_block = ("<script>\n" + SENTINEL_JS + "\n" + ENHANCE_JS.strip()
                 + "\n</script>")
-    # 幂等：先清掉旧的
+    # 幂等：先清掉旧的（含旧版「哨兵在标签外」的写法）
+    # ⚠ strip 用 "\n" 替换整块，插入点因此会多出一个空行；
+    #   若这里再无条件加 "\n"，每次注入都会多 1 个空行（实测每次 +2 字节、
+    #   重复注入后文件缓慢膨胀）。做法：先把插入点周围的连续换行**压成一个**，
+    #   再拼接，保证 N 次注入结果与 1 次完全相同。
     html = strip_enhance(html)
     i = html.lower().rfind("</head>")
     if i < 0:
         raise SystemExit("找不到 </head>")
-    html = html[:i] + css_block + "\n" + html[i:]
+    head, tail = html[:i], html[i:]
+    tail = tail.lstrip("\r\n")          # 吃掉 head 末尾残留的换行
+    html = head.rstrip() + "\n" + css_block + "\n" + tail
     # 插到最后一个 </body> 之前：脚本要在 body 末尾才能 querySelector 到选项
     j = html.lower().rfind("</body>")
     if j < 0:
         raise SystemExit("找不到 </body>")
-    html = html[:j] + js_block + "\n" + html[j:]
+    head2, tail2 = html[:j], html[j:]
+    tail2 = tail2.lstrip("\r\n")
+    html = head2.rstrip() + "\n" + js_block + "\n" + tail2
     return html
 
 

@@ -121,8 +121,8 @@ body{
   *{transition:none !important; animation:none !important}
 }
 </style>
-/* __SBK_CSS__ */
 <style>
+/* __SBK_CSS__ */
 /* ============================================================
    sb-kids 一年级游戏增强层（背景 / 卡片 / 按钮 / 动画）
    ------------------------------------------------------------
@@ -162,18 +162,24 @@ body.sbk-on{
    纯 CSS 绘制，零图片依赖（离线双击也能看）。
    全部 pointer-events:none，绝不挡住孩子的点击。 */
 .sbk-deco{position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden}
-.sbk-deco i{position:absolute; display:block; font-style:normal; line-height:1;
+/* ⚠️ 必须同时命中 <span>（deco() 注入的云/星/彩虹/气球/动物都是 span）
+   与 <i>（云朵内部那块弧形底）。只写 i 会让全部 span 退化成 position:static，
+   top/left/bottom 全部失效、22 个装饰挤在视口顶部一条线上。 */
+.sbk-deco i,.sbk-deco>span{position:absolute; display:block; font-style:normal; line-height:1;
   will-change:transform; user-select:none}
 
-/* 云朵：三个圆球拼一朵，缓慢横移 */
+/* 云朵：三个圆球拼一朵，缓慢横移。
+   纯白在浅蓝/浅黄渐变底上几乎看不见（第一版实测整片云"消失"），
+   改用带一点蓝的云白色 + 极淡描边，柔和但能分辨轮廓。 */
 .sbk-cl{width:0; height:0}
 .sbk-cl::before,.sbk-cl::after{content:""; position:absolute; border-radius:50%;
-  background:#fff; opacity:.82}
+  background:#eef6ff; box-shadow:inset 0 0 0 1px rgba(150,185,225,.28)}
 .sbk-cl::before{width:56px; height:56px; left:0; top:12px}
 .sbk-cl::after{width:40px; height:40px; left:34px; top:2px;
-  box-shadow:30px 22px 0 -2px #fff}
+  box-shadow:30px 22px 0 -2px #eef6ff, inset 0 0 0 1px rgba(150,185,225,.28)}
 .sbk-cl i{position:absolute; left:52px; top:26px; width:46px; height:26px;
-  border-radius:0 22px 22px 0; background:#fff; opacity:.82}
+  border-radius:0 22px 22px 0; background:#eef6ff; opacity:.95;
+  box-shadow:inset 0 0 0 1px rgba(150,185,225,.28)}
 
 /* 星星：柔和闪烁，不刺眼（用饱和度较低的黄 + 半透明） */
 .sbk-st{color:var(--sbk-yellow); font-size:22px; opacity:.75;
@@ -186,14 +192,20 @@ body.sbk-on{
 .sbk-ba::after{content:""; position:absolute; left:50%; top:100%; width:1px;
   height:26px; background:rgba(120,130,150,.32); transform:translateX(-50%)}
 
-/* 彩虹：七色弧，用 conic-gradient 的一环 */
+/* 彩虹：同心环彩虹桥。
+   ⚠️ 位置不能用 top:8px（会正好落在题目卡片背后，装饰层 z-index:0
+   在卡片之下 → 只露出顶部一截彩色弧，看着像渲染 bug）。
+   改锚到视口下方空白区，完整可见且不与卡片/气球/动物重叠。
+   ⚠️ 也不能用 conic-gradient：它从圆心发散成楔形，出来是一把扇子而不是
+   彩虹桥。必须用 radial-gradient 的多段硬色环，才是等宽的同心弧。 */
 .sbk-rb{width:190px; height:95px; overflow:hidden; border-radius:190px 190px 0 0;
   background:
-    conic-gradient(from 270deg at 50% 100%,
-      #ff8fb1 0 12deg, #ffd23f 12deg 24deg, #5ec26a 24deg 36deg,
-      #4aa3ff 36deg 48deg, #a98bff 48deg 60deg, #ff9f45 60deg 72deg,
-      transparent 72deg 360deg);
-  opacity:.3}
+    radial-gradient(circle at 50% 100%,
+      transparent 0 55px,
+      #ff8fb1 55px 60.5px, #ff9f45 60.5px 66px, #ffd23f 66px 71.5px,
+      #5ec26a 71.5px 77px, #4aa3ff 77px 82.5px, #a98bff 82.5px 88px,
+      transparent 88px);
+  opacity:.5}
 
 /* 小动物 / 校园剪影：emoji，蹲在底部不抢视觉 */
 .sbk-an{font-size:28px; opacity:.5; animation:sbk-bob 4.2s ease-in-out infinite}
@@ -779,8 +791,8 @@ const SHUFFLE = true;
   }
 })();
 </script>
-/* __SBK_JS__ */
 <script>
+/* __SBK_JS__ */
 /* ============================================================
    sb-kids 一年级游戏增强层（音效 / 动效 / 背景装饰）
    ------------------------------------------------------------
@@ -947,8 +959,8 @@ const SHUFFLE = true;
         + 'animation:sbk-tw ' + (2.4 + s * 0.42) + 's ease-in-out infinite;'
         + 'animation-delay:-' + (s * 0.63) + 's">' + stars[s] + "</span>");
     }
-    /* 彩虹：右上角静态，弱化不抢 */
-    html.push('<span class="sbk-rb" style="position:absolute;top:8px;right:2%"></span>');
+    /* 彩虹：右侧空白区完整露出（top 会被卡片压住，见 CSS 注释） */
+    html.push('<span class="sbk-rb" style="right:3%;bottom:19vh"></span>');
     /* 气球：底部两侧，上下浮动 */
     var bal = ["🎈", "🎈", "🎈", "🎈"];
     for (var bI = 0; bI < bal.length; bI++) {
