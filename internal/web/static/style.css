@@ -3335,3 +3335,32 @@ html[data-theme="light"] .btn.ghost{
 }
 html[data-theme="light"] .subj-tile:hover .btn.ghost{background:var(--card)}
 html[data-theme="light"] .btn.ghost:hover{box-shadow:none}
+
+/* =========================================================
+   .btn.ghost hover 态：改为「白底 + 深色字」（2026-10-04 二次迭代）
+   起因：上一段加了 `.subj-tile:hover .btn.ghost{background:var(--card)}` 修「卡片
+   hover 时按钮底色与卡片同色」，但它的优先级 (0,5,1) 高于旧 hover 规则
+   `.btn.ghost:hover`(0,4,1) —— 鼠标停在按钮上时，**背景被抢成白色、文字却被
+   刷成 #fff**，变成白底白字完全看不见（用户反馈的第 3 种状态）。
+   修法：把 hover 态显式写全 —— 背景 var(--card)（白）、文字与常态同一套深色，
+   只用「描边由 .14 加深到 .30」提示交互反馈；选择器与 A/B 双写保持一致。
+   深色模式不受影响，仍走 html[data-theme="dark"] .btn.ghost:hover。
+   最终三态（浅色）：
+     ① 未 hover            → 浅品牌底(--brand-soft) + 深色字
+     ② hover 主卡片        → 白底(--card)          + 深色字
+     ③ hover 按钮本身      → 白底(--card)          + 深色字 + 描边加深
+   ========================================================= */
+@media (prefers-color-scheme: light){
+  html:not([data-theme="dark"]) .btn.ghost:hover{
+    background:var(--card);
+    color:var(--brand-dark);
+    color:color-mix(in srgb, var(--brand-dark) 82%, #000);
+    box-shadow:inset 0 0 0 1px rgba(12,28,56,.30);
+  }
+}
+html[data-theme="light"] .btn.ghost:hover{
+  background:var(--card);
+  color:var(--brand-dark);
+  color:color-mix(in srgb, var(--brand-dark) 82%, #000);
+  box-shadow:inset 0 0 0 1px rgba(12,28,56,.30);
+}
