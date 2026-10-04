@@ -246,6 +246,14 @@ body.sbk-on{
 .sbk-on .fb{font-size:17px !important; font-weight:700 !important;
   border-radius:18px !important; padding:12px 16px !important}
 
+/* ⚠️ 不要在这里写 `.opt{opacity:1 !important}` 兜底 ——
+   作者 `!important` 声明的优先级**高于 CSS 动画产生的值**，
+   会把入场淡入动画（from opacity:0 → to opacity:1）整个废掉。
+   可见性兜底已由下方「题目进入动画」处的
+   `.sbk-in-opt{opacity:1}` + `fill-mode:backwards` 解决：
+   动画被禁 → 无动画 → 元素取自身 opacity:1（可见）；
+   动画正常   → 正常淡入。无需 !important。 */
+
 /* ---------- 圆润大按钮 + 五色循环 ---------- */
 /* 每个选项给一个色相（nth-child 轮转），孩子靠颜色也能定位选项，
    这对一年级认字不多的学生是很实在的辅助。 */
@@ -327,13 +335,23 @@ body.sbk-on{
   58%{transform:translateX(-4px)} 78%{transform:translateX(3px)}
 }
 
-/* ---------- 题目进入动画：弹跳淡入 ---------- */
-.sbk-in{animation:sbk-in .52s cubic-bezier(.34,1.4,.64,1) both}
+/* ---------- 题目进入动画：弹跳淡入 ----------
+   ⚠️⚠️ 关键约束：入场动画**绝不能用 opacity 作为「可见性」的唯一载体**。
+   引擎原样式有 `@media (prefers-reduced-motion:reduce){*{animation:none !important}}`，
+   一旦命中，animation 被整体置 none；而 `animation-fill-mode:both` 会把
+   `from{opacity:0}` **在动画前后都保持住** → 动画没跑 = 选项文字**永久不可见**
+   （实测 reduced-motion 场景 opacity:0，正常场景也停在起始帧）。
+   对一年级题目这是致命的：看不见选项 = 无法答题。
+
+   正确做法：**默认态显式 opacity:1**，动画只负责「从下方弹上来」的位置观感，
+   且 fill-mode 用 backwards（只填充延迟期，不在结束后强持终帧）。
+   这样即使动画完全不执行，元素也永远是可见的。 */
+.sbk-in{opacity:1; animation:sbk-in .52s cubic-bezier(.34,1.4,.64,1) backwards}
 @keyframes sbk-in{
   from{opacity:0; transform:translateY(26px) scale(.94)}
   to{opacity:1; transform:none}
 }
-.sbk-in-opt{animation:sbk-in-opt .44s cubic-bezier(.34,1.5,.64,1) both}
+.sbk-in-opt{opacity:1; animation:sbk-in-opt .44s cubic-bezier(.34,1.5,.64,1) backwards}
 @keyframes sbk-in-opt{
   from{opacity:0; transform:translateY(16px) scale(.9)}
   to{opacity:1; transform:none}
@@ -1056,11 +1074,51 @@ const SHUFFLE = true;
   var seenQ = "";                 /* 记住当前题干，避免同一题反复播提示音 */
   function animIn(node, cls, delay) {
     if (!node || reduced) { return; }
+    /* 防御：若环境把 CSS 动画整体禁掉（引擎在 prefers-reduced-motion 下
+       会写 `*{animation:none !important}`），就不要加动画 class。 */
+    if (!canAnimate()) { return; }
     node.classList.remove(cls);
     /* 强制 reflow 让动画能重放（同 class 连续加不会重新触发动画） */
     void node.offsetWidth;
     node.style.animationDelay = (delay || 0) + "s";
     node.classList.add(cls);
+    /* ⚠️ 保险丝：动画若因任何原因没能推进（标签页被节流、渲染中断、
+       动画时钟卡死等），opacity 会永远停在 from 帧 = 选项文字彻底看不见，
+       对一年级等于无法答题。这里超时后直接把 class 摘掉，
+       元素回到自身 opacity:1 —— 宁可没有动画，也不能没有内容。 */
+    clearTimeout(node._sbkFuse);
+    node._sbkFuse = setTimeout(function () {
+      if (!node.classList.contains(cls)) { return; }
+      var op = parseFloat(getComputedStyle(node).opacity);
+      if (!(op > 0)) { node.classList.remove(cls); }
+    }, 1200);
+  }
+  var _canAnimate = null;
+  /* ⚠️ 探测必须用**真实存在**的 @keyframes 名（如 sbk-in-opt）。
+     用不存在的名字（如 sbk-nonexistent-probe）浏览器不会创建动画实例，
+     getAnimations() 恒为空 → canAnimate 恒 false → 真实浏览器里动画被全部误杀。
+     同时靠 backwards fill 下 opacity:0 的起始帧，确认动画真的能建立。 */
+  function canAnimate() {
+    if (_canAnimate !== null) { return _canAnimate; }
+    var probe = document.createElement("div");
+    probe.style.cssText = "position:absolute;left:-9999px;top:0;width:1px;height:1px;pointer-events:none";
+    probe.className = "sbk-in-opt";
+    document.body.appendChild(probe);
+    var running = false;
+    try {
+      var list = probe.getAnimations ? probe.getAnimations() : [];
+      running = list.length > 0;
+      if (running && list[0]) {
+        /* 冻结在起始帧并读一次 opacity：若为 0，说明动画确实建立且起始帧生效 */
+        list[0].pause();
+        list[0].currentTime = 0;
+        var op = parseFloat(getComputedStyle(probe).opacity);
+        running = (op === 0);
+      }
+    } catch (e) { running = false; }
+    if (probe.parentNode) { probe.parentNode.removeChild(probe); }
+    _canAnimate = running;
+    return running;
   }
   function questionIn() {
     var q = document.getElementById("q") || document.getElementById("gameContainer")
