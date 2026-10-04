@@ -1,17 +1,17 @@
-feat: 新增收藏页面，优化模板与样式，新增工具脚本，更新gitignore
+修掉暗色/高对比度下标题「有底色无文字」的失效模式
 
 ```bash
 docker pull mobufan/studybuddy:latest
 ```
 ```bash
-docker pull mobufan/studybuddy:v0.0.9
+docker pull mobufan/studybuddy:v0.1.0
 ```
 
 ```bash
 docker pull ghcr.io/meimolihan/studybuddy:latest
 ```
 ```bash
-docker pull ghcr.io/meimolihan/studybuddy:v0.0.9
+docker pull ghcr.io/meimolihan/studybuddy:v0.1.0
 ```
 
 ## 二进制安装
