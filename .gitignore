@@ -38,3 +38,6 @@ verify-scratch/
 
 # 内联脚本语法体检的落盘产物（tools/dumpjs 输出，供 node --check 用）
 .tmp_js/
+
+# 发版核对用：curl 抓下来的线上 CSS 快照（与磁盘 md5 比对，避免源码/二进制错位）
+.tmp_live.css 
