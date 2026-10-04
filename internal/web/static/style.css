@@ -3106,3 +3106,232 @@ html[data-theme="dark"] .tb-printpanel{box-shadow:0 18px 44px rgba(0,0,0,.5)}
   .gm-bar{gap:8px}
   .gm-bar-title{order:-1; flex:1 1 100%; margin-right:0}
 }
+
+/* =========================================================
+   UI 审查 · 第 2 期：浅色可读性 / 触屏 hover 残留 / 过渡统一 / 焦点环可见性
+   （纯追加段。不新增删除 HTML 节点、不改 DOM、不改交互逻辑，
+     不修改 / 删除 / 覆盖任何既有规则，全部用「同选择器后置」实现。）
+
+   为什么必须写成「显式 light + 系统 light」两条：
+   项目里主题的生效优先级是 皮肤 html[data-skin](0,1,1) > :root(0,1,0)，
+   且暗色有两套入口（跟随系统 @media dark 的 :not([data-theme="light"])、
+   手动 [data-theme="dark"]）。若只写一条 :root 覆盖，会连暗色一起吃掉；
+   若只写 prefers-color-scheme:light，用户在深色系统里手动切浅色时又失效。
+   故沿用本文件第 1724-1730 行既有的双写范式。
+
+   色值均为「保持原色相、按压暗系数求解」得出，目标 4.8:1
+   （WCAG AA 正文对比度阈值为 4.5:1，此处预留余量），
+   所有组合实测最低 4.8x，不取恰好等于阈值的 4.50 边界值。
+
+   两处刻意不动：
+   · .orange-mouth（第 517 行 .7s）与 .splash（第 1917 行 .4s）——装饰性环境动画，
+     压到 0.2s 会变成闪烁而非呼吸，不属于交互反馈，不纳入本次统一范围。
+   · 既有 max-width 断点数量（380/420/520/560/640/760/900 共 7 档）——
+     收敛断点必须同步调整各断点内的布局规则，属于布局重建，本段不改。
+   ========================================================= */
+
+/* ---------- 1) 浅色令牌纠偏（暗色实测全达标，一段都不碰）---------- */
+/* 1.1 全局：--muted 在 6 个浅色底上只有 3.93~3.55；--ok/--warn/--bad 在各自
+       的 soft 底上只有 3.05 / 2.43 / 3.83 */
+html[data-theme="light"]{
+  --muted:#626c77;   /* 原 #75828f → 最低 4.82 */
+  --ok:#237946;      /* 原 #2e9e5b → 最低 4.82 */
+  --warn:#985e00;    /* 原 #e08b00 → 最低 4.85 */
+  --bad:#bb3c3c;     /* 原 #d64545 → 最低 4.81 */
+}
+@media (prefers-color-scheme: light){
+  html:not([data-theme="dark"]){
+    --muted:#626c77; --ok:#237946; --warn:#985e00; --bad:#bb3c3c;
+  }
+}
+
+/* 1.2 --brand-dark：仅 sunset / forest 在各自 brand-soft 上不足（4.13 / 4.74） */
+html[data-theme="light"][data-skin="sunset"]{--brand-dark:#a85210}   /* 最低 4.80 */
+html[data-theme="light"][data-skin="forest"]{--brand-dark:#1e7950}   /* 最低 4.81 */
+@media (prefers-color-scheme: light){
+  html:not([data-theme="dark"])[data-skin="sunset"]{--brand-dark:#a85210}
+  html:not([data-theme="dark"])[data-skin="forest"]{--brand-dark:#1e7950}
+}
+
+/* 1.3 --btn-bg：白字对比度 girl 3.66 / forest 3.37 / sunset 3.05，三套需要压暗。
+       boy(5.17) 与 starry(5.33) 已达标，保持原值不动。
+       sunset 必须连 --btn-bg-hover 一起压：原 hover #b85a12 比新底色 #ad5d18
+       还亮 0.4%，不处理的话悬停会从「变深」反成「变浅」。 */
+html[data-theme="light"][data-skin="girl"]{
+  --btn-bg:#c0457a;                 /* 白字 4.80（原 #e0518f = 3.66） */
+}
+html[data-theme="light"][data-skin="forest"]{
+  --btn-bg:#268157;                 /* 白字 4.82（原 #2f9e6b = 3.37） */
+}
+html[data-theme="light"][data-skin="sunset"]{
+  --btn-bg:#ad5d18;                 /* 白字 4.82（原 #e0781f = 3.05） */
+  --btn-bg-hover:#a04f0e;           /* 白字 5.80，比底色深 21.9%，悬停反馈不丢失 */
+}
+@media (prefers-color-scheme: light){
+  html:not([data-theme="dark"])[data-skin="girl"]{--btn-bg:#c0457a}
+  html:not([data-theme="dark"])[data-skin="forest"]{--btn-bg:#268157}
+  html:not([data-theme="dark"])[data-skin="sunset"]{
+    --btn-bg:#ad5d18; --btn-bg-hover:#a04f0e;
+  }
+}
+
+/* ---------- 2) 正文级文字从 --brand 换到 --brand-dark ----------
+   --brand 作为「点缀填充/描边/图标」用（受 SC 1.4.11 的 3:1 约束），
+   作为正文文字用则要 4.5:1。原写法下 girl/forest/sunset 的正文链接只有
+   3.66 / 3.37 / 3.05。--brand-dark 在暗色主题里是高亮浅色，同样达标，
+   所以这条规则不必按主题分支，明暗通用。 */
+a{color:var(--brand-dark)}
+.q .type{color:var(--brand-dark)}                 /* 原 4.47/3.18/3.02/2.71 → ≥4.8 */
+.stat .num{color:var(--brand-dark)}
+.sw-vol:hover{color:var(--brand-dark)}
+.nav-card ul.lessons li .linkbtn:hover{color:var(--brand-dark)}
+.gm-subject{color:var(--brand-dark)}
+.tb-printopt:hover .setico{color:var(--brand-dark)}
+/* 说明：.skinlb（主题色卡文字）原色 var(--ink) 在透明底与 brand-soft 上均已达标，
+   .skinsw-ck 是白字压在色块上（品牌色块本身是载体，不适用正文 4.5 约束），二者均不改。 */
+
+/* ---------- 3) 焦点环可见性（原 ring 对比度 1.12~1.16，形同不存在）----------
+   原写法把 outline / box-shadow 设成 --brand-soft（浅色 tint），在白色卡片上
+   只有 1.16:1；暗色下 --brand-soft #14253d 压在 #1c222b 上是 1.04:1，同样看不见。
+   改用 --brand-dark：浅色最低 4.8、暗色最低 5+，且两个主题通用，无需分支。
+   outline-offset 让环不咬住控件边框，键盘用户能明确看到「焦点在哪」。 */
+input:focus,select:focus,.mini-select:focus{
+  outline:2px solid var(--brand-dark); outline-offset:2px;
+}
+.pickfield:focus-visible,
+.sheet-act:focus-visible,
+.sheet-num:focus{box-shadow:0 0 0 3px var(--brand-dark)}
+.wheel:focus{outline:2px solid var(--brand-dark); outline-offset:2px}
+.opts input:focus-visible{outline:2px solid var(--brand-dark); outline-offset:2px}
+/* .fg 登录框原本 outline:none + 深色 border + 浅色晕环，晕环同样近乎不可见，补实 */
+.fg input:focus,.fg select:focus{
+  outline:2px solid var(--brand-dark); outline-offset:1px;
+}
+
+/* ---------- 4) 触屏 hover 残留复位 ----------
+   排版里有 47 条 :hover 规则没包进 @media(hover:hover)。触屏上 :hover 在点按后
+   会一直粘着，直到用户去点别处，导致「点过的选项一直是高亮态」「点过的按钮一直
+   是深色」这类看起来像选错、实则只是残留的表现。
+   这里不改原规则，只在无精确指针的设备上把 hover 态逐项复位为静止值。
+   选择器一律与原文保持同等（或更高）特异性，靠后置顺序取胜。 */
+@media (hover:none),(pointer:coarse){
+  /* 答题选项卡片：自测页最高频，残留浅品牌底色最容易被误读成「已选中」 */
+  .opts label:hover{background:transparent; box-shadow:var(--shadow); transform:none}
+
+  /* 按钮：各皮肤的 :hover 底色回到静止的 --btn-bg */
+  html[data-skin="boy"] .btn:hover,
+  html[data-skin="girl"] .btn:hover,
+  html[data-skin="forest"] .btn:hover,
+  html[data-skin="sunset"] .btn:hover,
+  html[data-skin="starry"] .btn:hover,
+  /* 兜底：若某个页面没输出 data-skin，--btn-bg 未定义会让 var() 整条失效、
+     背景掉成透明；退回 --brand 至少等于静止态的原默认值 */
+  .btn:hover{background:var(--btn-bg, var(--brand)); box-shadow:var(--shadow); transform:none}
+
+  /* 顶栏导航胶囊与设置入口：静止态是 10% 白玻璃，无位移无阴影 */
+  .topbar nav .tnav:hover,
+  .topbar .setpick>summary:hover{
+    background:rgba(255,255,255,.1); transform:none; box-shadow:none;
+  }
+
+  /* 设置面板：色卡 / 功能行 */
+  .skinchip:hover{background:transparent; transform:none; box-shadow:none}
+  .setrow:hover{background:transparent; border-color:transparent}
+  .sw-vol:hover{border-color:var(--line); color:var(--ink)}
+
+  /* 教材导航（nav-card）：summary 的 hover 底色在明暗两条规则里都写了，要一并复位 */
+  .nav-card > details > summary:hover,
+  .nav-card > details[open] > summary:hover,
+  .card.nav-card > details > summary:hover,
+  .card.nav-card > details[open] > summary:hover,
+  html[data-theme="dark"] .card.nav-card > details > summary:hover,
+  html:not([data-theme="light"]) .card.nav-card > details > summary:hover{
+    background:transparent; color:var(--ink);
+  }
+  .nav-card ul.lessons li .linkbtn:hover,
+  .nav-card ul.lessons li .linkbtn.nav-set-current:hover,
+  .nav-card ul.lessons li .linkbtn.nav-set-current:focus-visible{
+    color:var(--muted); text-decoration:none;
+  }
+  .linkbtn:hover{text-decoration:none}
+
+  /* 教材库：书目卡 / 缩略图 / 列表卡 / 封面卡
+     —— 用 :not(.is-on) 把选中项排除在外：
+        .tb-thumb.is-on 与 .tb-chip.is-on 的特异度和 .tb-x:hover 都是 (0,2,0)，
+        若写成 .tb-thumb:hover{border-color:transparent}，后置的这条会连带抹掉
+        选中项的品牌色描边（选中的那一本反而看不出选中了）。 */
+  .tb-book:hover{border-color:var(--line); background:var(--bg); transform:none}
+  .tb-thumb:hover:not(.is-on){border-color:transparent}
+  .tb-chip:hover:not(.is-on){border-color:var(--line); color:var(--ink)}
+  .tb-lb:hover{border-color:var(--line); background:var(--card); transform:none}
+  .tb-cover-card:hover{transform:none}
+  .tb-cover-card:hover .tb-cover-frame{border-color:var(--line); box-shadow:var(--shadow)}
+  .tb-printopt:hover .setico{color:var(--muted)}
+
+  /* 学习主页入口卡 / 游戏卡 */
+  .qtype-card:hover{transform:none; box-shadow:var(--shadow)}
+  .gm-card:hover{transform:none; box-shadow:var(--shadow)}
+
+  /* 页脚仓库外链 */
+  .foot-repo:hover{color:var(--muted); text-decoration:none}
+}
+
+/* ---------- 5) 过渡时长统一到 0.2~0.3s ease ----------
+   原本 .15s 有 6 处、.18s 有 25 处，混在 .2/.22/.25/.26s 之间，
+   同屏交互会出现两种快慢。这里统一到 .2s（与 .qtab/.setrow/.skinchip 等
+   已有 .2s 规则对齐），全部用原选择器后置覆盖。 */
+.nav-card > details > summary{transition:background .2s ease, color .2s ease}
+.skinchip{transition:background-color .2s ease, border-color .2s ease, transform .2s ease}
+.wheel-item{transition:color .2s ease, transform .2s ease, opacity .2s ease}
+.tb-book{transition:border-color .2s ease, background .2s ease, transform .2s ease}
+.tb-thumb{transition:border-color .2s ease}
+.tb-nav{transition:opacity .2s ease, background .2s ease, color .2s ease, border-color .2s ease}
+.tb-chip{transition:border-color .2s ease, background .2s ease, color .2s ease}
+.tb-lb{transition:border-color .2s ease, background .2s ease, transform .2s ease}
+.tb-cover-card{transition:transform .2s ease}
+.tb-cover-frame{transition:border-color .2s ease, box-shadow .2s ease}
+.foot-repo{transition:color .2s ease}
+.qtype-card{transition:transform .2s ease, box-shadow .2s ease, background-color .2s ease}
+.qtype-card-go{transition:opacity .2s ease, transform .2s ease}
+.gm-card{transition:transform .2s ease, box-shadow .2s ease}
+
+/* ---------- 6) 减弱动效：为本段新增的 .2s 过渡补齐统一开关 ---------- */
+@media (prefers-reduced-motion:reduce){
+  .nav-card > details > summary,.skinchip,.wheel-item,.tb-book,.tb-thumb,
+  .tb-nav,.tb-chip,.tb-lb,.tb-cover-card,.tb-cover-frame,.foot-repo,
+  .qtype-card,.qtype-card-go,.gm-card{transition:none}
+}
+
+/* =========================================================
+   .btn.ghost 浅色模式「常态」可读性增强（2026-10-04）
+   问题：ghost 按钮常态 = 13px 常规字重小字 + 淡品牌底（--brand-soft），
+        视觉权重远低于同排的实心 primary 按钮；实测各皮肤文字/底色对比度
+        男生 8.0 / 女生 5.1 / 绿 4.7 / **橙 4.13（未达 WCAG AA 4.5:1）** /
+        紫 7.2 / 默认 6.9 —— 小字整体发灰，与旁边「继续自测」形成强烈反差。
+   修法（全部只对浅色生效，深色沿用 html[data-theme="dark"] .btn.ghost 原样）：
+     ① 文字色由 --brand-dark 加深到 82%（color-mix）→ 各皮肤落到 5.6~9.8:1；
+     ② 字重 400→600，13px 小字辨识度显著提升；
+     ③ 加一道中性细描边，让按钮在卡片上有轮廓、不完全依赖底色差异；
+     ④ 学科卡片 hover 时卡片底色会变成 --brand-soft，与 ghost 底色同色「糊成
+        一片」，此时改用 --card 兜底。
+   不支持 color-mix 的旧浏览器会自动忽略该行、回落到上一行 var(--brand-dark)。
+   A 段覆盖「系统浅色 + 未手动切换」，B 段覆盖「手动切回浅色」。
+   ========================================================= */
+@media (prefers-color-scheme: light){
+  html:not([data-theme="dark"]) .btn.ghost{
+    color:var(--brand-dark);
+    color:color-mix(in srgb, var(--brand-dark) 82%, #000);
+    font-weight:600;
+    box-shadow:inset 0 0 0 1px rgba(12,28,56,.14);
+  }
+  html:not([data-theme="dark"]) .subj-tile:hover .btn.ghost{background:var(--card)}
+  html:not([data-theme="dark"]) .btn.ghost:hover{box-shadow:none}
+}
+html[data-theme="light"] .btn.ghost{
+  color:var(--brand-dark);
+  color:color-mix(in srgb, var(--brand-dark) 82%, #000);
+  font-weight:600;
+  box-shadow:inset 0 0 0 1px rgba(12,28,56,.14);
+}
+html[data-theme="light"] .subj-tile:hover .btn.ghost{background:var(--card)}
+html[data-theme="light"] .btn.ghost:hover{box-shadow:none}
