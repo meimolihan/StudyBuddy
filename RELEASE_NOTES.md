@@ -1,17 +1,17 @@
-feat: 归档页面权限控制，补充UI相关测试
+feat: 新增游戏模块，配套页面、生成工具与单元测试，调整样式
 
 ```bash
 docker pull mobufan/studybuddy:latest
 ```
 ```bash
-docker pull mobufan/studybuddy:v0.0.6
+docker pull mobufan/studybuddy:v0.0.7
 ```
 
 ```bash
 docker pull ghcr.io/meimolihan/studybuddy:latest
 ```
 ```bash
-docker pull ghcr.io/meimolihan/studybuddy:v0.0.6
+docker pull ghcr.io/meimolihan/studybuddy:v0.0.7
 ```
 
 ## 二进制安装
