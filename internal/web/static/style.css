@@ -3364,3 +3364,17 @@ html[data-theme="light"] .btn.ghost:hover{
   color:color-mix(in srgb, var(--brand-dark) 82%, #000);
   box-shadow:inset 0 0 0 1px rgba(12,28,56,.30);
 }
+
+/* =========================================================
+   .btn.ghost 底色被皮肤级 .btn 规则抢走（2026-10-04 三次迭代）
+   现象：只在带 data-skin 的主题（女生粉/森林绿/日落橙/星空紫）上出问题，
+        默认 root（清新蓝）正常 —— 因为 style.css 第 812 行有
+          html[data-skin="boy"] .btn, html[data-skin="girl"] .btn, …{background:var(--btn-bg)}
+        特异度 (0,2,1)，**高于** `.btn.ghost`(0,2,0) 的 `background:var(--brand-soft)`。
+        于是 ghost 按钮底色被换成主题主色 --btn-bg（饱和粉/橙/绿/紫），而文字仍是
+        --brand-dark（同一色系的深色）→ 「底色是主题色、字也是主题色」几乎看不见。
+   修法：这里显式把 ghost 的底色写回来，特异度 (0,3,1) 盖过皮肤规则；用
+        var(--brand-soft) 让明暗两套变量各自生效（暗色下 --brand-soft 本来就是深色底），
+        因此这条**不区分明暗**，两种主题都安全。
+   ========================================================= */
+html[data-skin] .btn.ghost{background:var(--brand-soft)}
