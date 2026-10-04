@@ -4405,3 +4405,45 @@ html[data-theme="dark"] h1{
      -webkit-text-fill-color:currentColor}
   h1 *{-webkit-text-fill-color:currentColor}
 }
+
+/* =========================================================
+   阶段 5 复审｜高对比度模式（forced-colors）兜底
+   ------------------------------------------------------------
+   复审实测（tools/render_check.py + 模拟 UA 剥离背景图）：
+     现状                内容像素 1337→ 文字可见
+     forced-colors 模拟   内容像素    0 → **标题整块空白**
+   即：Windows 高对比度模式（forced-colors: active）下，UA 会剥离
+   背景图，而 h1 的 -webkit-text-fill-color:transparent 仍生效 →
+   渐变没了、文字也透明 → h1 完全不可见。全库此前 0 处兜底。
+
+   修法：forced-colors 下放弃渐变文字，改用系统色 CanvasText 实色。
+   ⚠️ 再次注意longhand：这里必须用 background-image 而非 background
+      简写，否则又会把 background-clip 重置掉（见上方紧急修复段）。
+   ⚠️ 用 rem/em 也不合适：文件末尾有 196 条 html[data-font] 档位规则，
+      这里只改颜色不涉字号，但保持不新增 rem 字号的一致性。
+   ========================================================= */
+@media (forced-colors: active){
+  h1{
+    background-image:none !important;
+    -webkit-text-fill-color:currentColor !important;
+    color:CanvasText !important;
+    forced-color-adjust:auto;
+  }
+  /* 渐变字里的徽章等后代同样恢复实色（-webkit-text-fill-color 会被继承） */
+  h1 *{-webkit-text-fill-color:currentColor !important}
+
+  /* 阶段 1~4 装饰性渐变在强制色彩模式下会整片消失或糊成一色，
+     凡是用渐变当「功能性底色」（非纯装饰）的地方都要退回实色。
+     逐个核过的：.btn/.tb-book/.tb-nav/.qtab.is-on 等 brand 底色元素
+     在 forced-colors 下会被 UA 强制成 Canvas/CanvasText，
+     边框仍在，故这里只需保证「有边框或有色差」即可辨识，不额外改色。 */
+
+  /* 徽章：语义-soft 底 + 语义色字在强制色彩下底色被抹平，
+     补一条下边框保证仍有形状边界（不依赖颜色也能区分）。 */
+  .badge{
+    border:1px solid CanvasText;
+    forced-color-adjust:none;
+    color:CanvasText;
+    background-color:Canvas;
+  }
+}
