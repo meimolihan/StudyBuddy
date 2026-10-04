@@ -4447,3 +4447,69 @@ html[data-theme="dark"] h1{
     background-color:Canvas;
   }
 }
+
+/* =========================================================
+   「只看错题」开关 —— 改为居中一行显示
+   ------------------------------------------------------------
+   现象（Edge 无头实测 study 页 nav-head）：
+     label 116×93px，内部「只看错题」span 仅 24px 宽 → 四字逐字换行成竖排。
+
+   根因（读浏览器 computed style 定论，非推测）：
+     .nav-head 是 display:flex，子项 h2 / .sb-chk / .grade-switcher 同行。
+     ⚠️ .sb-chk 与 .card .grade-switcher **都带 margin-left:auto**，
+        flex 里两个 auto 边距会**均分**剩余空间，.sb-chk 只分到约 174px，
+        再扣掉 padding 与 input 就只剩 24px 给文字 → 逐字换行。
+     （注：computed display 是 flex 而非 CSS 里写的 inline-flex，
+      那是 flex 容器对子项的 blockify 行为，属规范固有，不是 bug。）
+
+   修法：把 .nav-head 改成 **grid 三行**，让开关独占第二行并真正居中。
+
+   ⚠️⚠️ 三个坑（都是实测踩出来的，不是推测，别重犯）：
+   (1) `flex:0 0 100%` 强制断行 → **flex-basis 会赢过 width**，
+       实测 computed width 变 738px（容器全宽），胶囊成巨型条；
+       而且此时 `margin:auto` **完全不起居中作用**（左右外边距都算成 0）。
+   (2) 伪元素占位断行 + label `margin-inline:auto` → 实测
+       左间距 168px / 右间距 437px，**相差 268px，完全没居中**。
+       原因：auto 外边距是「吃掉剩余空间」，只要同一行**右侧还有别的元素**
+       （这里是 order:3 排到后面的「切换年级」），右侧就永远比左侧小。
+       → **flex 容器里用 auto 外边距做「相对整行居中」是不可靠的**，
+         除非该行确实只有它一个元素。
+   (3) 窄屏把断行占位归零 → 视口≈492px 时 h2+label+切换年级 ≈490px
+       仍挤得下一行，一旦归零就退回老毛病（被顶到右侧压窄、文字竖排）。
+       且 Edge 无头最小视口约 492px，写 640px 阈值会误命中。
+   → 结论：**用 grid 显式分行**。grid 每行独立、auto 边距在 grid 里
+     是「相对该列/该行居中」，不依赖「这一行恰好只有它一个」，
+     窄屏也不会退回 flex 的挤压行为。
+   纯 CSS，未改模板与 JS（JS 只写 li/details 的 style.display 与
+   num.textContent，不碰本元素布局）。
+   ========================================================= */
+@media (min-width:641px){
+  .nav-head{
+    display:grid;
+    grid-template-columns:1fr auto;
+    align-items:center;
+    column-gap:12px;
+  }
+  /* 第1 行：标题 + 切换年级（右对齐）；第 2 行：开关独占并居中 */
+  .nav-head h2{grid-column:1; grid-row:1; min-width:0}
+  .nav-head #sb-wrong-box{
+    grid-column:1 / -1; grid-row:2;
+    justify-self:center;
+    margin:6px 0 0;
+    flex:none;                 /* 脱离 flex 流，grid 下按内容宽 */
+    white-space:nowrap;
+  }
+  .nav-head .grade-switcher{grid-column:2; grid-row:1; margin-left:auto}
+}
+/* 窄屏（≤640）：本来就是自动换行堆叠，只要保证不被压窄即可 */
+@media (max-width:640px){
+  .nav-head #sb-wrong-box{
+    flex:0 0 auto;
+    margin:2px 0 0;
+    align-self:center;
+    white-space:nowrap;
+  }
+}
+/* 内部三块（input / 只看错题 / 计数）都不参与收缩，否则文字会被压窄换行 */
+.nav-head #sb-wrong-box > *{flex:none}
+.nav-head #sb-wrong-box .sb-wrong-n{margin-left:2px}
