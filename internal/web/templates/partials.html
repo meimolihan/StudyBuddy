@@ -134,6 +134,15 @@ window.sbBindModal = function (opt) {
 
   function open() {
     if (!mask.hidden) { return; }
+    /* 兼管「显示」这一步（2026-10-04 修复）：
+       原先本 helper 只做焦点管理，显示交给调用点。但三处调用点的写法都是
+       `if (modalCtl) { modalCtl.open(); } else { mask.hidden = false; }`
+       —— helper 存在时那条 `hidden = false` 分支根本不走，于是
+       **个人信息、欢迎弹窗、归档删除确认三个弹窗全都打不开**（点顶栏用户名没反应）。
+       注意顺序：必须先摘掉 hidden 再取可聚焦元素，否则遮罩还是 display:none，
+       focusables() 里的 offsetParent / getClientRects 会把元素全判成不可见，
+       焦点移不进去。这里同步设值会立刻触发重排，下一行拿到的就是可见状态。 */
+    mask.hidden = false;
     lastFocus = document.activeElement;
     if (typeof opt.onOpen === 'function') { opt.onOpen(); }
     var f = focusables();
