@@ -1362,9 +1362,15 @@ renderQuestion();
   var ac = null, master = null;
   var sndOn = true, bgmOn = false;      /* 音效默认开；BGM 默认关（有声环境下不擅自播） */
   var BGM_KEY = "sbk_sound";
+  /* ⚠️⚠️ 浏览器自动播放策略：用户产生任何交互手势（pointerdown/click/keydown）之前，
+     **绝对不能 new AudioContext()**，否则 Chrome 会在控制台反复报
+     "The AudioContext was not allowed to start" 警告，且声音也不会响。
+     所以这里用一个「已解锁」闸门：闸门未开时 audio() 直接返回 null，
+     所有 play/bgm 都自然空转，不产生任何报错。 */
+  var unlocked = false;
 
   function audio() {
-    if (!AC) { return null; }
+    if (!AC || !unlocked) { return null; }
     if (!ac) {
       try {
         ac = new AC();
@@ -1373,9 +1379,17 @@ renderQuestion();
         master.connect(ac.destination);
       } catch (e) { ac = null; }
     }
-    /* 浏览器自动播放策略：首次交互前 resume，合成音才响 */
+    /* 闸门已开但上下文仍可能被暂停（如切到后台标签页回来），补一次 resume */
     if (ac && ac.state === "suspended") { try { ac.resume(); } catch (e) {} }
     return ac;
+  }
+  /* 首次用户手势时调用：开闸 + 恢复上下文 + 按需起 BGM */
+  function unlockAudio() {
+    if (unlocked) { return; }
+    unlocked = true;
+    var a = audio();
+    if (a) { try { a.resume(); } catch (e) {} }
+    if (bgmOn) { bgmStart(); }
   }
   function env(node, t0, a, d, peak) {
     var g = ac.createGain();
@@ -1460,6 +1474,9 @@ renderQuestion();
   }
   function bgmStart() {
     if (bgmTimer) { return; }
+    /* 闸门未开（用户还没交互）时不排程：bgmTick 里的 audio() 会返回 null，
+       排了 interval 也是空转，还白占一个定时器。等 unlockAudio 时再起。 */
+    if (!unlocked) { return; }
     bgmTick();
     bgmTimer = setInterval(bgmTick, 1520);   /* 8 步 × 0.19s */
   }
@@ -1686,6 +1703,10 @@ renderQuestion();
   /* 5a. 选项点击：捕获阶段，只加动效与音效，不阻断引擎 */
   document.addEventListener("click", function (ev) {
     var t = ev.target;
+    /* ⚠️ 必须在 play() 之前开闸：本监听是**捕获阶段**，比 boot() 里挂在
+       冒泡阶段的 unlockAudio 先跑。若不在这里解锁，孩子第一次点选项就听不到
+       点击音（闸门还没开）。unlockAudio 内部有幂等守卫，重复调用无副作用。 */
+    unlockAudio();
     /* 音效/音乐开关自己不播点击音（否则会自我循环） */
     if (t && t.closest && t.closest(".sbk-bar")) { return; }
     if (!isOpt(t)) { return; }
@@ -1698,6 +1719,7 @@ renderQuestion();
   /* pointerdown 也要有按压感：click 在触摸端有 300ms 延迟，
      立刻按压更跟手。仍然只改 class，不阻止任何事。 */
   document.addEventListener("pointerdown", function (ev) {
+    unlockAudio();
     if (reduced || !isOpt(ev.target)) { return; }
     var b = ev.target.closest ? (ev.target.closest(".opt,.optbtn") || ev.target) : ev.target;
     if (b && b.classList) { b.classList.add("sbk-press"); }
@@ -1786,6 +1808,7 @@ renderQuestion();
     }
     snd.addEventListener("click", function (e) {
       e.stopPropagation();
+      unlockAudio();                     /* 开关本身也是用户手势，要能立刻出声 */
       sndOn = !sndOn;
       if (!sndOn) { bgmStop(); }         /* 关音效必然连带停 BGM，否则静音播放更怪 */
       else { var a = audio(); if (a) { try { SFX.click(a.currentTime + 0.01); } catch (er) {} } }
@@ -1793,6 +1816,7 @@ renderQuestion();
     });
     bgm.addEventListener("click", function (e) {
       e.stopPropagation();
+      unlockAudio();
       bgmOn = !bgmOn;
       if (bgmOn) { bgmStart(); var a = audio();
         if (a) { try { SFX.start(a.currentTime + 0.01); } catch (er) {} } }
@@ -1814,16 +1838,15 @@ renderQuestion();
     watchQuestion();
     questionIn();
     setTimeout(maybeStartTone, 260);
-    /* 首次任意点击 = 解锁音频上下文（浏览器自动播放策略） */
-    var once = function () {
-      var a = audio();
-      if (a) { try { a.resume(); } catch (e) {} }
-      if (bgmOn) { bgmStart(); }
-      document.removeEventListener("pointerdown", once);
-      document.removeEventListener("click", once);
-    };
-    document.addEventListener("pointerdown", once);
-    document.addEventListener("click", once);
+    /* ⚠️ 音频解锁闸门：必须挂在**真实用户手势**上。
+       之前用 setTimeout(maybeStartTone) 在页面加载后就 play("start")，
+       此时还没有任何手势 → 浏览器拒绝启动 AudioContext，控制台刷出一串
+       "The AudioContext was not allowed to start" 警告。
+       现在 audio() 内部有 unlocked 闸门，加载期所有发声都空转且不报错；
+       这里在首次手势时开闸。keydown/touchstart 一并挂上，兼顾键盘与旧触屏。 */
+    ["pointerdown", "click", "keydown", "touchstart"].forEach(function (ev) {
+      document.addEventListener(ev, unlockAudio, { passive: true });
+    });
     /* 结算页：把「再玩一次 / 重来」换成本层配色（它们的类名各游戏不同，
        用语义类兜底，见 CSS 里的 .btn / .resetBtn / #resetBtn） */
   }
