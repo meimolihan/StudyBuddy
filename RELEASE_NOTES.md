@@ -1,17 +1,17 @@
-feat: 新增游戏模块，配套页面、生成工具与单元测试，调整样式
+style: 调整页面样式
 
 ```bash
 docker pull mobufan/studybuddy:latest
 ```
 ```bash
-docker pull mobufan/studybuddy:v0.0.7
+docker pull mobufan/studybuddy:v0.0.8
 ```
 
 ```bash
 docker pull ghcr.io/meimolihan/studybuddy:latest
 ```
 ```bash
-docker pull ghcr.io/meimolihan/studybuddy:v0.0.7
+docker pull ghcr.io/meimolihan/studybuddy:v0.0.8
 ```
 
 ## 二进制安装
