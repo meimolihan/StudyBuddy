@@ -1,17 +1,17 @@
-修掉暗色/高对比度下标题「有底色无文字」的失效模式
+修改 只看错题
 
 ```bash
 docker pull mobufan/studybuddy:latest
 ```
 ```bash
-docker pull mobufan/studybuddy:v0.1.0
+docker pull mobufan/studybuddy:v0.1.1
 ```
 
 ```bash
 docker pull ghcr.io/meimolihan/studybuddy:latest
 ```
 ```bash
-docker pull ghcr.io/meimolihan/studybuddy:v0.1.0
+docker pull ghcr.io/meimolihan/studybuddy:v0.1.1
 ```
 
 ## 二进制安装
