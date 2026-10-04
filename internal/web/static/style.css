@@ -4494,8 +4494,14 @@ html[data-theme="dark"] h1{
 }
 /* 「切换年级」在最右 */
 .nav-head .grade-switcher{grid-column:3; margin-left:0}
-@media (max-width:640px){
-  /* 窄屏放不下三列：标题独占一行，另两个并排第二行（仍保持阅读序） */
+@media (max-width:520px){
+  /* 断点用既定的 520 档（项目既定体系 380/420/520/560/640/760/900），
+     不自造 460 —— 自造断点会被 tools/check_responsive.py 判为硬性问题。
+     实测 492px 视口下三元素所需宽度
+     = 按钮 122 + 切换年级 88 + 两个 column-gap 24 ≈ 234px，
+     标题还剩 ~174px，「一年级 · 上册」只需 ~91px —— **完全放得下**。
+     早先把断点设成 640px 会让 492~640px 这段白降级成两行，
+     与「三元素同行」的要求相悖。520px 以下才真的挤不下。 */
   .nav-head{grid-template-columns:1fr auto}
   .nav-head h2{grid-column:1 / -1; grid-row:1}
   .nav-head #sb-wrong-box{grid-column:1; grid-row:2; justify-self:start}
@@ -4613,9 +4619,57 @@ html[data-theme="dark"] h1{
   }
 }
 @media (max-width:640px){
-  .sw-body{min-width:0; max-width:min(92vw, 430px)}
-  .sw-vol{min-height:44px; display:inline-flex; align-items:center; justify-content:center}
-  .sw-grade-label{min-width:60px; font-size:13.5px}
+  /* ⚠️ 原来的 min-width:min(92vw,540px) 在窄屏是个陷阱：
+     92vw@492px = 453px < 540px，min()取 453px，但**面板实际渲染宽度由
+     里面的 .sw-vol 撑开**（三列 1fr auto auto + 54px 最小宽），
+     实测 492px 视口下面板被挤成一条 ~90px 宽的窄柱、内容纵向堆叠、
+     「上册」二字换行、且因 max-height 只露出 3 个年级。
+     窄屏改为：面板宽度 = 视口减边距，.sw-grade 由「年级名 + 册别同行」
+     改为「年级名单独占一行、册别按钮横向平铺」——这样单列也能一屏看全。 */
+  /* ⚠️ 窄屏面板改为 position:fixed —— .sw-body 默认是
+     position:absolute; right:0，定位上下文是「切换年级」details。
+     窄屏下该按钮位于卡片右缘，面板比视口宽，右对齐/左对齐都会溢出视口
+     （实测 492px 下左侧被裁）。改 fixed 后以视口为基准居中，
+     彻底不受按钮位置影响。宽度收到 100vw-24px，两侧各留 12px。 */
+  .sw-body{
+    position:fixed;
+    left:12px;
+    right:12px;
+    top:auto;
+    z-index:var(--z-panel);
+    min-width:0;
+    width:auto;
+    max-width:none;
+    max-height:min(72vh, 520px);
+    padding:10px 12px 12px;
+  }
+  /* 单列时学段之间加一条分隔线，替代原三列的视觉分组 */
+  .sw-col + .sw-col{
+    margin-top:10px;
+    padding-top:10px;
+    border-top:1px solid var(--line);
+  }
+  .sw-stage{margin:0 0 6px; padding-bottom:6px; font-size:12.5px; color:var(--muted)}
+  /* 年级名单独占一行，册别按钮另起一行平铺 —— 窄屏里这样不挤压文字 */
+  .sw-grade{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:4px;
+    padding:6px 0;
+  }
+  .sw-grade-label{font-size:13.5px; font-weight:600; color:var(--ink)}
+  .sw-vol{
+    min-width:0;
+    min-height:40px;
+    padding:4px 10px;
+    display:inline-flex; align-items:center; justify-content:center;
+    font-size:13px; line-height:1.2; text-align:center; white-space:nowrap;
+  }
+  /* 册别按钮两列平铺：「上册/下册」并排，点击热区够大 */
+  .sw-grade{
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+  }
+  .sw-grade-label{grid-column:1 / -1}
 }
 /* 当前选中册别：三列网格里加一圈描边更醒目 */
 .sw-vol.is-on{

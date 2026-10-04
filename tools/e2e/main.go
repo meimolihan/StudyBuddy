@@ -1155,7 +1155,12 @@ func main() {
 	// 学习主页：新增控件与容器都在 HTML 里（具体内容由前端按 localStorage 填）
 	sp, sbody := do("GET", "/study", nil, ck)
 	check(sp.Code == 200, fmt.Sprintf("GET /study -> %d", sp.Code))
-	check(strings.Contains(sbody, `id="sb-wrong-only"`), "学习主页含「只看错题」开关")
+	// 「只看错题」已从 checkbox+label 改为 <button>（教材导航区要三元素同行）。
+	// 断言随之改为查按钮本体 + 其无障碍状态载体，不能再查旧的 checkbox id。
+	check(strings.Contains(sbody, `id="sb-wrong-box"`) &&
+		strings.Contains(sbody, `aria-pressed="false"`) &&
+		strings.Contains(sbody, `id="sb-wrong-n"`),
+		"学习主页含「只看错题」按钮（button + aria-pressed + 计数）")
 	check(strings.Contains(sbody, `data-wrong="`), "课程列表项带错题数 data-wrong")
 	check(strings.Contains(sbody, `id="tb-resume"`), "学习主页含「继续阅读 / 书签」卡容器")
 	check(strings.Contains(sbody, `href="/favorites"`) && strings.Contains(sbody, `id="sb-fav-n"`),
