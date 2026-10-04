@@ -1,17 +1,17 @@
-style: 调整页面样式
+feat: 新增收藏页面，优化模板与样式，新增工具脚本，更新gitignore
 
 ```bash
 docker pull mobufan/studybuddy:latest
 ```
 ```bash
-docker pull mobufan/studybuddy:v0.0.8
+docker pull mobufan/studybuddy:v0.0.9
 ```
 
 ```bash
 docker pull ghcr.io/meimolihan/studybuddy:latest
 ```
 ```bash
-docker pull ghcr.io/meimolihan/studybuddy:v0.0.8
+docker pull ghcr.io/meimolihan/studybuddy:v0.0.9
 ```
 
 ## 二进制安装
