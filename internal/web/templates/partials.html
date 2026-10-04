@@ -36,8 +36,12 @@
    页脚脚本据此给目标元素挂 data-sal 并初始化 Sal.js（无动画目标时不产生任何影响）。
    prefers-reduced-motion（减弱动态效果/低性能设备）一律跳过。 */
 (function () { try {
-  if (sessionStorage.getItem('sb-intro-skip') === '1') { // 程序性刷新（如删除后刷新列表）不重播
+  if (sessionStorage.getItem('sb-intro-skip') === '1') {
+    // 程序性刷新（删除后刷新列表）/ 站内导航跳转：不播开屏。
+    // 顺手补上 sb-intro-played —— 不写的话，这一页「跳过」之后
+    // played 仍是空值，用户下次进站时又会被判成首次访问而重播一次。
     sessionStorage.removeItem('sb-intro-skip');
+    try { sessionStorage.setItem('sb-intro-played', '1'); } catch (e2) {}
     return;
   }
   var played = sessionStorage.getItem('sb-intro-played');
@@ -45,9 +49,14 @@
   var isReload = nav ? nav.type === 'reload'
                      : !!(window.performance.navigation && performance.navigation.type === 1);
   if ((played !== '1' || isReload) &&
-      !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) {
+      !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)')).matches) &&
+      // 站内导航即使被误判成 reload 也不重播：last-nav 标记在点击导航链接时
+      // 由页脚脚本写入，导航到达本页时它还在（只对 navigate 生效，reload 会被清掉）。
+      sessionStorage.getItem('sb-intro-lastnav') !== '1') {
     document.documentElement.classList.add('sb-anim');
   }
+  // 无论本次播没播，判定结束后都清掉导航标记（它只该影响紧邻的那一次导航）
+  sessionStorage.removeItem('sb-intro-lastnav');
 } catch (e) {} })();
 </script>
 </head>
@@ -918,6 +927,36 @@ window.sbBindModal = function (opt) {
   });
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' || e.keyCode === 27) { closeAll(null); }
+  });
+})();
+</script>
+<script>
+/* 站内导航跳转不重播开屏动画（2026-10-04）。
+   原判定是 `(played !== '1' || isReload)` —— 只要浏览器把这次导航判成
+   reload，就会无视「本会话已播过」而重播。但点顶栏「学习主页」这类站内
+   链接时，navigation API 在部分环境（尤其是带前进/后退缓存的恢复导航、
+   以及旧内核回退到 performance.navigation 时）会误报 type='reload'，
+   于是点一次导航动画就重放一次，看着像「按钮没生效又闪一遍」。
+
+   这里在点击站内链接的瞬间打一个一次性标记 sb-intro-lastnav，由 header 的
+   内联脚本优先消费并清除。只对**站内 .tnav 链接**生效：
+     - 修饰键点击（ctrl/cmd/shift/alt）走新标签，不拦截也不打标记
+     - 纯锚点（#…）不跳转页面，不打标记
+     - 外部链接（http://…、//…）不打标记
+   标记只活一次、消费即删，所以浏览器前进/后退、手动刷新仍按原规则播。 */
+(function () {
+  var links = document.querySelectorAll('a.tnav[href]');
+  if (!links.length) { return; }
+  Array.prototype.forEach.call(links, function (a) {
+    a.addEventListener('click', function (e) {
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) { return; } // 打开新标签：让浏览器接管
+      if (e.button && e.button !== 0) { return; }                        // 中键/右键不处理
+      var href = a.getAttribute('href') || '';
+      if (href.charAt(0) === '#') { return; }                             // 页内锚点
+      // 站内绝对路径才拦；//host 与 http(s):// 都算外站
+      if (href.charAt(0) !== '/' || href.slice(0, 2) === '//') { return; }
+      try { sessionStorage.setItem('sb-intro-lastnav', '1'); } catch (err) {}
+    });
   });
 })();
 </script>
