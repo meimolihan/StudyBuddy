@@ -638,26 +638,30 @@ body.sbk-on{
   58%{transform:translateX(-4px)} 78%{transform:translateX(3px)}
 }
 
-/* ---------- 题目进入动画：弹跳淡入 ----------
-   ⚠️⚠️ 关键约束：入场动画**绝不能用 opacity 作为「可见性」的唯一载体**。
-   引擎原样式有 `@media (prefers-reduced-motion:reduce){*{animation:none !important}}`，
-   一旦命中，animation 被整体置 none；而 `animation-fill-mode:both` 会把
-   `from{opacity:0}` **在动画前后都保持住** → 动画没跑 = 选项文字**永久不可见**
-   （实测 reduced-motion 场景 opacity:0，正常场景也停在起始帧）。
-   对一年级题目这是致命的：看不见选项 = 无法答题。
+/* ---------- 题目进入动画：从下方弹上来 ----------
+   ⚠️⚠️⚠️ 入场动画**绝对不要碰 opacity**（一次教训换来的）。
+   原因：CSS 动画关键帧产生的值，优先级**高于**元素的普通 `opacity:1` 声明。
+   所以只要 keyframes 里写了 `from{opacity:0}`，那个 0 就会赢过普通声明；
+   而 `fill-mode:both/backwards` 在延迟期/结束后又会保持该帧的值 ——
+   动画一旦没真正执行（引擎的 `@media (prefers-reduced-motion:reduce)`
+   里 `*{animation:none!important}`、标签页被节流、动画时钟卡死），
+   **整道题选项文字就永久消失**。一年级看不见选项 = 无法答题，是致命故障。
 
-   正确做法：**默认态显式 opacity:1**，动画只负责「从下方弹上来」的位置观感，
-   且 fill-mode 用 backwards（只填充延迟期，不在结束后强持终帧）。
-   这样即使动画完全不执行，元素也永远是可见的。 */
-.sbk-in{opacity:1; animation:sbk-in .52s cubic-bezier(.34,1.4,.64,1) backwards}
+   第 1 版曾用「`opacity:1` 普通声明 + `fill-mode:backwards`」想兜底 ——
+   **无效**，实测 31/33 个文件仍是 opacity:0（普通声明压不过关键帧）。
+
+   现在改为**纯 transform 入场**：关键帧里只出现 transform（位移+缩放），
+   opacity 完全不参与。这样无论动画跑不跑、跑多少帧，
+   文字可见性都不受任何影响 —— 动画只是"位置观感增强"，而不是"可见性前提"。 */
+.sbk-in{animation:sbk-in .52s cubic-bezier(.34,1.4,.64,1) backwards}
 @keyframes sbk-in{
-  from{opacity:0; transform:translateY(26px) scale(.94)}
-  to{opacity:1; transform:none}
+  from{transform:translateY(26px) scale(.94)}
+  to{transform:none}
 }
-.sbk-in-opt{opacity:1; animation:sbk-in-opt .44s cubic-bezier(.34,1.5,.64,1) backwards}
+.sbk-in-opt{animation:sbk-in-opt .44s cubic-bezier(.34,1.5,.64,1) backwards}
 @keyframes sbk-in-opt{
-  from{opacity:0; transform:translateY(16px) scale(.9)}
-  to{opacity:1; transform:none}
+  from{transform:translateY(14px) scale(.92)}
+  to{transform:none}
 }
 
 /* ---------- 答对奖励：星星 + 彩带 + 笑脸 + 点赞 ---------- */
@@ -761,6 +765,8 @@ body.sbk-on{
   .sbk-in,.sbk-in-opt,.sbk-right,.sbk-wrong,.sbk-star,.sbk-ribbon,
   .sbk-cheer,.sbk-hint,.sbk-ba,.sbk-an,.sbk-st{animation:none !important}
   .sbk-in,.sbk-in-opt{opacity:1 !important; transform:none !important}
+  /* 上面那条 opacity:1 现在只是双保险（keyframes 已不碰 opacity），
+     真正让内容永不可见的原因已被「入场动画不碰 opacity」从根上除掉。 */
 }
 @media print{ .sbk-deco,.sbk-bar{display:none !important} }
 </style>
@@ -1626,21 +1632,29 @@ renderQuestion();
     node.style.animationDelay = (delay || 0) + "s";
     node.classList.add(cls);
     /* ⚠️ 保险丝：动画若因任何原因没能推进（标签页被节流、渲染中断、
-       动画时钟卡死等），opacity 会永远停在 from 帧 = 选项文字彻底看不见，
-       对一年级等于无法答题。这里超时后直接把 class 摘掉，
-       元素回到自身 opacity:1 —— 宁可没有动画，也不能没有内容。 */
+       动画时钟卡死等），元素会永远停在 from 帧的位移/缩放上 ——
+       虽然不再影响文字可见性（keyframes 已不碰 opacity），
+       但选项会一直偏在下方并缩小，看着像没加载出来。
+       这里超时后直接把 class 摘掉，回到自然位置。 */
     clearTimeout(node._sbkFuse);
     node._sbkFuse = setTimeout(function () {
       if (!node.classList.contains(cls)) { return; }
-      var op = parseFloat(getComputedStyle(node).opacity);
-      if (!(op > 0)) { node.classList.remove(cls); }
-    }, 1200);
+      var list = node.getAnimations ? node.getAnimations() : [];
+      var stuck = true;
+      for (var i = 0; i < list.length; i++) {
+        /* playState 仍是 running 说明没播完（可能只是还在正常播）；
+           真正卡死的是 currentTime 一点没推进。用后者判定。 */
+        if ((list[i].currentTime || 0) > 0) { stuck = false; break; }
+      }
+      if (stuck) { node.classList.remove(cls); }
+    }, 1500);
   }
   var _canAnimate = null;
   /* ⚠️ 探测必须用**真实存在**的 @keyframes 名（如 sbk-in-opt）。
      用不存在的名字（如 sbk-nonexistent-probe）浏览器不会创建动画实例，
      getAnimations() 恒为空 → canAnimate 恒 false → 真实浏览器里动画被全部误杀。
-     同时靠 backwards fill 下 opacity:0 的起始帧，确认动画真的能建立。 */
+     再把动画冻结在起始帧，确认 from 帧的 transform 真的生效
+     （keyframes 现在只动 transform，不动 opacity）。 */
   function canAnimate() {
     if (_canAnimate !== null) { return _canAnimate; }
     var probe = document.createElement("div");
@@ -1652,11 +1666,11 @@ renderQuestion();
       var list = probe.getAnimations ? probe.getAnimations() : [];
       running = list.length > 0;
       if (running && list[0]) {
-        /* 冻结在起始帧并读一次 opacity：若为 0，说明动画确实建立且起始帧生效 */
         list[0].pause();
         list[0].currentTime = 0;
-        var op = parseFloat(getComputedStyle(probe).opacity);
-        running = (op === 0);
+        var tf = getComputedStyle(probe).transform;
+        /* from 帧是 translateY(14px) scale(.92)，矩阵不应是单位矩阵 */
+        running = !!tf && tf !== "none" && tf.indexOf("matrix") === 0;
       }
     } catch (e) { running = false; }
     if (probe.parentNode) { probe.parentNode.removeChild(probe); }
