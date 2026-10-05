@@ -1046,13 +1046,26 @@ function continueTest(){ newRound(); }
     void node.offsetWidth;              /* 强制 reflow 以便重放 */
     node.style.animationDelay = (delay || 0) + "s";
     node.classList.add("sbk2-in");
+    /* ⚠️⚠️ 必须 animationend 后摘掉 class。`fill-mode:backwards` 会让动画
+       在结束后**依然驻留在 getAnimations() 里**（playState 仍为 running/finished
+       但对象不回收）。无头实测：20 道题各挂 3 个常驻动画 = 60 个永不释放，
+       全文页 536 个动画对象。低性能设备上这是实打实的内存与合成开销。
+       入场动画是一次性的，播完就该彻底释放。 */
+    var cleaned = false;
+    function cleanup(){
+      if (cleaned) { return; }
+      cleaned = true;
+      node.classList.remove("sbk2-in");
+      node.style.animationDelay = "";
+    }
+    node.addEventListener("animationend", cleanup, {once:true});
     /* 保险丝：动画时钟若未推进（标签页节流等），2s 后摘掉 class 回自然位 */
     setTimeout(function(){
       var list = node.getAnimations ? node.getAnimations() : [];
       for (var i = 0; i < list.length; i++) {
         if ((list[i].currentTime || 0) > 0) { return; }
       }
-      node.classList.remove("sbk2-in");
+      cleanup();
     }, 2000);
   }
   function runIn(){
