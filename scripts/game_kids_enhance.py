@@ -18,19 +18,32 @@
 from __future__ import annotations
 
 # ---------------------------------------------------------------- CSS
-# 全部颜色走 var(--g-*, fallback)：游戏本体已经有 --g-* 变量体系，
-# 而 game.go 的 gameThemeBridgeCSS 会按主题注入 light/dark 两套值。
-# 我们只在没有 --g-* 时给 fallback（游戏被双击直接打开、不经站点时生效），
-# 绝不在这里覆盖 --g-*，否则会把宿主页注入的主题覆盖掉。
+# ============================================================
+#   sb-kids 一年级游戏增强层（背景 / 卡片 / 按钮 / 动画）
+#   ------------------------------------------------------------
+#   ⚠️⚠️⚠️ 颜色策略（2026-10-05 血泪教训，务必先读完再改颜色）
+#
+#   game.go 的 gameThemeBridgeCSS 会按主题给 :root 注入 --g-* 两套值：
+#     light → --g-ink:#1f2937（**深**）
+#     dark  → --g-ink:#e7ecf3（**浅**）
+#
+#   本增强层把选项按钮背景**硬编码成浅色**（--sbk-*-s 全部是浅色底）。
+#   如果选项文字色跟着 --g-ink 走，暗色主题下就会变成
+#   「#e7ecf3 浅字 配 #dbeeff 浅底」→ 对比度实测 **1:1**，文字彻底隐形，
+#   而 DOM 里 opacity=1、visibility=visible 一切正常 —— 这种故障靠
+#   「查元素是否存在/是否透明」永远查不出来，必须查**计算后的实际颜色对比**。
+#
+#   → 因此确立铁律：**凡是硬编码浅底的元素，文字色必须同源硬编码**，
+#     一律走下面 --sbk-*-ink 这组「与浅底成对」的深色，不引用 --g-ink。
+#     只有那些**背景也随主题走**（用 var(--g-card)/var(--g-bg) 的卡片、
+#     顶部条、反馈条）才可以用 --g-ink 跟随明暗。
+#
+#   为什么之前三轮都没发现：所有验证都用 file:// 直接打开单文件，
+#   那里**没有主题桥**、--g-ink 走 fallback 深色，测的全是亮色分支。
+#   → 教训：**凡是「颜色随主题变化」的样式，必须在 data-theme="dark" 下验证**，
+#     且要算对比度，不能只看 opacity / visibility / 有没有这个元素。
+#   ============================================================ */
 ENHANCE_CSS = r"""
-/* ============================================================
-   sb-kids 一年级游戏增强层（背景 / 卡片 / 按钮 / 动画）
-   ------------------------------------------------------------
-   颜色策略：**只用 --g-* 变量的 fallback，不覆盖变量本身**。
-   --g-* 由 game.go 的 gameThemeBridgeCSS 按主题注入（light/dark/auto），
-   在这里写死颜色会把暗色主题顶掉。fallback 只在「双击 HTML 直开、
-   没有任何主题桥」时生效，那时本来就没有暗色概念。
-   ============================================================ */
 .sbk{
   --sbk-blue:#4aa3ff;   --sbk-blue-s:#dbeeff;
   --sbk-yellow:#ffd23f; --sbk-yellow-s:#fff6d9;
@@ -38,6 +51,14 @@ ENHANCE_CSS = r"""
   --sbk-green:#5ec26a;  --sbk-green-s:#e2f6e4;
   --sbk-pink:#ff8fb1;   --sbk-pink-s:#ffe6ee;
   --sbk-purple:#a98bff; --sbk-purple-s:#eee8ff;
+  /* 浅底专用深色字：每个都 ≥7:1 对比度，**不引用 --g-ink**（见上方铁律）。
+     刻意压得比纯黑稍浅一点，避免一年级长时间盯着刺眼。 */
+  --sbk-blue-ink:#123a63;  --sbk-yellow-ink:#5c4400;
+  --sbk-orange-ink:#7a3d00; --sbk-green-ink:#14532d;
+  --sbk-pink-ink:#7d2244;   --sbk-purple-ink:#432a80;
+  /* 正误反馈同样是浅底，文字也必须深色：--g-ok/--g-bad/--g-warn 暗色下是浅色 */
+  --sbk-ok-ink:#0f5132;  --sbk-bad-ink:#8a1f1f;  --sbk-warn-ink:#6b4200;
+  /* 随主题走的墨色：**只用于背景同样随主题变的元素**（卡片/顶栏/反馈条）*/
   --sbk-ink:var(--g-ink,#1f2937);
   --sbk-line:var(--g-line,#e3e9f1);
   --sbk-card:var(--g-card,#fff);
@@ -169,18 +190,23 @@ body.sbk-on{
 }
 .sbk-on .opt:nth-child(5n+1),.sbk-on .optionsGrid button:nth-child(5n+1){
   background-color:var(--sbk-blue-s)!important; border-color:var(--sbk-blue)!important;
+  color:var(--sbk-blue-ink)!important;      /* 浅底 → 必须深字，不跟 --g-ink */
   --sbk-shadow:rgba(74,163,255,.34)}
 .sbk-on .opt:nth-child(5n+2),.sbk-on .optionsGrid button:nth-child(5n+2){
   background-color:var(--sbk-yellow-s)!important; border-color:var(--sbk-yellow)!important;
+  color:var(--sbk-yellow-ink)!important;      /* 浅底 → 必须深字，不跟 --g-ink */
   --sbk-shadow:rgba(255,210,63,.42)}
 .sbk-on .opt:nth-child(5n+3),.sbk-on .optionsGrid button:nth-child(5n+3){
   background-color:var(--sbk-green-s)!important; border-color:var(--sbk-green)!important;
+  color:var(--sbk-green-ink)!important;      /* 浅底 → 必须深字，不跟 --g-ink */
   --sbk-shadow:rgba(94,194,106,.34)}
 .sbk-on .opt:nth-child(5n+4),.sbk-on .optionsGrid button:nth-child(5n+4){
   background-color:var(--sbk-orange-s)!important; border-color:var(--sbk-orange)!important;
+  color:var(--sbk-orange-ink)!important;      /* 浅底 → 必须深字，不跟 --g-ink */
   --sbk-shadow:rgba(255,159,69,.36)}
 .sbk-on .opt:nth-child(5n+5),.sbk-on .optionsGrid button:nth-child(5n+5){
   background-color:var(--sbk-pink-s)!important; border-color:var(--sbk-pink)!important;
+  color:var(--sbk-pink-ink)!important;      /* 浅底 → 必须深字，不跟 --g-ink */
   --sbk-shadow:rgba(255,143,177,.36)}
 
 /* 按下：往下压 + 影子缩短（物理直觉：按下去了） */
@@ -202,18 +228,18 @@ body.sbk-on{
 .sbk-on .opt.right, .sbk-on .opt.wrong{animation:none !important}   /* 让下面的 keyframes 接管 */
 .sbk-on .opt.right, .sbk-on .opt.ok{
   background-color:var(--sbk-green-s)!important; border-color:var(--sbk-ok)!important;
-  color:var(--sbk-ok)!important;
+  color:var(--sbk-ok-ink)!important;      /* 浅底深字，不跟 --g-ok */
 }
 .sbk-on .opt.wrong, .sbk-on .opt.no{
   background-color:var(--sbk-orange-s)!important; border-color:var(--sbk-bad)!important;
-  color:var(--sbk-bad)!important;
+  color:var(--sbk-bad-ink)!important;      /* 浅底深字，不跟 --g-bad */
 }
 .sbk-on .fb.ok, .sbk-on #feedbackBar.ok{
   background-color:var(--sbk-green-s)!important; border-color:var(--sbk-ok)!important;
-  color:var(--sbk-ok)!important}
+  color:var(--sbk-ok-ink)!important}
 .sbk-on .fb.no, .sbk-on #feedbackBar.no{
-  background-color:var(--sbk-yellow-s)!important; border-color:var(--sbk-warn,#e08b00)!important;
-  color:var(--sbk-warn,#e08b00)!important}
+  background-color:var(--sbk-yellow-s)!important; border-color:#e08b00!important;
+  color:var(--sbk-warn-ink)!important}
 /* 答对：弹跳 + 发光（只作用在正确项上，用 sbk-right 标记，不改原类名） */
 .sbk-on .sbk-right{animation:sbk-pop .62s cubic-bezier(.34,1.56,.64,1) 2}
 @keyframes sbk-pop{
@@ -281,7 +307,7 @@ body.sbk-on{
   transform:translate(-50%,-50%);
   animation:sbk-cheer 1.15s cubic-bezier(.34,1.5,.64,1) forwards}
 .sbk-cheer .sbk-face{font-size:78px; line-height:1; animation:sbk-nod 1.15s ease-in-out}
-.sbk-cheer .sbk-word{margin-top:4px; font-size:22px; font-weight:900; color:var(--sbk-ok);
+.sbk-cheer .sbk-word{margin-top:4px; font-size:22px; font-weight:900; color:var(--sbk-ok-ink);
   text-shadow:0 2px 0 #fff, 0 0 16px rgba(94,194,106,.5); text-align:center}
 @keyframes sbk-cheer{
   0%{opacity:0; transform:translate(-50%,-50%) scale(.3) rotate(-16deg)}
@@ -293,7 +319,7 @@ body.sbk-on{
   60%{transform:rotate(7deg) scale(1.03)}}
 /* 答错：温和的提示气泡（从选项旁冒出来，不遮挡题目） */
 .sbk-hint{position:fixed; z-index:61; pointer-events:none; transform:translate(-50%,-100%);
-  background:var(--sbk-yellow-s); color:var(--sbk-warn,#a86a00);
+  background:var(--sbk-yellow-s); color:var(--sbk-warn-ink);
   border:2px solid var(--sbk-yellow); border-radius:16px;
   padding:8px 14px; font-size:16px; font-weight:800; white-space:nowrap;
   box-shadow:0 5px 0 rgba(0,0,0,.07);
