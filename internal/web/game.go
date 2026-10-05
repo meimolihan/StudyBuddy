@@ -74,6 +74,15 @@ type Game struct {
 	SubjectCN string
 	Unit      string
 	UnitNo    int
+
+	// Kind 题型标签（"选择" / "判断" / ""），由单元目录名尾部的中文括号后缀解析。
+	//
+	// 为什么需要它：同一批课文级游戏页，选择与判断两棵树的单元目录**同名**
+	// （都是 "01-识字（一）"），落盘时必须靠 `01-识字（一）（选择）` 这种后缀
+	// 区分，否则后写入的会覆盖先写入的。这个后缀是**存储层的去重手段**，
+	// 不该漏到 UI 上 —— 否则列表页分组标题会变成「01-识字（一）（选择）」。
+	// 所以解析时剥离，UI 用 Kind 单独渲染成一个小徽章，既干净又信息不丢。
+	Kind string
 }
 
 // Label 该游戏的一句话描述，用在列表页副标题上。
@@ -146,6 +155,11 @@ type GameSubject struct {
 type GameUnit struct {
 	No   int
 	Name string
+	// Kind 题型标签（"选择" / "判断" / ""）。课文级游戏按题型分目录存放，
+	// 同一个 (No, Name) 会对应两个 Kind，所以**题型必须进分组键** ——
+	// 否则选择与判断会被并进同一个卡片网格，标题只剩单元名，
+	// 用户点进去分不清自己在做哪一类。
+	Kind string
 	// Games 每个游戏带 Show 展示名（取自 HTML 的 <title>，通常与文件名不同）。
 	Games []*GameView
 }
@@ -257,8 +271,28 @@ func sortGames(list []*Game) {
 		if a.Unit != b.Unit {
 			return a.Unit < b.Unit
 		}
+		// 题型排在最后：同一单元下「选择」先于「判断」，
+		// 靠 gameKindOrder 而不是字符串字典序（"选择" < "判断" 恰好同序，
+		// 但这是巧合，语义上该显式写死）。
+		if ka, kb := gameKindOrder(a.Kind), gameKindOrder(b.Kind); ka != kb {
+			return ka < kb
+		}
 		return a.Title < b.Title
 	})
+}
+
+// gameKindOrder 题型展示顺序：课文级综合游戏（无题型）最先，
+// 然后选择、判断。负数表示"没有题型"，排在所有有题型的之前。
+func gameKindOrder(kind string) int {
+	switch kind {
+	case "":
+		return -1
+	case "选择":
+		return 0
+	case "判断":
+		return 1
+	}
+	return 2
 }
 
 // subjectOrder 学科展示顺序：语文 → 数学 → 其余按键名。
@@ -314,6 +348,7 @@ func parseGamePath(rel string) *Game {
 		return nil
 	}
 	unitNo, unit := splitGameSeqName(parts[6])
+	unit, kind := splitGameKind(unit)
 	if unit == "" {
 		return nil
 	}
@@ -328,8 +363,36 @@ func parseGamePath(rel string) *Game {
 	return &Game{
 		Stage: stage, Publisher: publisher, Grade: grade, Volume: volume,
 		Subject: subject, SubjectCN: subjectCN, Unit: unit, UnitNo: unitNo,
+		Kind: kind,
 		Title: title,
 	}
+}
+
+// gameKindSuffixes 单元目录尾部的题型后缀 → 展示名。
+//
+// 这是**存储层的去重后缀**，不是单元名的一部分：choose 与 judge 两棵树的
+// 单元目录同名，不加后缀会互相覆盖。解析时剥离、UI 上单独渲染成徽章。
+var gameKindSuffixes = []struct{ suffix, label string }{
+	{"（选择）", "选择"},
+	{"（判断）", "判断"},
+}
+
+// splitGameKind 剥掉单元目录名尾部的题型后缀，返回 (干净单元名, 题型标签)。
+//
+// 只认**尾部**完整后缀，且必须剥完还剩下非空单元名 ——
+// 「（选择）」这种没有单元名的目录宁可原样保留、后续 unit=="" 被拒，
+// 也不要剥出一个空名让两个不同单元在 UI 上并成一个。
+func splitGameKind(unit string) (string, string) {
+	unit = strings.TrimSpace(unit)
+	for _, k := range gameKindSuffixes {
+		if strings.HasSuffix(unit, k.suffix) {
+			clean := strings.TrimSpace(strings.TrimSuffix(unit, k.suffix))
+			if clean != "" {
+				return clean, k.label
+			}
+		}
+	}
+	return unit, ""
 }
 
 // parseGameInt 解析 grade<N> / volume<M>，只接受「前缀 + 正整数」，
@@ -392,9 +455,12 @@ func (s *GameStore) List(stage string, grade, volume int) *GameIndex {
 	idx.HasAny = true
 
 	// 学科 → 单元 → 游戏 三层聚合，保持 sortGames 已排好的顺序。
+	// ⚠️ 分组键必须含题型：课文级游戏的单元目录带（选择）/（判断）后缀，
+	// 解析后 Unit 名相同、Kind 不同，漏掉它会把两类题并进同一个网格。
 	type unitKey struct {
 		no int
 		nm string
+		kd string
 	}
 	subjOrder := []string{}
 	subjSeen := map[string]*GameSubject{}
@@ -407,10 +473,10 @@ func (s *GameStore) List(stage string, grade, volume int) *GameIndex {
 			unitSeen[g.Subject] = map[unitKey]*GameUnit{}
 			subjOrder = append(subjOrder, g.Subject)
 		}
-		k := unitKey{g.UnitNo, g.Unit}
+		k := unitKey{g.UnitNo, g.Unit, g.Kind}
 		gu, ok := unitSeen[g.Subject][k]
 		if !ok {
-			gu = &GameUnit{No: g.UnitNo, Name: g.Unit}
+			gu = &GameUnit{No: g.UnitNo, Name: g.Unit, Kind: g.Kind}
 			unitSeen[g.Subject][k] = gu
 			gs.Units = append(gs.Units, gu)
 		}

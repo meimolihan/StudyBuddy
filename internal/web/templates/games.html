@@ -34,11 +34,11 @@
   <h3 class="gm-subject">{{.Name}}</h3>
   {{range .Units}}
   {{if .Games}}
-  <div class="unitname">{{.Name}}</div>
+  <div class="unitname">{{.Name}}{{if .Kind}}<span class="gm-kind">{{.Kind}}</span>{{end}}</div>
   <div class="grid gm-grid">
     {{range .Games}}
     <a class="gm-card" href="/game?key={{urlquery .Key}}"
-       title="{{.Unit}} · {{.Show}}">
+       title="{{.Unit}}{{if .Kind}} · {{.Kind}}{{end}} · {{.Show}}">
       <span class="gm-ico" aria-hidden="true">🎮</span>
       <span class="gm-name">{{.Show}}</span>
       <span class="gm-go" aria-hidden="true">开始玩 →</span>

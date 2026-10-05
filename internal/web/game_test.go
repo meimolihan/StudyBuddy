@@ -147,7 +147,28 @@ func TestGameBankMatchesParseBank(t *testing.T) {
 	// 早先手工做的两个独立游戏自带完整交互、没有题库块，不参与本用例。
 	legacy := map[string]bool{"01-天地人.html": true, "01-数学游戏（数一数、比多少）.html": true}
 
+	// ⚠️ 断言必须**按题型分支**，不能一刀切「4 选项 + 1 答案」。
+	// 这条用例写于 game/ 下只有 33 页单元综合游戏（全是四选一单选）的年代；
+	// 后来补进 208+216 页课文级自测卷后，判断题（2 选项）和多选题（多答案）
+	// 都是**正常形态**，一刀切断言会把它们全报成错 —— 那是断言过期，不是内容坏。
+	// 判据：
+	//   判断题  → 2 选项（对 / 错）、恰好 1 个答案
+	//   选择题  → 4 选项、答案 >=1（多选题是「（　）」型，允许多个）
+	//   单元综合游戏（无题型后缀目录）→ 沿用 4 选项单选
+	kindOf := func(rel string) string {
+		for _, seg := range strings.Split(filepath.ToSlash(rel), "/") {
+			switch {
+			case strings.HasSuffix(seg, "（判断）"):
+				return "judge"
+			case strings.HasSuffix(seg, "（选择）"):
+				return "choose"
+			}
+		}
+		return "unit" // 旧式单元综合游戏
+	}
+
 	total, files := 0, 0
+	byKind := map[string]int{}
 	err := filepath.Walk(gameRootDir, func(p string, info os.FileInfo, err error) error {
 		if err != nil || info == nil || info.IsDir() || !strings.HasSuffix(p, ".html") {
 			return nil
@@ -156,7 +177,9 @@ func TestGameBankMatchesParseBank(t *testing.T) {
 		if legacy[info.Name()] {
 			return nil
 		}
+		kind := kindOf(rel)
 		files++
+		byKind[kind]++
 		b, rerr := os.ReadFile(p)
 		if rerr != nil {
 			t.Errorf("%s 读取失败：%v", rel, rerr)
@@ -167,13 +190,24 @@ func TestGameBankMatchesParseBank(t *testing.T) {
 			t.Errorf("%s：ParseBank 解析出 0 题（检查 const 声明、注释里是否混入 marker、答案是否为字母）", rel)
 			return nil
 		}
+		wantOpts, wantAnsMin, wantAnsMax := 4, 1, 1
+		if kind == "judge" {
+			wantOpts, wantAnsMin, wantAnsMax = 2, 1, 1
+		} else if kind == "choose" {
+			wantAnsMax = len(qs[0].Options) // 多选题答案数不设上限
+		}
 		for _, q := range qs {
 			total++
-			if len(q.Options) != 4 {
-				t.Errorf("%s：题干「%s」选项 %d 个（预期 4）", rel, q.Stem, len(q.Options))
+			if len(q.Options) != wantOpts {
+				t.Errorf("%s：题干「%s」选项 %d 个（%s 题预期 %d）",
+					rel, q.Stem, len(q.Options), kind, wantOpts)
 			}
-			if len(q.Answers) != 1 {
-				t.Errorf("%s：题干「%s」答案 %d 个（预期 1）", rel, q.Stem, len(q.Answers))
+			if len(q.Answers) < wantAnsMin || len(q.Answers) > wantAnsMax {
+				t.Errorf("%s：题干「%s」答案 %d 个（%s 题预期 %d~%d）",
+					rel, q.Stem, len(q.Answers), kind, wantAnsMin, wantAnsMax)
+				continue
+			}
+			if len(q.Answers) == 0 {
 				continue
 			}
 			// 答案必须落在选项范围内，否则判分永远错
@@ -191,10 +225,18 @@ func TestGameBankMatchesParseBank(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if files < 31 {
-		t.Errorf("新引擎游戏只有 %d 个，预期至少 31 个（grade1 语文上下 + 数学上下共 31 个单元）", files)
+	// 下限按现状取：grade1 既有 33 页单元综合游戏，也补了 208 页课文级自测卷。
+	// 门槛只防「扫描器整体失灵」这一类回归，不卡具体页数。
+	if files < 240 {
+		t.Errorf("新引擎游戏只有 %d 个，预期至少 240 个（33 页单元综合 + 208 页课文级）", files)
 	}
-	t.Logf("校验 %d 个游戏文件、%d 道题，题库格式与刷题题库一致", files, total)
+	// 题型目录都要真的被扫到，否则「按题型分支」这段等于没被测到
+	for _, k := range []string{"unit", "choose", "judge"} {
+		if byKind[k] == 0 {
+			t.Errorf("按题型分支的断言没覆盖到 %s 类文件（分布：%v）", k, byKind)
+		}
+	}
+	t.Logf("校验 %d 个游戏文件、%d 道题（分布 %v），题库格式与刷题题库一致", files, total, byKind)
 }
 
 // TestGameDisplayTitleFromHTMLTag 展示名必须取自 HTML 的 <title>，不是文件名。
@@ -336,6 +378,99 @@ func TestGameThemeBridgeCSS(t *testing.T) {
 
 // TestGameTemplatesParse 用与线上同一份 FuncMap 解析新模板，
 // 缺函数或语法错会立刻暴露，不会假绿。
+// TestSplitGameKind 钉住单元目录尾部题型后缀的剥离口径。
+//
+// 这个后缀是**存储层的去重手段**：choose 与 judge 两棵树的单元目录同名
+// （都是 `01-识字（一）`），落盘必须靠 `01-识字（一）（选择）` 区分，
+// 否则后写入的覆盖先写入的。但它是存储细节，不该出现在 UI 的单元名里。
+func TestSplitGameKind(t *testing.T) {
+	ok := []struct{ in, unit, kind string }{
+		{"识字（一）（选择）", "识字（一）", "选择"},
+		{"识字（一）（判断）", "识字（一）", "判断"},
+		{"5以内数的认识和加减法（选择）", "5以内数的认识和加减法", "选择"},
+		// 顺序不能反：判断不是选择的子串，HasSuffix 逐个试即可
+		{"Unit1（判断）", "Unit1", "判断"},
+		// 没有后缀的旧式单元综合游戏页：原样返回，题型为空
+		{"识字（一）", "识字（一）", ""},
+		{"20以内的进位加法", "20以内的进位加法", ""},
+		// 只认尾部完整后缀：单元名里出现的括号不能被当后缀剥掉
+		{"语文（精选）（选择）", "语文（精选）", "选择"},
+		{"（选择）", "（选择）", ""}, // 剥完为空 -> 保留原样，交给 unit=="" 兜底
+		{"", "", ""},
+	}
+	for _, c := range ok {
+		unit, kind := splitGameKind(c.in)
+		if unit != c.unit || kind != c.kind {
+			t.Errorf("splitGameKind(%q) = (%q, %q)，期望 (%q, %q)",
+				c.in, unit, kind, c.unit, c.kind)
+		}
+	}
+}
+
+// TestParseGamePathKind 题型后缀必须从 Unit 剥掉、落到 Kind 字段，
+// 且不影响 UnitNo 与 Title 的解析。
+func TestParseGamePathKind(t *testing.T) {
+	g := parseGamePath("primary/pep/game/grade1/volume1/chinese/01-识字（一）（选择）/01-天地人.html")
+	if g == nil {
+		t.Fatal("带题型后缀的课文级游戏页应解析成功")
+	}
+	if g.Unit != "识字（一）" {
+		t.Errorf("Unit 应为剥掉后缀的干净单元名，得到 %q", g.Unit)
+	}
+	if g.Kind != "选择" {
+		t.Errorf("Kind 应为 %q，得到 %q", "选择", g.Kind)
+	}
+	if g.UnitNo != 1 || g.Title != "天地人" {
+		t.Errorf("UnitNo/Title 受后缀影响：UnitNo=%d Title=%q", g.UnitNo, g.Title)
+	}
+	// 无后缀的旧式单元综合游戏页：Kind 必须为空，不能被塞进什么默认值
+	g2 := parseGamePath("primary/pep/game/grade1/volume1/chinese/01-识字（一）/01-识字（一）.html")
+	if g2 == nil {
+		t.Fatal("无后缀的单元综合游戏页应解析成功")
+	}
+	if g2.Kind != "" {
+		t.Errorf("无后缀时 Kind 应为空，得到 %q", g2.Kind)
+	}
+}
+
+// TestGameUnitKindInGroupKey 同一个 (UnitNo, Unit) 下的选择与判断
+// 必须是**两个**分组 —— 否则两类题会并进同一个卡片网格，
+// 点进去分不清在做哪一类。
+func TestGameUnitKindInGroupKey(t *testing.T) {
+	root := t.TempDir()
+	unit := "01-识字（一）"
+	for _, kind := range []string{"（选择）", "（判断）"} {
+		d := filepath.Join(root, "primary", "pep", "game", "grade1", "volume1",
+			"chinese", unit+kind)
+		if err := os.MkdirAll(d, 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(d, "01-天地人.html"),
+			[]byte("<title>天地人</title>"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	s := &GameStore{root: root}
+	idx := s.List("primary", 1, 1)
+	if !idx.HasAny || len(idx.Subject) != 1 {
+		t.Fatalf("应扫到 1 个学科，实际 %d（HasAny=%v）", len(idx.Subject), idx.HasAny)
+	}
+	units := idx.Subject[0].Units
+	if len(units) != 2 {
+		t.Fatalf("选择与判断应分成 2 个单元分组，实际 %d 个：%+v", len(units), units)
+	}
+	// 排序：无题型的排最前，然后选择、判断。这里两者都无「综合游戏」，
+	// 所以顺序必须是 选择 → 判断。
+	if units[0].Kind != "选择" || units[1].Kind != "判断" {
+		t.Errorf("题型分组顺序应为 选择→判断，实际 %q→%q", units[0].Kind, units[1].Kind)
+	}
+	for _, u := range units {
+		if u.Name != "识字（一）" {
+			t.Errorf("单元名不应带题型后缀，得到 %q", u.Name)
+		}
+	}
+}
+
 func TestGameTemplatesParse(t *testing.T) {
 	for _, name := range []string{"games.html", "game.html", "study.html"} {
 		if _, err := template.New("").Funcs(newFuncMap()).ParseFS(assetsFS, "templates/"+name); err != nil {

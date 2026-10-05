@@ -4676,3 +4676,23 @@ html[data-theme="dark"] h1{
   font-weight:600;
   box-shadow:0 0 0 2px color-mix(in srgb, var(--brand) 22%, transparent);
 }
+
+/* ══════════════ 游戏题列表：单元题型徽章 ══════════════
+   课文级游戏按题型分目录存放（`01-识字（一）（选择）` / `…（判断）`），
+   后缀是**存储层去重手段**——两棵树的单元目录同名，不加后缀会互相覆盖。
+   game.go 的 splitGameKind 在解析时把它剥下来，模板渲染成这个小徽章。
+   追加段而非改原规则：本项目 CSS 一律 append-only。 */
+.unitname .gm-kind{
+  display:inline-block;
+  margin-left:8px;
+  padding:1px 8px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:500;
+  line-height:1.7;
+  vertical-align:1px;
+  color:var(--brand-dark);
+  background:color-mix(in srgb, var(--brand) 12%, transparent);
+  border:1px solid color-mix(in srgb, var(--brand) 26%, transparent);
+  user-select:none;
+}
