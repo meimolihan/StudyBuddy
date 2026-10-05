@@ -440,7 +440,37 @@
   --sbk-bad:var(--g-bad,#d64545);
   /* 柔和但明亮：避免高饱和纯色大面积铺满（刺眼），
      用「白 + 低饱和彩色」的组合，色相集中在蓝/黄/橙/绿/粉五色。 */
-  --sbk-sky-1:#eaf4ff; --sbk-sky-2:#fff8ec; --sbk-sky-3:#f2fbf3;
+  --sbk-sky-1:#eaf4ff; --sbk-sky-2:#fff8ec; --sbk-sky-3:#f2fbf3;}
+
+/* ---------- 暗色兜底：不依赖 game.go 的主题桥也能正确显示 ----------
+   变量里 --sbk-card/--sbk-ink 都带了浅色 fallback（#fff / #1f2937）。
+   在站点里 game.go 会注入 --g-* 桥接，深色下 --g-card 是深色，没问题；
+   但**直接双击 HTML 打开**（老师本地看、家长下载后看）时没有桥接，
+   系统又是深色 —— 此时 --sbk-card 仍是 #fff 白底，而页面自身
+   （.sbk2 那批）已把题干文字设成浅色 → 白底浅字，看不见。
+   这里补一份与系统深色一致的兜底，两条路径都对。
+
+   ⚠ 选择器必须是 `body.sbk`：**sbk 类是加在 <body> 上的**
+     （JS 里 document.body.classList.add("sbk-on","sbk")），
+     写成 html.sbk 永不命中 —— 症状是深色下卡片仍是白底。
+   同理用 :not([data-theme="light"])：手动锁浅色时以用户选择为准。 */
+@media (prefers-color-scheme: dark){
+  body.sbk:not([data-theme="light"]){
+    --sbk-ink:#e7ecf3;
+    --sbk-line:#2a323d;
+    --sbk-card:#1c222b;
+    --sbk-brand:#4ea1ff;
+    --sbk-ok:#5fbf6a;
+    --sbk-bad:#ff6b6b;
+  }
+  body.sbk[data-theme="dark"]{
+    --sbk-ink:#e7ecf3;
+    --sbk-line:#2a323d;
+    --sbk-card:#1c222b;
+    --sbk-brand:#4ea1ff;
+    --sbk-ok:#5fbf6a;
+    --sbk-bad:#ff6b6b;
+  }
 }
 
 body.sbk-on{
@@ -520,11 +550,34 @@ body.sbk-on{
 .sbk-on #gameContainer{max-width:820px; margin:0 auto}
 
 /* ---------- 大卡片：更圆、更软、有厚度感（不用重投影，避免糊） ---------- */
+/* ⚠️ 这里**不能**只写 background-color。
+   部分页面（grade2 走 .sbk2 Premium 层的那批）自己的 .q 上已经有
+   `background:linear-gradient(...)` 简写。若本层用 background-color 覆盖，
+   简写里的 image 会**留在上层**、color 被换成 --sbk-card：
+   深色下就变成「不透明白底 + 深色渐变被压在下面」→ 卡片渲染成白色，
+   而 .stem 的文字色由 .sbk2 定成浅色（--p-txt），于是
+   浅字配白底 = 对比度 1.2:1，题干整个看不见。
+   （实测 rgb(228,235,242) 配 rgb(255,255,255)。）
+
+   正确做法：同样用 background 简写覆盖，让 image 与 color 一起被接管；
+   变量自带 fallback，深色下 --sbk-card 走 --g-card 或落到 #fff，
+   与页面自身的明暗保持一致，不引入新的隐形文字故障。 */
 .sbk-on .q, .sbk-on #gameContainer, .sbk-on .fb{
   border-radius:24px !important;
   border:2px solid var(--sbk-line) !important;
   box-shadow:0 6px 0 rgba(0,0,0,.05), 0 10px 26px rgba(80,110,160,.13) !important;
-  background-color:var(--sbk-card) !important;
+  background:var(--sbk-card) !important;
+  /* 文字必须与**本层刚设定的背景**同源，否则会出现跨层打架：
+     同一批页面里还带 .sbk2（另一个增强层），它把 .stem 定成浅色
+     （--p-txt）。本层把卡片背景接管成 --sbk-card 后，若不同步文字色，
+     深色下就是浅字配深底/白底，题干直接消失。 */
+  color:var(--sbk-ink) !important;
+}
+/* 题干/题面文字跟随卡片。用 .stem/.q-title/#prompt 这些真实选择器，
+   覆盖各页面自己的浅色硬编码（它们 !important，故本层也必须 !important）。 */
+.sbk-on .stem, .sbk-on .q-title, .sbk-on #promptText,
+.sbk-on .qtext, .sbk-on .question{
+  color:var(--sbk-ink) !important;
 }
 
 /* ---------- 大字号：题干与选项是低龄阅读的主体，必须够大 ---------- */

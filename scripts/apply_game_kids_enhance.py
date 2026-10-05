@@ -55,6 +55,30 @@ def find_games(root: str) -> list[str]:
     return sorted(out)
 
 
+def detect_eol(text: str) -> str:
+    """判断宿主页面的换行风格（CRLF 还是 LF）。
+
+    ⚠ 内容目录里 CRLF / LF 混存（实测 grade1 的 241 个文件两种都有），
+      所以**必须逐文件探测**，不能全局写死一种。
+    """
+    return "\r\n" if "\r\n" in text else "\n"
+
+
+def read_raw(path: str) -> str:
+    """按原样读文件，**不做换行翻译**。
+
+    ⚠ 这里踩过一个坑：用 `open(p, encoding="utf-8").read()` 读，
+      Python 的通用换行模式会把每个 `\r\n` **翻译成 `\n`**。而写回时为了
+      不让 Windows 再加一层 `\r`，用的是 `newline=""`（原样写）。
+      一读一写两个设置不对称的结果就是：**整份 CRLF 文件被改写成 LF**
+      （实测 204 个原本纯 CRLF 的文件注入后 CRLF 计数从 1263 掉到 0），
+      整个内容目录的换行约定被破坏，`verify_games.py` 会整整多报 204 条
+      「换行混用」。修法就是读也用 `newline=""`，读写对称。
+    """
+    with open(path, "r", encoding="utf-8", newline="") as fh:
+        return fh.read()
+
+
 def strip_enhance(html: str) -> str:
     """移除已注入的增强层（用于幂等重写与 --remove）。
 
@@ -79,18 +103,18 @@ def strip_enhance(html: str) -> str:
     # 形态 A：标签内哨兵（当前）
     html = re.sub(
         r"[ \t]*<(style|script)>\s*" + re.escape(SENTINEL_CSS)
-        + r".*?</\1>\n?",
+        + r".*?</\1>\r?\n?",
         "", html, flags=re.S)
     html = re.sub(
         r"[ \t]*<(style|script)>\s*" + re.escape(SENTINEL_JS)
-        + r".*?</\1>\n?",
+        + r".*?</\1>\r?\n?",
         "", html, flags=re.S)
     # 形态 B：标签外哨兵（旧版，会渲染成可见文本）
     html = re.sub(
-        r"[ \t]*" + re.escape(SENTINEL_CSS) + r"\s*<style>.*?</style>\n?",
+        r"[ \t]*" + re.escape(SENTINEL_CSS) + r"\s*<style>.*?</style>\r?\n?",
         "", html, flags=re.S)
     html = re.sub(
-        r"[ \t]*" + re.escape(SENTINEL_JS) + r"\s*<script>.*?</script>\n?",
+        r"[ \t]*" + re.escape(SENTINEL_JS) + r"\s*<script>.*?</script>\r?\n?",
         "", html, flags=re.S)
     return html
 
@@ -137,18 +161,30 @@ def fingerprint(html: str) -> dict:
     return {"banks": banks, "fields": fields, "funcs": funcs}
 
 
-def inject(html: str) -> str:
+def inject(html: str, eol: str = "\n") -> str:
     """在 </head> 前插 CSS、</body> 前插 JS。
 
     ⚠ 哨兵必须放在 <style>/<script> **标签内部**当首行注释。
     放在标签外面就成了 body 里的可见文本节点，会在页面上真的显示出
     一行「__SBK_CSS__」（实测截图里出现在顶部和底部中央）。
     放在内部既是合法注释（不渲染），又能被 strip_enhance 的正则命中。
+
+    ⚠ eol 必须传宿主文件自己的换行风格：拼接硬编码 "\n" 会让 CRLF 页面
+      变成混合换行（见 detect_eol 的说明）。**块内部也要一起归一化** ——
+      ENHANCE_CSS/ENHANCE_JS 是 Python 源码里的三引号字符串，行尾一律是
+      LF，光把块与块之间的拼接符换成 eol 不够（实测仍残留 924 个裸 LF）。
     """
-    css_block = ("<style>\n" + SENTINEL_CSS + "\n" + ENHANCE_CSS.strip()
-                 + "\n</style>")
-    js_block = ("<script>\n" + SENTINEL_JS + "\n" + ENHANCE_JS.strip()
-                + "\n</script>")
+    def block(tag: str, sentinel: str, body: str) -> str:
+        # 先把所有形态的换行统一成 LF，再整体换成宿主的 eol
+        norm = body.replace("\r\n", "\n").replace("\r", "\n").strip()
+        if eol != "\n":
+            norm = norm.replace("\n", eol)
+        return "<style>" + eol + sentinel + eol + norm + eol + "</style>" \
+            if tag == "style" else \
+            "<script>" + eol + sentinel + eol + norm + eol + "</script>"
+
+    css_block = block("style", SENTINEL_CSS, ENHANCE_CSS)
+    js_block = block("script", SENTINEL_JS, ENHANCE_JS)
     # 幂等：先清掉旧的（含旧版「哨兵在标签外」的写法）
     # ⚠ strip 用 "\n" 替换整块，插入点因此会多出一个空行；
     #   若这里再无条件加 "\n"，每次注入都会多 1 个空行（实测每次 +2 字节、
@@ -160,14 +196,14 @@ def inject(html: str) -> str:
         raise SystemExit("找不到 </head>")
     head, tail = html[:i], html[i:]
     tail = tail.lstrip("\r\n")          # 吃掉 head 末尾残留的换行
-    html = head.rstrip() + "\n" + css_block + "\n" + tail
+    html = head.rstrip() + eol + css_block + eol + tail
     # 插到最后一个 </body> 之前：脚本要在 body 末尾才能 querySelector 到选项
     j = html.lower().rfind("</body>")
     if j < 0:
         raise SystemExit("找不到 </body>")
     head2, tail2 = html[:j], html[j:]
     tail2 = tail2.lstrip("\r\n")
-    html = head2.rstrip() + "\n" + js_block + "\n" + tail2
+    html = head2.rstrip() + eol + js_block + eol + tail2
     return html
 
 
@@ -187,7 +223,7 @@ def main() -> int:
 
     for p in files:
         rel = os.path.relpath(p, ROOT)
-        raw = open(p, "r", encoding="utf-8").read()
+        raw = read_raw(p)
         has = (SENTINEL_CSS in raw) or (SENTINEL_JS in raw)
 
         if mode == "--check":
@@ -216,7 +252,7 @@ def main() -> int:
         # 默认：注入
         base = strip_enhance(raw) if has else raw
         f0 = fingerprint(base)
-        new = inject(raw)
+        new = inject(raw, detect_eol(raw))
         f1 = fingerprint(strip_enhance(new))
         if f0 != f1:
             problems.append((rel, f1, "注入后指纹变了 —— 已中止写盘"))
