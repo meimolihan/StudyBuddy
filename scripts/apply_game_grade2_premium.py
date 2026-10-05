@@ -1,14 +1,25 @@
 # -*- coding: utf-8 -*-
-"""二年级互动习题页 · Premium 视觉增强层注入器。
+"""互动习题页 · Premium 视觉增强层注入器（小学通用，当前覆盖 grade1 / grade2）。
 
 用法::
 
-    python scripts/apply_game_grade2_premium.py            # 注入
-    python scripts/apply_game_grade2_premium.py --check    # 只体检（不写盘）
-    python scripts/apply_game_grade2_premium.py --remove   # 剥离
-    python scripts/apply_game_grade2_premium.py --build    # 从题库生成二年级游戏页
+    python scripts/apply_game_grade2_premium.py                 # 注入（全部年级）
+    python scripts/apply_game_grade2_premium.py --grade 1       # 只处理一年级
+    python scripts/apply_game_grade2_premium.py --check         # 只体检（不写盘）
+    python scripts/apply_game_grade2_premium.py --remove        # 剥离
+    python scripts/apply_game_grade2_premium.py --build         # 从题库生成游戏页
+    python scripts/apply_game_grade2_premium.py --selfcheck-only
 
-三条铁律（都是踩过坑换来的，改之前先读）
+⚠️⚠️ **二年级与一年级的产物结构不同，别混在一起**：
+- grade2（2026-10-05 建）：``game/grade2/<vol>/<subj>/<NN-单元>（选择）/NN-课.html``
+  —— 直接由课文级题库复制注入，**没有**额外的单元综合游戏页。
+- grade1（更早就有）：``game/grade1/<vol>/<subj>/<NN-单元>/NN-单元.html``
+  —— 单元级**综合游戏页**（每单元 1 页、8 题），与课文级题库是两回事。
+
+所以 grade1 的课文级产物落到**独立的 ``<单元>（选择）`` 目录**，与既有单元综合页
+并存且互不覆盖；``--build`` 绝不去动没有 ``（选择）/（判断）`` 后缀的目录。
+
+四条铁律（都是踩过坑换来的，改之前先读）
 ------------------------------------------------
 1. **哨兵注释必须在 <style>/<script> 标签内部**。放外面会变成 body 的可见
    文本节点，页面上真的会显示 ``__SBK2_CSS__`` 这串字符。
@@ -16,11 +27,17 @@
    留下孤立开标签，每次注入多一个空块。两个精确形态分开写。
 3. **剥离的替换值必须是空串**（不是 ``"\\n"``）。inject() 自己负责前后换行，
    多吐一个会让「剥离后与原始版本逐字节比对」不通过。
+4. **ENHANCE_CSS / ENHANCE_JS 常量自身已含完整标签**。注入器**直接用常量本体**，
+   绝不再套一层标签 —— 二次包装会产生嵌套，剥离正则的**非贪婪 ``.*?</\\1>``
+   只吃掉内层**，残留孤立 ``</style>``，导致逐字节比对全不一致。
 
 指纹校验
 ------------------------------------------------
 注入前扫描题库数组与判分函数体取 md5。**指纹不一致就中止，绝不写盘** ——
 这是「题目内容、答案、答题业务逻辑完全保留不变」这条硬约束的技术保证。
+
+⚠️ 但**指纹一致 ≠ 页面能跑**：指纹只覆盖题库与判分函数，增强层是纯新增代码。
+所以另有 `selfcheck()`（`node --check` + 标签完整性）作为写盘前的第二道闸门。
 """
 from __future__ import annotations
 
@@ -41,17 +58,28 @@ SENTINEL_CSS = "__SBK2_CSS__"
 SENTINEL_JS = "__SBK2_JS__"
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-# 二年级游戏页输出根
-GAME_ROOT = os.path.join(ROOT, "content", "primary", "pep", "game", "grade2")
-# 题库来源：choose（选择）与 judge（判断）两棵树的 grade2
-# (题库根, 题型键)。**顺序与题型都要显式写出**：两棵树单元名完全相同，
-# 靠目录名区分题型（见 unit_dir）。
-BANK_ROOTS = [
-    (os.path.join(ROOT, "content", "primary", "pep", "choose", "grade2"), "choose"),
-    (os.path.join(ROOT, "content", "primary", "pep", "judge", "grade2"), "judge"),
-]
+PEP = os.path.join(ROOT, "content", "primary", "pep")
+
+# 各年级的配置：题库来源 + 输出根。
+# 同一个 grade 可能只有 choose 没有 judge，所以逐个 grade 单独声明。
+# (题型键, 相对 PEP 的题库目录, 相对 game 的输出目录)
+def _cfg(grade):
+    g = "grade%d" % grade
+    out = []
+    for qtype in ("choose", "judge"):
+        bank = os.path.join(PEP, qtype, g)
+        if os.path.isdir(bank):
+            out.append((qtype, bank, os.path.join(PEP, "game", g)))
+    return out
+
+
+GRADES = [1, 2]
 VOL_LABEL = {"volume1": "上册", "volume2": "下册"}
 SUBJ_LABEL = {"chinese": "语文", "math": "数学"}
+
+# 兼容旧引用
+GAME_ROOT = os.path.join(PEP, "game", "grade2")
+BANK_ROOTS = [(b, t) for t, b, _ in _cfg(2)]
 
 
 # ---------------------------------------------------------------- 增强层自检
@@ -291,15 +319,16 @@ def unit_dir(qtype: str, unit: str) -> str:
     return "%s（%s）" % (unit, label)
 
 
-def build_grade2() -> int:
-    """从 choose / judge 题库生成 game/grade2 页面。
+def build_grade(grade: int) -> int:
+    """从该年级的 choose / judge 题库生成 game 页。
 
-    只做「复制 + 注入」，**不改题库内容、不改判分逻辑**。
+    只做「复制」，**不改题库内容、不改判分逻辑**（注入在后续流程里做）。
+
+    ⚠️ 复制用 ``shutil.copyfile``（**二进制**拷贝）—— 题库源是纯 CRLF，
+    若用文本方式读写会被转成 LF，剥离后逐字节比对必然全不一致。
     """
     n = 0
-    for bank_root, qtype in BANK_ROOTS:
-        if not os.path.isdir(bank_root):
-            continue
+    for qtype, bank_root, out_root in _cfg(grade):
         for vol in sorted(os.listdir(bank_root)):
             vpath = os.path.join(bank_root, vol)
             if not os.path.isdir(vpath) or vol not in VOL_LABEL:
@@ -316,17 +345,39 @@ def build_grade2() -> int:
                         if not fname.endswith(".html"):
                             continue
                         src = os.path.join(upath, fname)
-                        dst_dir = os.path.join(GAME_ROOT, vol, subj,
+                        dst_dir = os.path.join(out_root, vol, subj,
                                                unit_dir(qtype, unit))
                         os.makedirs(dst_dir, exist_ok=True)
-                        dst = os.path.join(dst_dir, fname)
-                        shutil.copyfile(src, dst)
+                        shutil.copyfile(src, os.path.join(dst_dir, fname))
                         n += 1
     return n
 
 
-def iter_targets():
-    return sorted(glob.glob(os.path.join(GAME_ROOT, "**", "*.html"), recursive=True))
+def iter_targets(grades=None):
+    """所有需要注入/剥离的目标页。
+
+    ⚠️ 只认「带 ``（选择）/（判断）`` 后缀的单元目录」—— 那是本注入器的产物。
+    一年级另有 33 页**单元级综合游戏**（目录名无后缀、文件名=单元名），
+    那些是另一种页面，**绝不能碰**：它们既不是本注入器生成的，
+    也不来自课文级题库，注入了会和旧 `sbk` 增强层双份叠加。
+
+    ⚠️ 输出根必须**去重**：同一 grade 的 choose 与 judge 共用同一个
+    ``game/grade<N>`` 根，若按题型各 glob 一次，每个文件会被数两遍
+    （实测 grade1 报 416 而实际只有 208，注入日志同一文件重复出现）。
+    """
+    out = []
+    seen_roots = set()
+    for g in (grades or GRADES):
+        for _qtype, _bank, out_root in _cfg(g):
+            if out_root in seen_roots:
+                continue
+            seen_roots.add(out_root)
+            pat = os.path.join(out_root, "**", "*.html")
+            for f in glob.glob(pat, recursive=True):
+                parts = os.path.relpath(f, out_root).split(os.sep)
+                if len(parts) >= 4 and parts[2].endswith(("（选择）", "（判断）")):
+                    out.append(f)
+    return sorted(out)
 
 
 # ---------------------------------------------------------------- 主流程
@@ -334,12 +385,20 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--check", action="store_true", help="只体检不写盘")
     ap.add_argument("--remove", action="store_true", help="剥离增强层")
-    ap.add_argument("--build", action="store_true", help="先从题库生成二年级游戏页")
+    ap.add_argument("--build", action="store_true", help="先从题库生成游戏页")
+    ap.add_argument("--grade", type=int, action="append",
+                    help="只处理该年级（可重复）；默认全部")
     ap.add_argument("--selfcheck-only", action="store_true", help="只跑增强层自检")
     ap.add_argument("--quiet", action="store_true")
     args = ap.parse_args()
 
-    # ⚠️ 自检在最前：增强层自身语法错 → 216 个页面全部静默失效，
+    grades = args.grade if args.grade else GRADES
+    grades = [g for g in grades if g in GRADES]
+    if not grades:
+        print("没有可处理的年级（可选 %s）" % GRADES)
+        return 1
+
+    # ⚠️ 自检在最前：增强层自身语法错 → 全部页面静默失效，
     # 而指纹校验（只覆盖题库与判分函数）查不出来。见 selfcheck 文档字符串。
     # --remove 不需要（那是回退操作，不写入新代码）。
     if not args.remove:
@@ -350,12 +409,14 @@ def main() -> int:
         return 0
 
     if args.build:
-        n = build_grade2()
-        print("已生成二年级游戏页 %d 个 -> %s" % (n, GAME_ROOT))
+        for g in grades:
+            n = build_grade(g)
+            print("已生成 grade%d 游戏页 %d 个 -> %s"
+                  % (g, n, os.path.join(PEP, "game", "grade%d" % g)))
 
-    files = iter_targets()
+    files = iter_targets(grades)
     if not files:
-        print("未找到二年级游戏页，先跑 --build")
+        print("未找到目标游戏页，先跑 --build")
         return 1
 
     if args.remove:
@@ -364,7 +425,8 @@ def main() -> int:
             s = open(f, encoding="utf-8", newline="").read()
             if not already(s):
                 continue
-            open(f, "w", encoding="utf-8", newline="").write(strip_enhance(s))
+            with open(f, "w", encoding="utf-8", newline="") as fh:
+                fh.write(strip_enhance(s))
             done += 1
         print("已剥离 %d / %d" % (done, len(files)))
         return 0
