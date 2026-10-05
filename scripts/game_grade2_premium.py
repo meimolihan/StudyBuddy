@@ -451,7 +451,10 @@ html.sbk2[data-theme="dark"] .opt::before{background:linear-gradient(180deg, rgb
   background:var(--p-blue-s) !important; color:var(--p-blue-ink) !important;
   border:0 !important; border-radius:50% !important;
   box-shadow:var(--p-shadow-s) !important;
-  min-width:30px; min-height:30px;
+  /* 触屏热区 >=44px（规范要求）。原先写的是 30px，是我自己定的规范自己
+     没遵守 —— 无头实测每个页面 16~26 个朗读按钮只有 30x30。 */
+  min-width:44px !important; min-height:44px !important;
+  display:inline-flex !important; align-items:center; justify-content:center;
   transition:transform var(--p-d-s) var(--p-e-back), background-color var(--p-d-s);
 }
 .sbk2 .spk:hover{background:var(--p-blue) !important; color:#fff !important; transform:scale(1.06)}
@@ -467,7 +470,9 @@ html.sbk2[data-theme="dark"] .opt::before{background:linear-gradient(180deg, rgb
   box-shadow:var(--p-shadow-l) !important;
 }
 .sbk2-ib{
-  width:42px; height:42px; min-width:42px; border-radius:50%;
+  /* 触屏热区 >=44px（规范要求）。窄屏媒体查询里也**不许**缩小 ——
+     移动端正是最需要大热区的时候。 */
+  width:44px; height:44px; min-width:44px; min-height:44px; border-radius:50%;
   border:1px solid var(--p-line); background:var(--p-card-2);
   color:var(--p-txt-2); font-size:18px; line-height:1; cursor:pointer;
   display:flex; align-items:center; justify-content:center;
@@ -493,7 +498,8 @@ html.sbk2[data-theme="dark"] .opt::before{background:linear-gradient(180deg, rgb
     min-height:52px !important; border-radius:15px !important}
   .sbk2 .result .big{font-size:38px !important}
   .sbk2-dock{right:12px; bottom:12px; padding:8px 10px; gap:7px}
-  .sbk2-ib{width:40px; height:40px; min-width:40px; font-size:17px}
+  /* 窄屏仍保持 44px 热区（只缩图标，不缩按钮） */
+  .sbk2-ib{font-size:17px}
   .sbk2-vol{width:64px}
   /* 装饰在窄屏上更收敛，避免干扰阅读 */
   .sbk2-sh{opacity:.5; filter:blur(18px)}
