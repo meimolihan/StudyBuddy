@@ -3327,8 +3327,8 @@ html[data-skin] .btn.ghost{background:var(--brand-soft)}
    ③ 教材阅读器：笔记面板 + 书签下拉
    ④ 学习主页：只看错题开关 + 继续阅读 / 书签卡
    ⑤ 设置面板：字体档位按钮
-   ⑥ 游戏宿主页：答对 / 答错计数条
-   ⑦ 「火速开发中」弹窗
+   （原 ⑥⑦ 两项 —— 游戏宿主页计数条与「火速开发中」弹窗 ——
+     已随游戏模块于 2026-10-08 整体移除）
    ============================================================ */
 
 /* ---- ① 做题页工具条 ---- */
@@ -3454,9 +3454,6 @@ html[data-skin] .btn.ghost{background:var(--brand-soft)}
   margin:12px 0 0; padding-top:10px; border-top:1px solid var(--line);
 }
 .sb-fav-n{color:var(--brand); font-weight:600}
-
-/* 游戏题卡片做成 <button> 时要把 UA 的按钮样式清掉，
-   否则会顶着灰底、居中的系统按钮外观混在另外两张卡里。 */
 
 /* ---- ⑤ 设置面板：字体档位 ---- */
 .fontpick{display:flex; gap:8px; padding:0 2px}
