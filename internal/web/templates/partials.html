@@ -922,42 +922,11 @@ window.sbBindModal = function (opt) {
 </script>
 {{end}}
 
-{{/* 「火速开发中」弹窗：尚无游戏资源的年级点了游戏题卡片时弹出。
-     与个人信息 / 欢迎弹窗共用同一套 sb-modal 结构与焦点管理 helper，
-     行为一致（Esc 关闭、Tab 在弹窗内循环、关闭后焦点还给触发按钮）。
-     文案可由调用方通过 #wip-desc 预先改写，默认给游戏题那一句。 */}}
-{{define "wip_modal"}}
-<div class="sb-modal-mask" id="wip-mask" hidden>
-  <div class="sb-modal wip-modal" role="dialog" aria-modal="true" aria-labelledby="wip-title">
-    <div class="wip-ico" aria-hidden="true">🎮</div>
-    <h3 id="wip-title">火速开发中</h3>
-    <p class="muted" id="wip-desc">这个年级的游戏题正在加紧制作中，先去刷几套选择题吧～</p>
-    <div class="sb-modal-actions">
-      <button type="button" class="btn primary" id="wip-ok">知道啦</button>
-    </div>
-  </div>
-</div>
-<script>
-(function () {
-  var mask = document.getElementById('wip-mask');
-  if (!mask) { return; }
-  var panel = mask.querySelector('.sb-modal');
-  var btn = document.getElementById('sb-game-wip');
-  function close() { mask.hidden = true; if (ctl) { ctl.restoreFocus(); } }
-  var ctl = window.sbBindModal
-    ? window.sbBindModal({ mask: mask, panel: panel, close: close })
-    : null;
-  function open() {
-    if (ctl) { ctl.open(); }
-    else { mask.hidden = false; }
-  }
-  if (btn) { btn.addEventListener('click', open); }
-  var ok = document.getElementById('wip-ok');
-  if (ok) { ok.addEventListener('click', close); }
-  mask.addEventListener('click', function (e) { if (e.target === mask) { close(); } });
-})();
-</script>
-{{end}}
+{{/* 注：「火速开发中」弹窗（原 {{define "wip_modal"}}）已于 2026-10-08 删除。
+     它唯一的触发者是学习主页那张"游戏题 · 资源制作中"卡片，游戏模块整体
+     移除后就没有调用方了。共用的 sbBindModal / sb-modal 结构与焦点管理
+     helper 仍被个人信息 / 欢迎 / 归档确认弹窗使用，未受影响。
+     若日后恢复游戏模块，可从 git 历史取回本段。 */}}
 
 {{/* 学习主页的本地增强脚本（2026-10-05）：
      ① 只看错题 —— 过滤课程树，数据来自服务端按课聚合的错题数

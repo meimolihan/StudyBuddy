@@ -2,6 +2,9 @@
 data/
 archive/
 
+# 隔离验收实例的数据目录（复制自 data/ 跑端到端验证，绝不能入库）
+data_test/
+
 # 改造前全量备份（体积大，不入库；发布产物与运行数据同理）
 backup/
 
@@ -28,6 +31,9 @@ __pycache__/
 
 # 无头浏览器自检留下的 scratch 目录（脚本已用 --user-data-dir 指到临时目录，这里兜底）
 verify-scratch/
+
+# e2e 截图产物（可再生，随手清空即可）
+tools/gamegen/shots/
 
 # 教材内容 content/ 属于项目资产，默认入库（如需私有可取消下一行注释）
 # content/

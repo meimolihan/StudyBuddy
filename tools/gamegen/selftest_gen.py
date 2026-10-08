@@ -1,25 +1,25 @@
 # -*- coding: utf-8 -*-
-"""自测页生成器 —— 以后新增游戏页**只写题库**，不再手写 1000 多行壳。
+"""自测页生成器 —— 以后新增自测页**只写题库**，不再手写 1000 多行壳。
 
 ============================ 它解决什么 ============================
-改造前：新增一个游戏自测页，要手写 HTML 骨架 + 5.3 KB CSS + 8.9 KB 引擎 JS，
+改造前：新增一个自测页，要手写 HTML 骨架 + 5.3 KB CSS + 8.9 KB 引擎 JS，
         合计 1000 多行，且 424 个存量页各写了一遍（内容完全相同）。
 改造后：本文件提供题库 DSL，`build()` 负责渲染壳 + 注入增强层 + 写盘。
 
-============================ 目录约定（实测 457 个存量页的规律）========================
+============================ 目录约定（实测 424 个存量页的规律）========================
     content/primary/pep/choose/grade<N>/volume<V>/<subject>/NN-单元/NN-课名.html
+        ↑ 选择题源页（纯净壳 + 题库）—— **生成器写这里**
     content/primary/pep/judge/grade<N>/volume<V>/<subject>/NN-单元/NN-课名.html
-        ↑ 源页（纯净壳 + 题库，无增强层）—— **生成器写这里**
-    content/primary/pep/game/grade<N>/volume<V>/<subject>/NN-单元（选择|判断）/NN-课名.html
-        ↑ 副本（源页 + 两个增强层）—— 由 apply_game_grade2_premium.py --build 复制
+        ↑ 判断题源页 —— 同上
 
-⚠️ 单元目录**必须带题型后缀**（`（选择）` / `（判断）`）。choose 与 judge 的
-   单元名完全相同（如两边都有 `01-阅读`），而 gameRaw 的路径第 3 段固定是
-   `game`，无法在那一层区分题型 —— 直接沿用原单元名会互相覆盖。
+    单元目录**不需要**题型后缀：choose 与 judge 是两个平行的顶层目录，
+    `choose/grade1/.../01-阅读/` 与 `judge/grade1/.../01-阅读/` 天然不冲突。
+    （游戏模块存在时曾需要 `（选择）`/`（判断）` 后缀，因为 gameRaw 的路径
+      第 3 段固定是 `game`，两种题型挤在同一层会互相覆盖；
+      该模块已于 2026-10-08 整体移除，此约束随之作废。）
 
 ============================ 换行 ============================
-⚠️ 必须逐文件探测，不能全局写死。内容目录里 CRLF / LF **混存**：
-   实测 game/grade1 = 208 CRLF + 33 LF，game/grade2 = 216 CRLF。
+⚠️ 必须逐文件探测，不能全局写死。内容目录里 CRLF / LF **混存**。
    但 choose/ + judge/ 的 1908 个**源页实测 100% 是 CRLF**，
    所以新建源页默认 CRLF（与既有源页保持一致），并允许按目标目录探测覆盖。
 
@@ -152,12 +152,6 @@ def bank_js(items) -> str:
 
 
 # ---------------------------------------------------------------- 路径
-def unit_dir(qtype: str, unit: str) -> str:
-    """game 侧的单元目录名。**必须带题型后缀**，否则 choose/judge 互相覆盖
-    （两者单元名相同，而 gameRaw 路径第 3 段固定是 game，无法区分题型）。"""
-    return "%s（%s）" % (unit, QTYPE_LABEL[qtype])
-
-
 def bank_path(grade: int, volume: str, subject: str, qtype: str,
               unit: str, filename: str) -> str:
     """源页绝对路径（生成器的写入目标）。"""
@@ -170,13 +164,6 @@ def bank_path(grade: int, volume: str, subject: str, qtype: str,
     if qtype not in QTYPE_LABEL:
         raise ValueError("qtype 必须是 choose/judge，收到 %r" % (qtype,))
     return os.path.join(PEP, qtype, "grade%d" % grade, volume, subject, unit, filename)
-
-
-def game_path(grade: int, volume: str, subject: str, qtype: str,
-              unit: str, filename: str) -> str:
-    """game 侧目标绝对路径（复制 + 注入增强层后落在那里）。"""
-    return os.path.join(PEP, "game", "grade%d" % grade, volume, subject,
-                        unit_dir(qtype, unit), filename)
 
 
 # ---------------------------------------------------------------- 换行
@@ -280,7 +267,8 @@ def selfcheck(html: str) -> list:
     """对生成好的 HTML 做体检。返回问题列表（空 = 通过）。"""
     probs = []
 
-    # 1. 零外链（iframe 的 base URL 是 /game/raw，相对路径取不到）
+    # 1. 零外链（页面经 /quiz iframe 加载，base URL 不在 content 目录里，
+    #    任何相对路径（../../shared/x.css）会解析到磁盘上不存在的位置）
     for pat, why in ((r'<link[^>]+href=', "外链 CSS"),
                      (r'<script[^>]+src=', "外链 JS"),
                      (r'url\(\s*[\'"]?(?!data:)', "CSS 里的相对 url()")):

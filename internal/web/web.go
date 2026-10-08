@@ -46,9 +46,9 @@ type App struct {
 
 // New 构建应用并注册路由。
 func New(cfg *config.Config, g *db.Global, tree *textbook.Tree) (*App, error) {
-	// 游戏模块要按内容根扫 game/ 目录，这里把根路径交给它。
-	// 放在 New 里而不是包级 init：单元测试可以先注入临时目录再构造 App。
-	SetContentRoot(cfg.Content)
+	// 注：原此处有 SetContentRoot(cfg.Content) —— 把内容根注入给游戏扫描器
+	// （internal/web/game.go）。游戏模块已于 2026-10-08 整体移除，该注入
+	// 随之删除；教材内容树由 tree 参数直接传入，不经过内容根。
 	tmpl, err := template.New("").Funcs(newFuncMap()).ParseFS(assetsFS, "templates/*.html")
 	if err != nil {
 		return nil, fmt.Errorf("解析模板失败: %w", err)
@@ -212,11 +212,12 @@ func (a *App) Routes() *gin.Engine {
 		auth2.POST("/quiz/submit", a.quizSubmit)
 		auth2.GET("/favorites", a.favoritesPage) // 收藏题库（数据全在本地，页面只给壳）
 		auth2.GET("/result", a.resultPage)
-		// 游戏题：独立目录扫描的轻量互动小游戏，与刷题题库互不影响。
-		// gameRaw 必须在 iframe 的 src 上（列表页 → gamePage → iframe），三级路径各自独立。
-		auth2.GET("/games", a.gamesPage)
-		auth2.GET("/game", a.gamePage)
-		auth2.GET("/game/raw", a.gameRaw)
+		// 注：游戏题模块（/games、/game、/game/raw）已于 2026-10-08 整体移除。
+		// 原实现是 internal/web/game.go 独立扫描 content/<学段>/<出版社>/game/ 下的
+		// 互动小游戏 HTML；该模块的导出符号从未被本文件以外的代码引用，
+		// 删除对刷题树零影响。若要恢复：git checkout a316cc8 -- internal/web/game.go
+		// internal/web/game_test.go internal/web/templates/games.html
+		// internal/web/templates/game.html content/primary/pep/game
 		auth2.POST("/lesson/docx", a.lessonDocx)
 		auth2.GET("/archive", a.archivePage)
 		auth2.GET("/archive/view", a.archiveView)
@@ -480,7 +481,6 @@ func (a *App) studyPage(c *gin.Context) {
 	// 该年级全部教材，不会因为学期缺失就整块空掉。
 	var tbCards []gin.H
 	tbGrade, tbVolume := "", ""
-	gameStage, gameCount := "", 0
 	if nav != nil {
 		tbCards = a.tbHomeCards(nav.Stage, nav.Grade, nav.Volume)
 		tbGrade = textbook.GradeLabel(nav.Stage, nav.Grade)
@@ -489,12 +489,6 @@ func (a *App) studyPage(c *gin.Context) {
 		if nav.Volume > 0 {
 			tbVolume = tbVolumeLabel(nav.Volume)
 		}
-		// 题型入口卡片上的游戏数量：按**该年级全部册别**统计而不是只算当前册别。
-		// 只算当前册别的话，学生在还没录上册游戏的年级会看到「资源制作中」，
-		// 而下册其实已经能玩了 —— 入口卡片是「这个年级有没有游戏」的判断，
-		// 具体哪个册别有内容交给 /games 页面里的「切换学期」去说。
-		gameStage = nav.Stage
-		gameCount = games.Count(nav.Stage, nav.Grade)
 	}
 
 	a.html(c, "study.html", gin.H{
@@ -519,8 +513,6 @@ func (a *App) studyPage(c *gin.Context) {
 		"TbCards":      tbCards,
 		"TbGrade":      tbGrade,
 		"TbVolume":     tbVolume,
-		"GameStage":    gameStage,
-		"GameCount":    gameCount,
 	})
 }
 
@@ -1685,8 +1677,6 @@ func navSection(p string) string {
 	switch {
 	case p == "/study" || p == "/lesson" || p == "/quiz" || p == "/result":
 		return "study"
-	case p == "/games" || p == "/game" || strings.HasPrefix(p, "/game/"):
-		return "study" // 游戏题属于学习域，顶栏与「学习主页」同亮
 	case p == "/textbook" || strings.HasPrefix(p, "/textbook/"):
 		return "textbook" // 顶栏独立高亮「教材」
 	case p == "/archive" || strings.HasPrefix(p, "/archive/"):

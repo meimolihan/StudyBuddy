@@ -2,7 +2,7 @@
 <h1>学习主页</h1>
 
 {{/* 页首原有的题型切换标签（选择题 / 判断题）已移除 ——
-     同样的切换能力由下方「开始做题」入口卡承担（选择题 / 判断题 / 游戏题），
+     同样的切换能力由下方「开始做题」入口卡承担（选择题 / 判断题），
      两处同时存在会让用户看到重复控件。题型状态仍由 ?qt=choose|judge 控制，
      入口卡上 .is-on 高亮的就是当前题型。 */}}
 
@@ -13,14 +13,14 @@
   <div class="stat"><div class="num">{{.Session.Name}}</div><div class="cap">{{.Session.Class}}</div></div>
 </div>
 
-{{/* 题型入口：选择题 / 判断题 /游戏题。
-     页首那组 qtype-tabs 已移除，这三张卡是主页上唯一的题型切换入口，
+{{/* 题型入口：选择题 / 判断题。
+     页首那组 qtype-tabs 已移除，这两张卡是主页上唯一的题型切换入口，
      .is-on 高亮标示当前题型（由 ?qt=choose|judge 决定）。
-     游戏题走 /games（独立目录扫描的轻量小游戏），不占用刷题进度与归档。
-     .GameCount 为 0 时该年级的游戏还没上线，卡片降级为不可点并说明原因，
-     不做成「点了跳到空页面」。 */}}
-{{$gc := 0}}
-{{if .GameStage}}{{$gc = .GameCount}}{{end}}
+
+     注：游戏题入口（第三张卡 / "资源制作中" 按钮）已于 2026-10-08 随整个
+     游戏模块一并移除 —— 原先三～六年级没有游戏资源时会看到一张
+     "资源制作中，敬请期待" 的灰卡。删掉的理由是它对学习没有任何帮助，
+     反而让人以为功能坏了。若日后恢复，见 internal/web/web.go 路由处的说明。 */}}
 <div class="card qtype-entry">
   <h2>开始做题</h2>
   <div class="qtype-entry-grid">
@@ -44,31 +44,6 @@
       </span>
       <span class="qtype-card-go" aria-hidden="true">进入 →</span>
     </a>
-    {{if $gc}}
-    <a class="qtype-card" href="/games" title="玩本册的小游戏">
-      <span class="qtype-card-ico" aria-hidden="true">🎮</span>
-      <span class="qtype-card-body">
-        <span class="qtype-card-name">游戏题</span>
-        <span class="qtype-card-desc">{{$gc}} 个单元小游戏，轻松玩</span>
-      </span>
-      <span class="qtype-card-go" aria-hidden="true">进入 →</span>
-    </a>
-    {{else}}
-    {{/* 资源还没上线：保留卡片位置与视觉，aria-disabled 让读屏也知道不可点，
-         而不是整块消失 —— 消失会让人以为这个功能从来不存在。 */}}
-    {{/* 没有游戏资源的年级：卡片保留可见（消失会让人以为没这个功能），
-         但做成可点的按钮 —— 点一下弹「火速开发中」说明，比一句灰掉的
-         「敬请期待」更有回应感。aria-disabled 不能用在可点元素上，
-         所以这里用 <button> + title 说明原因。 */}}
-    <button type="button" class="qtype-card is-wip" id="sb-game-wip"
-            title="本年级游戏资源正在制作中">
-      <span class="qtype-card-ico" aria-hidden="true">🎮</span>
-      <span class="qtype-card-body">
-        <span class="qtype-card-name">游戏题</span>
-        <span class="qtype-card-desc">资源制作中，敬请期待</span>
-      </span>
-    </button>
-    {{end}}
   </div>
   {{/* 收藏题库入口：收藏的题目存在本机，条数由脚本读 localStorage 填上，
        服务端不知道有哪几条，所以这里只给链接和空占位数字。 */}}
@@ -287,7 +262,6 @@
 </div>
 {{template "study_nav_js"}}
 {{template "study_extra_js"}}
-{{template "wip_modal"}}
 {{template "splash" .}}
 {{template "welcome_modal" .}}
 {{template "footer" .}}

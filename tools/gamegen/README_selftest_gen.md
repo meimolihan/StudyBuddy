@@ -1,6 +1,6 @@
 # 自测页生成器
 
-以后新增游戏自测页**只写题库**，不再手写 1000 多行的 HTML 壳。
+以后新增自测页**只写题库**，不再手写 1000 多行的 HTML 壳。
 
 ## 为什么需要它
 
@@ -67,19 +67,14 @@ JSON 格式：
 
 ## 生成之后
 
-生成器只写**源页**，还要走两步才进 game 目录：
-
-```bash
-python scripts/apply_game_grade2_premium.py --build   # 复制源页 → game/ 并注入 SBK2
-python scripts/apply_game_kids_enhance.py            # 注入 SBK 增强层
-```
+生成器**直接写源页**，落在 `content/primary/pep/<choose|judge>/...`，无需后处理。
 
 ## 验收（三道都要过）
 
 ```bash
-python tools/gamegen/verify_games.py content/primary/pep/game            # 结构与题库
-NODE_PATH=... node tools/gamegen/e2e_grade1.js "@list.txt"               # 真实浏览器渲染
-NODE_PATH=... node tools/gamegen/e2e_grading.js "@list.txt"              # 判分与题库自洽
+python tools/gamegen/verify_games.py content/primary/pep/choose            # 结构与题库
+NODE_PATH=... node tools/gamegen/e2e_grade1.js "@list.txt"                 # 真实浏览器渲染
+NODE_PATH=... node tools/gamegen/e2e_grading.js "@list.txt"                # 判分与题库自洽
 ```
 
 `@list.txt` 是一个每行一个绝对路径的清单文件（用来绕开 shell 对含空格
@@ -87,9 +82,9 @@ NODE_PATH=... node tools/gamegen/e2e_grading.js "@list.txt"              # 判�
 
 ## 铁律（都是踩过的坑）
 
-1. **零外部依赖**。模板里不能出现 `<link href>` / `<script src>`。游戏页通过
-   iframe 以 `/game/raw?key=...` 加载，base URL 在 `/game/` 下，任何相对路径
-   （`../../shared/x.css`）会解析到磁盘上不存在的位置；「双击 HTML 就能玩」
+1. **零外部依赖**。模板里不能出现 `<link href>` / `<script src>`。自测页通过
+   iframe 以 `/lesson?key=...` 打开，base URL 不在 content 目录里，任何相对
+   路径（`../../shared/x.css`）会解析到磁盘上不存在的位置；「双击 HTML 就能玩」
    的离线能力也依赖零外链。
 
 2. **注释里不能出现字面量 `const ALL = [`**。`textbook.ParseBank` 用
@@ -100,15 +95,15 @@ NODE_PATH=... node tools/gamegen/e2e_grading.js "@list.txt"              # 判�
 
 4. **每题独占一行**。`verify_games.py` 的 `check_bank` 按行解析题库条目。
 
-5. **换行按真实换行符处理**。内容目录 CRLF / LF **混存**（`game/grade1` =
-   208 CRLF + 33 LF；`choose`+`judge` 的 1908 个源页 100% CRLF）。
+5. **换行按真实换行符处理**。内容目录 CRLF / LF **混存**（`choose`+`judge`
+   的 1908 个源页实测 100% CRLF，但不要因此在代码里写死）。
    改内容时读和写都要用 `newline=""`；用通用换行模式读、再原样写回，
    整份 CRLF 文件会被静默改写成 LF。
 
-6. **单元目录必须带题型后缀**（`（选择）` / `（判断）`）。choose 与 judge 的
-   单元名完全相同，而 `gameRaw` 路径第 3 段固定是 `game`，无法区分题型。
-
-7. **`unit` 参数不带题型后缀**，生成器自己拼。
+6. **单元目录不需要题型后缀**。`choose/` 与 `judge/` 是两个平行的顶层目录，
+   `choose/grade1/.../01-阅读/` 与 `judge/grade1/.../01-阅读/` 天然不冲突。
+   （曾经需要 `（选择）`/`（判断）` 后缀是因为游戏模块把两种题型挤在同一个
+   `game/` 层里，该模块已于 2026-10-08 整体移除。）
 
 ## 零漂移自测（改模板后必跑）
 

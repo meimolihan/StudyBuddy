@@ -266,8 +266,9 @@ func TestQtypeTabsNotTablist(t *testing.T) {
 	if strings.Contains(st, "qtype-tabs") {
 		t.Error("study.html 不该再有页首题型切换标签——与「开始做题」入口卡功能重复")
 	}
-	// 切换能力必须还在：三张入口卡，两个题型链接 + 一个游戏列表链接
-	for _, href := range []string{`href="/study?qt=choose"`, `href="/study?qt=judge"`, `href="/games"`} {
+	// 切换能力必须还在：两张入口卡，两个题型链接
+	// （原第三张 /games 游戏入口卡已随游戏模块于 2026-10-08 移除）
+	for _, href := range []string{`href="/study?qt=choose"`, `href="/study?qt=judge"`} {
 		if !strings.Contains(st, href) {
 			t.Errorf("study.html 缺入口卡链接 %s，删掉页首标签后题型切换会无处可去", href)
 		}

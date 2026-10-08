@@ -2992,20 +2992,8 @@ html[data-theme="dark"] .tb-printpanel{box-shadow:0 18px 44px rgba(0,0,0,.5)}
   }
 }
 
-/* =========================================================
-   游戏题模块（2026-10-04 追加）
-   ---------------------------------------------------------
-   三块内容：学习主页的题型入口卡片、/games 列表页、/game 容器页。
-
-   设计口径：圆角 / 阴影 / 悬停 / 字号全部复用已定版的令牌
-   （--r-sm / --shadow / --brand / --card），不引入新的视觉语言；
-   颜色只用变量，深浅色由令牌自动翻转，不写任何硬编码色值。
-
-   ⚠ 本段为 append-only 追加，勿修改上方任何既有规则。
-   ========================================================= */
-
 /* ---- 1) 学习主页：题型入口 ---- */
-/* 三个入口：选择题 / 判断题 / 游戏题。
+/* 两个入口：选择题 / 判断题。
    放在统计卡下方、官方教材上方 —— 刷题为主、教材为辅的顺序里，
    「去哪做题」应该紧跟「做了多少」，而不是被教材模块隔开。 */
 .qtype-entry{margin-bottom:20px}
@@ -3061,51 +3049,6 @@ html[data-theme="dark"] .tb-printpanel{box-shadow:0 18px 44px rgba(0,0,0,.5)}
    让点进来的那个入口在主页上仍是选中的样子。 */
 .qtype-card.is-on{box-shadow:var(--shadow), inset 0 0 0 2px var(--brand)}
 .qtype-card.is-on .qtype-card-name{color:var(--brand)}
-
-/* ---- 2) 游戏列表页 ---- */
-.gm-subject{margin:18px 0 8px; color:var(--brand)}
-.gm-subject:first-of-type{margin-top:14px}
-.gm-grid{grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:12px}
-.gm-card{
-  display:flex; align-items:center; gap:11px;
-  min-height:56px; padding:13px 15px;
-  background:var(--card); border-radius:var(--r-sm); box-shadow:var(--shadow);
-  color:var(--ink); text-decoration:none;
-  transition:transform .18s ease, box-shadow .18s ease;
-}
-.gm-card:hover{text-decoration:none; transform:translateY(-2px); box-shadow:var(--shadow-lg, var(--shadow))}
-.gm-card:active{transform:translateY(0)}
-.gm-card:focus-visible{outline:2px solid var(--brand); outline-offset:3px}
-.gm-ico{
-  flex:none; width:34px; height:34px; border-radius:10px;
-  display:flex; align-items:center; justify-content:center; font-size:18px;
-  background:var(--brand-soft);
-}
-.gm-name{font-size:14px; font-weight:600; line-height:1.35; min-width:0}
-.gm-go{margin-left:auto; flex:none; font-size:12px; color:var(--brand); white-space:nowrap}
-.gm-back{margin:18px 0 0}
-
-/* ---- 3) 游戏容器页 ---- */
-/* iframe 撑满剩余高度：给 min-height 而不是固定 height，
-   小屏设备上游戏内容超出时 iframe 自身滚动，不会被外层裁掉。 */
-.gm-stage{display:flex; flex-direction:column; min-height:calc(100vh - 210px)}
-.gm-bar{
-  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
-  margin-bottom:14px;
-}
-.gm-bar-title{display:flex; flex-direction:column; gap:1px; min-width:0; margin-right:auto}
-.gm-bar-title b{font-size:15px; line-height:1.3}
-.gm-bar-title .muted{font-size:12.5px}
-.gm-frame{
-  flex:1 1 auto; width:100%; min-height:560px;
-  border:1px solid var(--line); border-radius:var(--radius);
-  background:var(--card); box-shadow:var(--shadow);
-}
-@media (max-width:640px){
-  .gm-frame{min-height:480px; border-radius:var(--r-sm)}
-  .gm-bar{gap:8px}
-  .gm-bar-title{order:-1; flex:1 1 100%; margin-right:0}
-}
 
 /* =========================================================
    UI 审查 · 第 2 期：浅色可读性 / 触屏 hover 残留 / 过渡统一 / 焦点环可见性
@@ -3185,7 +3128,6 @@ a{color:var(--brand-dark)}
 .stat .num{color:var(--brand-dark)}
 .sw-vol:hover{color:var(--brand-dark)}
 .nav-card ul.lessons li .linkbtn:hover{color:var(--brand-dark)}
-.gm-subject{color:var(--brand-dark)}
 .tb-printopt:hover .setico{color:var(--brand-dark)}
 /* 说明：.skinlb（主题色卡文字）原色 var(--ink) 在透明底与 brand-soft 上均已达标，
    .skinsw-ck 是白字压在色块上（品牌色块本身是载体，不适用正文 4.5 约束），二者均不改。 */
@@ -3268,9 +3210,8 @@ input:focus,select:focus,.mini-select:focus{
   .tb-cover-card:hover .tb-cover-frame{border-color:var(--line); box-shadow:var(--shadow)}
   .tb-printopt:hover .setico{color:var(--muted)}
 
-  /* 学习主页入口卡 / 游戏卡 */
+  /* 学习主页入口卡 */
   .qtype-card:hover{transform:none; box-shadow:var(--shadow)}
-  .gm-card:hover{transform:none; box-shadow:var(--shadow)}
 
   /* 页脚仓库外链 */
   .foot-repo:hover{color:var(--muted); text-decoration:none}
@@ -3293,13 +3234,13 @@ input:focus,select:focus,.mini-select:focus{
 .foot-repo{transition:color .2s ease}
 .qtype-card{transition:transform .2s ease, box-shadow .2s ease, background-color .2s ease}
 .qtype-card-go{transition:opacity .2s ease, transform .2s ease}
-.gm-card{transition:transform .2s ease, box-shadow .2s ease}
 
 /* ---------- 6) 减弱动效：为本段新增的 .2s 过渡补齐统一开关 ---------- */
 @media (prefers-reduced-motion:reduce){
   .nav-card > details > summary,.skinchip,.wheel-item,.tb-book,.tb-thumb,
   .tb-nav,.tb-chip,.tb-lb,.tb-cover-card,.tb-cover-frame,.foot-repo,
-  .qtype-card,.qtype-card-go,.gm-card{transition:none}
+  .qtype-card,
+  .qtype-card-go{transition:none}
 }
 
 /* =========================================================
@@ -3516,10 +3457,6 @@ html[data-skin] .btn.ghost{background:var(--brand-soft)}
 
 /* 游戏题卡片做成 <button> 时要把 UA 的按钮样式清掉，
    否则会顶着灰底、居中的系统按钮外观混在另外两张卡里。 */
-button.qtype-card{
-  width:100%; border:0; font:inherit; text-align:left; cursor:pointer;
-}
-button.qtype-card.is-wip .qtype-card-desc{color:var(--muted)}
 
 /* ---- ⑤ 设置面板：字体档位 ---- */
 .fontpick{display:flex; gap:8px; padding:0 2px}
@@ -3538,25 +3475,6 @@ button.qtype-card.is-wip .qtype-card-desc{color:var(--muted)}
 .fontbtn:focus-visible{outline:2px solid var(--brand); outline-offset:2px}
 .fontpick-hint{padding:6px 2px 0; font-size:12px; color:var(--muted)}
 
-/* ---- ⑥ 游戏宿主页：战绩条 ---- */
-.gm-score{
-  display:inline-flex; align-items:center; gap:10px; flex:none;
-  padding:5px 12px; border-radius:999px;
-  background:var(--brand-soft); color:var(--brand-dark); font-size:13px;
-}
-.gm-score[hidden]{display:none !important}
-.gm-score-i b{font-size:14px; font-variant-numeric:tabular-nums}
-@media (max-width:640px){
-  .gm-bar{flex-wrap:wrap}
-  .gm-score{margin-left:auto}
-}
-
-/* ---- ⑦ 「火速开发中」弹窗 ---- */
-.wip-modal{max-width:340px; text-align:center}
-.wip-ico{font-size:40px; line-height:1; margin-bottom:6px}
-.wip-modal h3{margin:6px 0 8px; font-size:18px}
-.wip-modal .muted{font-size:13.5px; line-height:1.6}
-.wip-modal .sb-modal-actions{justify-content:center}
 
 
 /* ============================================================
@@ -3712,11 +3630,6 @@ html[data-font] .qtype-card-ico{font-size:calc(22px * var(--sb-fz,1))}
 html[data-font] .qtype-card-name{font-size:calc(15px * var(--sb-fz,1))}
 html[data-font] .qtype-card-desc{font-size:calc(12.5px * var(--sb-fz,1))}
 html[data-font] .qtype-card-go{font-size:calc(12.5px * var(--sb-fz,1))}
-html[data-font] .gm-ico{font-size:calc(18px * var(--sb-fz,1))}
-html[data-font] .gm-name{font-size:calc(14px * var(--sb-fz,1))}
-html[data-font] .gm-go{font-size:calc(12px * var(--sb-fz,1))}
-html[data-font] .gm-bar-title b{font-size:calc(15px * var(--sb-fz,1))}
-html[data-font] .gm-bar-title .muted{font-size:calc(12.5px * var(--sb-fz,1))}
 html[data-font] .q-timer{font-size:calc(14px * var(--sb-fz,1))}
 html[data-font] .q-timer-ico{font-size:calc(13px * var(--sb-fz,1))}
 html[data-font] .q-last{font-size:calc(12.5px * var(--sb-fz,1))}
@@ -3743,11 +3656,6 @@ html[data-font] .tb-resume-c{font-size:calc(12px * var(--sb-fz,1))}
 html[data-font] .fontbtn:first-child{font-size:calc(12.5px * var(--sb-fz,1))}
 html[data-font] .fontbtn:last-child{font-size:calc(16px * var(--sb-fz,1))}
 html[data-font] .fontpick-hint{font-size:calc(12px * var(--sb-fz,1))}
-html[data-font] .gm-score{font-size:calc(13px * var(--sb-fz,1))}
-html[data-font] .gm-score-i b{font-size:calc(14px * var(--sb-fz,1))}
-html[data-font] .wip-ico{font-size:calc(40px * var(--sb-fz,1))}
-html[data-font] .wip-modal h3{font-size:calc(18px * var(--sb-fz,1))}
-html[data-font] .wip-modal .muted{font-size:calc(13.5px * var(--sb-fz,1))}
 @media (max-width:900px){
   html[data-font] .auth-mobile-brand{font-size:calc(16px * var(--sb-fz,1))}
 }
@@ -3862,7 +3770,7 @@ html[data-font] .wip-modal .muted{font-size:calc(13.5px * var(--sb-fz,1))}
    ========================================================= */
 
 /* ---- ① 弹窗遮罩：毛玻璃 + 退场淡出 ----
-   #wip-mask（火速开发中）、个人信息、欢迎、归档确认弹窗都复用
+   个人信息、欢迎、归档确认弹窗都复用
    .sb-modal-mask；.sheetscrim 是底部抽屉那套。两者统一处理。
    backdrop-filter 必须同时给 -webkit- 前缀，且必须有降级底色——
    不支持时靠前面的 rgba 底色照常可读（此处的 rgba 已由原有规则提供）。 */
@@ -3994,62 +3902,6 @@ ul.lessons li:active{transform:translateY(0) scale(.99)}
    项目都已实现且完整，不重复造。本段只补缺口 + 少量点缀。
    ========================================================= */
 
-/* ---- 3.1 学习主页 · 游戏卡「未开放」视觉暗示 ----
-   #sb-game-wip 是个真<button class="qtype-card is-wip">，但此前
-   is-wip 只有一条 .qtype-card-desc 变色，卡片外观与可用卡完全一致，
-   用户看不出它点不动，只能点下去才知道是「火速开发中」。
-   这里给未开放态一套明确但克制的视觉：整体降饱和 + 虚线描边 +
-   右上角「开发中」角标 + 禁用上浮。所有 hover 位移包在 hover:hover内。 */
-button.qtype-card.is-wip{
-  /* 底色用 var(--bg) 而非 var(--surface-sunken)——后者虽定义在无条件的
-     :root 里，但值是深色系 #141a22，且项目既有用法全限定在
-     html[data-theme="dark"] 之下；亮色直接取它会得到一张深黑卡片。 */
-  background:var(--bg);
-  box-shadow:inset 0 0 0 1px var(--line);
-  cursor:pointer;                /* 仍可点：点了要有「火速开发中」反馈 */
-  filter:saturate(.72);
-}
-/* 暗色才用嵌入面（比 card 深一层，与该令牌定位一致），A/B 双写 */
-@media (prefers-color-scheme: dark){
-  html:not([data-theme="light"]) button.qtype-card.is-wip{background:var(--surface-sunken)}
-}
-html[data-theme="dark"] button.qtype-card.is-wip{background:var(--surface-sunken)}
-/* 虚线描边：与可点卡片形成「未就绪」的形态差异 */
-button.qtype-card.is-wip::after{
-  content:"开发中"; position:absolute; top:-8px; right:10px;
-  padding:2px 8px; border-radius:999px;
-  font-size:11px; font-weight:600; line-height:1.5; letter-spacing:.02em;
-  /* 用 --ink 而非 --muted：亮色下 muted on card 仅 3.93:1（未达 AA），
-     ink on card 为 15.65:1。这是本轮新增元素，必须自身达标，
-     不像既有徽章那样把对比度问题留给阶段 5。 */
-  color:var(--ink); background:var(--card);
-  box-shadow:inset 0 0 0 1px var(--line);
-  pointer-events:none;
-}
-/* 未开放态不参与 hover 上浮——避免「看起来能用但点了没反应」的错觉 */
-@media (hover:hover){
-  button.qtype-card.is-wip:hover{
-    transform:none;
-    box-shadow:inset 0 0 0 1px var(--brand);
-  }
-  button.qtype-card.is-wip:hover::after{
-    box-shadow:inset 0 0 0 1px var(--brand); color:var(--brand);
-  }
-}
-button.qtype-card.is-wip:active{transform:none}
-/* 未开放卡片的描述文字：既有规则用 --muted，在本卡改过的底色上亮色仅
-   3.66:1（未达 AA）。这条覆盖让描述达到可读标准 —— 卡片既然变成
-   「未就绪」外观，文字可读性就是本轮自己的责任，不能推给阶段 5。
-   暗色下muted 本就 7.90:1，此处覆盖对其无影响。 */
-button.qtype-card.is-wip .qtype-card-desc{
-  color:color-mix(in srgb, var(--ink) 78%, var(--bg));
-}
-/* 不支持 color-mix 时回落到 --ink */
-@supports not (color:color-mix(in srgb, red 50%, blue)){
-  button.qtype-card.is-wip .qtype-card-desc{color:var(--ink)}
-}
-/* 触屏：本就没有 hover 态，靠上面的常显虚线与角标表达不可用 */
-
 /* ---- 3.2 刷题页 · 题目卡留白规整 ----
    题目卡、题干、选项之间的间距此前是各处零散写死的，
    这里统一到阶段 1 定的间距令牌（--sp-*），只改间距不改配色观感。 */
@@ -4064,16 +3916,7 @@ button.qtype-card.is-wip .qtype-card-desc{
 
 /* ---- 3.3 游戏页 · 外框圆角与柔和阴影 ----
    游戏是同源 iframe，游戏文件本身不改，只给宿主页的外框做视觉收口。 */
-.gm-stage{gap:var(--sp-4)}
-.gm-frame{
-  border-radius:var(--r-lg);
-  box-shadow:var(--shadow-lg);
-  overflow:hidden;
-}
 /* 游戏页整体也给一层入场淡入，与站内其他页面节奏一致 */
-.gm-bar{
-  transition:color var(--dur) var(--ease);
-}
 
 /* ---- 3.4 教材详情页 · 阅读区图片柔和阴影 ----
    .tb-stage 已有 10px 圆角 + 边框 + 阴影，这里只把阴影提亮一档，
@@ -4324,7 +4167,8 @@ html[data-theme="light"] .tb-lb:hover{border-color:var(--brand-dark)}
    目的是让「新增段不参与任何会造成重排的动画」这条约束有据可查。 */
 @media (prefers-reduced-motion:reduce){
   /* 本轮新增的 transform/opacity 过渡统一关掉（含返回顶部 fab 淡入淡出） */
-  .fab,.fab[hidden],button.qtype-card.is-wip{transition:none !important}
+  .fab,
+  .fab[hidden]{transition:none !important}
 }
 
 /* =========================================================
@@ -4677,22 +4521,3 @@ html[data-theme="dark"] h1{
   box-shadow:0 0 0 2px color-mix(in srgb, var(--brand) 22%, transparent);
 }
 
-/* ══════════════ 游戏题列表：单元题型徽章 ══════════════
-   课文级游戏按题型分目录存放（`01-识字（一）（选择）` / `…（判断）`），
-   后缀是**存储层去重手段**——两棵树的单元目录同名，不加后缀会互相覆盖。
-   game.go 的 splitGameKind 在解析时把它剥下来，模板渲染成这个小徽章。
-   追加段而非改原规则：本项目 CSS 一律 append-only。 */
-.unitname .gm-kind{
-  display:inline-block;
-  margin-left:8px;
-  padding:1px 8px;
-  border-radius:999px;
-  font-size:12px;
-  font-weight:500;
-  line-height:1.7;
-  vertical-align:1px;
-  color:var(--brand-dark);
-  background:color-mix(in srgb, var(--brand) 12%, transparent);
-  border:1px solid color-mix(in srgb, var(--brand) 26%, transparent);
-  user-select:none;
-}

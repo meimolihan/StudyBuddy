@@ -36,7 +36,7 @@ var (
 )
 
 var allTemplateNames = []string{
-	"admin.html", "archive.html", "archive_view.html", "game.html", "games.html",
+	"admin.html", "archive.html", "archive_view.html",
 	"lesson.html", "login.html", "partials.html", "quiz.html", "register.html",
 	"result.html", "study.html", "textbook.html", "textbooks.html",
 }
