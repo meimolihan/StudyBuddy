@@ -1,17 +1,17 @@
-更新小学一二年级pep课件游戏资源，新增自测生成脚本
+游戏题模块彻底清空
 
 ```bash
 docker pull mobufan/studybuddy:latest
 ```
 ```bash
-docker pull mobufan/studybuddy:v0.1.2
+docker pull mobufan/studybuddy:v0.1.3
 ```
 
 ```bash
 docker pull ghcr.io/meimolihan/studybuddy:latest
 ```
 ```bash
-docker pull ghcr.io/meimolihan/studybuddy:v0.1.2
+docker pull ghcr.io/meimolihan/studybuddy:v0.1.3
 ```
 
 ## 二进制安装
