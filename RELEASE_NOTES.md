@@ -1,17 +1,17 @@
-游戏题模块彻底清空
+美化前端UI
 
 ```bash
 docker pull mobufan/studybuddy:latest
 ```
 ```bash
-docker pull mobufan/studybuddy:v0.1.3
+docker pull mobufan/studybuddy:v0.1.4
 ```
 
 ```bash
 docker pull ghcr.io/meimolihan/studybuddy:latest
 ```
 ```bash
-docker pull ghcr.io/meimolihan/studybuddy:v0.1.3
+docker pull ghcr.io/meimolihan/studybuddy:v0.1.4
 ```
 
 ## 二进制安装
