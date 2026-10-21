@@ -4518,3 +4518,199 @@ html[data-theme="dark"] h1{
   box-shadow:0 0 0 2px color-mix(in srgb, var(--brand) 22%, transparent);
 }
 
+/* =========================================================
+   UI 复审追加（阶段 6，append-only，不改动上方任何既有规则）
+   ① .linkbtn 白字压白底   ② 实心品牌底 + 白字
+   ③ 正文级文字仍用 --brand ④ .q-fav 收藏态对比度
+   ⑤ 触屏热区 < 44px      ⑥ 触屏 hover 残留
+   ⑦ 暗色纯黑阴影
+   纯 CSS：只改 color / background / min-height / box-shadow，
+   不改 DOM、不改布局结构、不改任何业务逻辑。
+   ========================================================= */
+
+/* ---------- 修复问题#1：.linkbtn 白字在浅色主题下与白底同色 ----------
+   .linkbtn 基线写死 color:#fff（style.css:117），实际落点都在近白底上：
+   admin 表格卡（--card #ffffff → 1.00:1）、收藏页 .fav-item（--bg 浅灰 → 1.05~1.08:1），
+   叠加 opacity:.9 后有效对比度只剩 1.00~1.05:1 —— 字与底同色，等于没有字。
+   修法：浅色改用项目既有的「正文级品牌色」--brand-dark
+   （6 套皮肤在 --card/--bg 上 4.96~9.28:1）；
+   opacity 必须一并归 1，否则森林绿降到 4.11~4.45:1 仍不达 4.5。
+   暗色沿用接近原视觉的 --ink（13.47~14.58:1），暗色观感基本不变。
+   admin.html:38 的行内 style="color:var(--bad)" 优先级最高，不受影响。 */
+.linkbtn{color:var(--brand-dark); opacity:1}
+html[data-theme="dark"] .linkbtn{color:var(--ink)}
+@media (prefers-color-scheme: dark){
+  html:not([data-theme="light"]) .linkbtn{color:var(--ink)}
+}
+
+/* ---------- 修复问题#2：实心品牌底 + 白字 ----------
+   暗色下 --brand 本身是浅色（#5aa2ff~#ffb066），白字只有 1.80~2.61:1；
+   亮色下 girl/forest/sunset 的 --brand 太浅，白字只有 3.05~3.66:1。
+   修法沿用项目既有两条结论：
+   · 浅色：底色改用 --btn-bg —— 这就是「为承白字而专门压暗过的品牌色」
+     （阶段 5 第 1.3 节已为 girl/forest/sunset 定版 #c0457a/#268157/#ad5d18），
+     6 套皮肤白字 4.80~5.33:1；default/boy/starry 的 --btn-bg 就是 --brand，
+     视觉零变化。文字保持 #fff。
+   · 暗色：沿用 .qtab.is-on 的既有做法（style.css:1652/1695）——
+     底色保持 --brand，文字改深墨 #0b1220（7.17~10.39:1）。 */
+html[data-theme="light"] .card .grade-switcher[open] summary,
+html[data-theme="light"] .sw-vol.is-on,
+html[data-theme="light"] .tb-chip.is-on,
+html[data-theme="light"] .tb-resume-tag,
+html[data-theme="light"] .qtab.is-on{background:var(--btn-bg, var(--brand)); color:#fff}
+/* 实心底的描边必须跟着底色走，否则 girl 会变成「浅粉描边 + 深粉底」的毛边 */
+html[data-theme="light"] .sw-vol.is-on,
+html[data-theme="light"] .tb-chip.is-on{border-color:var(--btn-bg, var(--brand))}
+/* 缩略图页码牌：暗色已有阶段 4 的深色半透明兜底（2470 行），这里只管亮色 */
+html[data-theme="light"] .tb-thumb.is-on .tb-thumb-n{background:var(--btn-bg, var(--brand)); color:#fff}
+@media (prefers-color-scheme: light){
+  html:not([data-theme="dark"]) .card .grade-switcher[open] summary,
+  html:not([data-theme="dark"]) .sw-vol.is-on,
+  html:not([data-theme="dark"]) .tb-chip.is-on,
+  html:not([data-theme="dark"]) .tb-resume-tag,
+  html:not([data-theme="dark"]) .qtab.is-on{background:var(--btn-bg, var(--brand)); color:#fff}
+  html:not([data-theme="dark"]) .sw-vol.is-on,
+  html:not([data-theme="dark"]) .tb-chip.is-on{border-color:var(--btn-bg, var(--brand))}
+  html:not([data-theme="dark"]) .tb-thumb.is-on .tb-thumb-n{background:var(--btn-bg, var(--brand)); color:#fff}
+}
+html[data-theme="dark"] .card .grade-switcher[open] summary,
+html[data-theme="dark"] .sw-vol.is-on,
+html[data-theme="dark"] .tb-chip.is-on,
+html[data-theme="dark"] .tb-resume-tag,
+html[data-theme="dark"] .qtab.is-on{background:var(--brand); color:#0b1220}
+@media (prefers-color-scheme: dark){
+  html:not([data-theme="light"]) .card .grade-switcher[open] summary,
+  html:not([data-theme="light"]) .sw-vol.is-on,
+  html:not([data-theme="light"]) .tb-chip.is-on,
+  html:not([data-theme="light"]) .tb-resume-tag,
+  html:not([data-theme="light"]) .qtab.is-on{background:var(--brand); color:#0b1220}
+}
+
+/* ---------- 修复问题#3：正文级文字仍用 --brand ----------
+   浅色 girl/forest/sunset 下 --brand 作正文只有 3.05~3.66:1（要求 4.5）。
+   全部换成 --brand-dark：明暗通用，亮色 4.96~9.28:1、暗色 8.89~10.92:1。
+   选择器与原规则保持同等特异性，靠后置顺序取胜。 */
+.auth-alt a{color:var(--brand-dark)}
+.seg-opt input:checked+span{color:var(--brand-dark)}
+.sheet-act.is-primary{color:var(--brand-dark)}
+.wheel-item.is-on{color:var(--brand-dark)}
+.nav-card .tree-body .unitname{color:var(--brand-dark)}
+.qt-toast .qt-check{color:var(--brand-dark)}
+.qtype-card-go{color:var(--brand-dark)}
+.sb-fav-n{color:var(--brand-dark)}
+.muted#fav-empty a,
+p.muted#sb-wrong-empty a{color:var(--brand-dark)}
+li.current-lesson::before{color:var(--brand-dark)}
+
+/* 悬停态必须包在 @media (hover:hover) 里：
+   否则这些 hover 颜色在触屏点按后会「粘住」，
+   反而制造出新的残留问题（与问题#6 同源）。 */
+@media (hover:hover){
+  .tb-chip:hover:not(.is-on){color:var(--brand-dark)}
+  .wheel-item:hover{color:var(--brand-dark)}
+  .nav-card ul.lessons li .linkbtn.nav-set-current:hover{color:var(--brand-dark)}
+  .foot-repo:hover{color:var(--brand-dark)}
+  .tb-nav:hover{color:var(--brand-dark)}
+}
+
+/* ---------- 修复问题#4：.q-fav 已收藏态对比度 ----------
+   亮色下 #e0a300 压 #fcf6e6 只有 2.07:1、星形 fill #f5c33b 只有 1.53:1。
+   文字改 #8a6100（5.13:1，正文达标），星形 fill 改 #b37d00（3.33:1，图形达标）、
+   描边跟文字同色，保证星形轮廓完整可见。
+   暗色原本就是 6.02 / 8.17，不动。 */
+html[data-theme="light"] .q-fav.is-on{color:#8a6100}
+html[data-theme="light"] .q-fav.is-on .ico{fill:#b37d00; stroke:#8a6100}
+@media (prefers-color-scheme: light){
+  html:not([data-theme="dark"]) .q-fav.is-on{color:#8a6100}
+  html:not([data-theme="dark"]) .q-fav.is-on .ico{fill:#b37d00; stroke:#8a6100}
+}
+
+/* ---------- 修复问题#5：触屏热区 ≥44px ----------
+   只加 min-height/min-width，不改 padding 与排版；
+   .tb-mk-del 的固定 26×26 会被 min-width/min-height 顶开（used value 取大者），
+   按钮内容仍居中，图标尺寸不变。 */
+@media (pointer:coarse){
+  .q-fav{min-height:44px}
+  .nav-head #sb-wrong-box,
+  .sb-chk{min-height:44px}
+  .tb-mk-jump{min-height:44px}
+  .tb-mk-del{min-width:44px; min-height:44px}
+  .fontbtn{min-height:44px}
+  .setrow{min-height:44px}
+  /* 必须放在文件末尾：style.css:4453 / 4502 的断点规则（32px / 40px）
+     在 2425 的粗指针兜底之后，靠后置顺序才能真正压住 32px/40px */
+  .sw-vol{min-height:44px}
+}
+
+/* ---------- 修复问题#6：触屏 hover 残留复位 ----------
+   阶段 4 的复位段（style.css:3160-3218）早于 2026-10-05 那批新组件，
+   这些后加的组件不在名单里；本段用与原规则同等或更高特异性逐项复位。
+   关键：带 :not(.is-on) / :not([aria-pressed="true"]) / :not([aria-checked="true"])
+   / :not(.is-last)，把「真实选中态」排除在复位之外。 */
+@media (hover:none),(pointer:coarse){
+  .q-fav:not(.is-on):hover{background:transparent; color:var(--muted)}
+  .tb-mk-jump:hover{background:transparent; color:var(--ink)}
+  .tb-mk-del:hover{background:transparent; color:var(--muted)}
+  .nav-head #sb-wrong-box:not([aria-pressed="true"]):hover,
+  .sb-chk:not([aria-pressed="true"]):hover{box-shadow:inset 0 0 0 1px var(--line)}
+  .tb-resume-item:not(.is-last):hover{background:var(--bg)}
+  .fontbtn:not([aria-checked="true"]):hover{background:var(--bg); color:var(--ink)}
+
+  /* 主题态 .btn 的 hover 复位：这些规则特异度 (0,3,1)/(0,4,1)，
+     压过阶段 4 复位段里的 .btn:hover(0,2,0)，触屏点完会粘在深底/白字态 */
+  html[data-theme="dark"] .btn.sec:hover{background:#54697d}
+  html[data-theme="dark"] .btn.ghost:hover{background:var(--brand-soft); color:var(--brand-dark)}
+  html[data-theme="light"] .btn.ghost:hover{background:var(--brand-soft); color:var(--brand-dark); box-shadow:none}
+}
+@media (hover:none),(pointer:coarse){
+  @media (prefers-color-scheme: dark){
+    html:not([data-theme="light"]) .btn.sec:hover{background:#54697d}
+    html:not([data-theme="light"]) .btn.ghost:hover{background:var(--brand-soft); color:var(--brand-dark)}
+  }
+  @media (prefers-color-scheme: light){
+    html:not([data-theme="dark"]) .btn.ghost:hover{background:var(--brand-soft); color:var(--brand-dark); box-shadow:none}
+  }
+}
+
+/* ---------- 修复问题#7：暗色模式禁用纯黑阴影 ----------
+   暗色令牌与硬编码阴影全为 rgba(0,0,0,…) 纯黑，且 --shadow-nest 系列
+   （.35/.40/.50）比卡片阴影（.22/.30）更重，层次反了。
+   统一换成带冷调的深蓝黑 rgba(8,12,20,…)：明度几乎不变（#000 → #080c14），
+   但不再是死黑，叠在深灰卡面上不显脏，也不会糊成一片。 */
+html[data-theme="dark"]{
+  --shadow:0 1px 2px rgba(8,12,20,.22), 0 10px 26px rgba(8,12,20,.30);
+  --shadow-lg:0 2px 6px rgba(8,12,20,.26), 0 18px 40px rgba(8,12,20,.34);
+  --shadow-nest:0 1px 3px rgba(8,12,20,.35), 0 8px 22px rgba(8,12,20,.40);
+  --shadow-nest-lg:0 2px 5px rgba(8,12,20,.35), 0 16px 34px rgba(8,12,20,.50);
+}
+@media (prefers-color-scheme: dark){
+  html:not([data-theme="light"]){
+    --shadow:0 1px 2px rgba(8,12,20,.22), 0 10px 26px rgba(8,12,20,.30);
+    --shadow-lg:0 2px 6px rgba(8,12,20,.26), 0 18px 40px rgba(8,12,20,.34);
+    --shadow-nest:0 1px 3px rgba(8,12,20,.35), 0 8px 22px rgba(8,12,20,.40);
+    --shadow-nest-lg:0 2px 5px rgba(8,12,20,.35), 0 16px 34px rgba(8,12,20,.50);
+  }
+}
+html[data-theme="dark"] .topbar{box-shadow:0 1px 6px rgba(8,12,20,.35)}
+html[data-theme="dark"] .auth-card{box-shadow:0 14px 34px rgba(8,12,20,.38)}
+html[data-theme="dark"] .btn-login{box-shadow:0 8px 18px rgba(8,12,20,.35)}
+html[data-theme="dark"] .btn-auth{box-shadow:0 8px 18px rgba(8,12,20,.35)}
+html[data-theme="dark"] .setpanel{box-shadow:0 18px 44px rgba(8,12,20,.55)}
+html[data-theme="dark"] .sb-toast{box-shadow:0 8px 26px rgba(8,12,20,.5)}
+html[data-theme="dark"] .sb-modal{box-shadow:0 18px 50px rgba(8,12,20,.6)}
+html[data-theme="dark"] .sheet{box-shadow:0 -10px 40px rgba(8,12,20,.55)}
+html[data-theme="dark"] .tb-printpanel{box-shadow:0 18px 44px rgba(8,12,20,.5)}
+html[data-theme="dark"] .sw-k{box-shadow:0 1px 3px rgba(8,12,20,.45), 0 0 0 1px rgba(8,12,20,.35)}
+@media (prefers-color-scheme: dark){
+  html:not([data-theme="light"]) .topbar{box-shadow:0 1px 6px rgba(8,12,20,.35)}
+  html:not([data-theme="light"]) .auth-card{box-shadow:0 14px 34px rgba(8,12,20,.38)}
+  html:not([data-theme="light"]) .btn-login{box-shadow:0 8px 18px rgba(8,12,20,.35)}
+  html:not([data-theme="light"]) .btn-auth{box-shadow:0 8px 18px rgba(8,12,20,.35)}
+  html:not([data-theme="light"]) .setpanel{box-shadow:0 18px 44px rgba(8,12,20,.55)}
+  html:not([data-theme="light"]) .sb-toast{box-shadow:0 8px 26px rgba(8,12,20,.5)}
+  html:not([data-theme="light"]) .sb-modal{box-shadow:0 18px 50px rgba(8,12,20,.6)}
+  html:not([data-theme="light"]) .sheet{box-shadow:0 -10px 40px rgba(8,12,20,.55)}
+  html:not([data-theme="light"]) .tb-printpanel{box-shadow:0 18px 44px rgba(8,12,20,.5)}
+  html:not([data-theme="light"]) .sw-k{box-shadow:0 1px 3px rgba(8,12,20,.45), 0 0 0 1px rgba(8,12,20,.35)}
+}
+
