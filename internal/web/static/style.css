@@ -4714,3 +4714,54 @@ html[data-theme="dark"] .sw-k{box-shadow:0 1px 3px rgba(8,12,20,.45), 0 0 0 1px 
   html:not([data-theme="light"]) .sw-k{box-shadow:0 1px 3px rgba(8,12,20,.45), 0 0 0 1px rgba(8,12,20,.35)}
 }
 
+
+/* =========================================================
+   移动端顶栏重构（2026-10-23 · append-only，不改动上方任何既有规则）
+   ---------------------------------------------------------
+   实测问题（375×667 视口，playwright 测量）：
+   ① 顶栏 flex-wrap 折成 3 行、总高 154px（桌面 56px）——第一行
+      仅剩品牌、右侧 233px 空置；who（头像+姓名+管理员标签）与设置
+      被挤到第三行，窄屏下姓名显示被裁切；
+   ② 顶栏 position:relative 随页面滚动消失，与「顶部固定栏」的
+      预期行为不符。
+   修法（仅 ≤640px；桌面布局与滚动行为零变化）：
+   ① 收拢为单行：导航胶囊改 44×44 纯图标方形钮（文字包在
+      .tnav-txt 里由本段隐藏，DOM 保留供读屏，title 供悬停提示）；
+      品牌只留 logo；who 只留头像；设置只留齿轮 —— 单行 60px；
+   ② position:fixed 常驻顶部，z-index 沿用第 2592 行既有的
+      var(--z-panel)（1000：高于正文、低于 dock/遮罩，本段不重复
+      声明 z-index，zindex_test 的「末次声明必须走令牌」不受影响）；
+   ③ body 补 padding-top:60px 占位。注意 body 本身是 flex 列 +
+      min-height:100svh 的粘性页脚结构，只加 padding 会把页脚顶出
+      视口 60px，故 min-height 同步扣除；登录/注册页（body.auth-page）
+      没有顶栏，用 :not(.auth-page) 排除，不占位；
+   ④ .unitname 粘性头下移一个顶栏高度，避免被固定顶栏盖住。
+   触屏热区全部 ≥44px，与 pointer:coarse 段既有标准一致。
+   ========================================================= */
+@media (max-width:640px){
+  /* 常驻固定 + 单行不换行（压过第 979 行 640px 块里的 flex-wrap:wrap） */
+  .topbar{position:fixed; top:0; left:0; right:0; flex-wrap:nowrap; padding:8px 12px}
+
+  /* 顶栏占位：60px = 8px padding + 44px 触屏热区 + 8px padding。
+     min-height 同步扣除，保住粘性页脚；auth 页无顶栏故排除。 */
+  body:not(.auth-page){padding-top:60px; min-height:calc(100svh - 60px)}
+
+  /* 品牌只留 logo：375px 下单行放不下品牌文字 + 5 个图标钮 */
+  .topbar .brandtxt{display:none}
+
+  /* 导航：图标方形钮（44px 触屏热区，与 pointer:coarse 段同值） */
+  .topbar nav{gap:4px; flex-wrap:nowrap}
+  .topbar nav .tnav{width:44px; min-height:44px; padding:0; justify-content:center; border-radius:12px}
+  .topbar nav .tnav .tnav-txt{display:none}
+  .topbar nav .tnav .tnav-ico{display:block}
+
+  /* who 只留头像；设置只留齿轮（文字与箭头收起，DOM 保留） */
+  .topbar nav .who{width:44px; min-height:44px; padding:0; justify-content:center}
+  .topbar nav .who .whotxt{display:none}
+  .topbar nav .setpick>summary{width:44px; min-height:44px; padding:0; justify-content:center}
+  .topbar nav .setpick .settxt,
+  .topbar nav .setpick .setchev{display:none}
+
+  /* 单元粘性头下移一个顶栏高度，避免被固定顶栏盖住 */
+  .unitname{top:60px}
+}
